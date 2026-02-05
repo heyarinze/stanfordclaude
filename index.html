@@ -43,10 +43,9 @@
       background: #8C1515;
       display: flex; align-items: center; justify-content: center;
     }
-    #stanfordSplash span {
-      font-family: 'Times New Roman', Georgia, serif;
-      font-size: 12rem; font-weight: 900; color: #fff; line-height: 1;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    #stanfordSplash img {
+      height: 40vh; max-height: 300px; width: auto;
+      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
     }
     @keyframes splashFadeOut {
       0% { opacity: 1; }
@@ -425,7 +424,7 @@
 <body>
 
 <!-- Splash Screen -->
-<div id="stanfordSplash"><span>S</span></div>
+<div id="stanfordSplash"><img src="Stanford.png" alt="Stanford"></div>
 
 <!-- Nav -->
 <nav>
@@ -531,7 +530,7 @@
   </div>
   <div class="leads-grid">
     <div class="lead-card">
-      <div class="lead-avatar"><img src="arinze.jpg" alt="Arinze Obiezue" onerror="this.style.display='none';this.parentElement.textContent='AO';"></div>
+      <div class="lead-avatar"><img src="arinze.jpeg" alt="Arinze Obiezue" onerror="this.style.display='none';this.parentElement.textContent='AO';"></div>
       <h3>Arinze Obiezue</h3>
       <div class="lead-role">Co-founder &amp; Grad Lead</div>
       <div class="lead-actions">
@@ -546,7 +545,7 @@
       </div>
     </div>
     <div class="lead-card">
-      <div class="lead-avatar"><img src="william.jpg" alt="William Liu" onerror="this.style.display='none';this.parentElement.textContent='WL';"></div>
+      <div class="lead-avatar"><img src="william.jpeg" alt="William Liu" onerror="this.style.display='none';this.parentElement.textContent='WL';"></div>
       <h3>William Liu</h3>
       <div class="lead-role">Co-founder &amp; Undergrad Co-Lead</div>
       <div class="lead-actions">
@@ -561,7 +560,7 @@
       </div>
     </div>
     <div class="lead-card">
-      <div class="lead-avatar"><img src="diego.jpg" alt="Diego Sanchez" onerror="this.style.display='none';this.parentElement.textContent='DS';"></div>
+      <div class="lead-avatar"><img src="diego.jpeg" alt="Diego Sanchez" onerror="this.style.display='none';this.parentElement.textContent='DS';"></div>
       <h3>Diego Sanchez</h3>
       <div class="lead-role">Undergrad Co-Lead</div>
       <div class="lead-actions">
@@ -582,7 +581,7 @@
 <div style="text-align:center; padding: 1.5rem 2rem 0;">
   <div class="powered-by">
     Powered by
-    <img src="anthropic-logo.png" alt="Anthropic" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+    <img src="Anthropic.png" alt="Anthropic" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
     <strong style="display:none;">Anthropic</strong>
   </div>
 </div>
@@ -924,9 +923,9 @@
   function showSplash(callback) {
     const splash = document.createElement('div');
     splash.id = 'stanfordSplash';
-    splash.innerHTML = '<span>S</span>';
+    splash.innerHTML = '<img src="Stanford.png" alt="Stanford">';
     splash.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#8C1515;display:flex;align-items:center;justify-content:center;';
-    splash.querySelector('span').style.cssText = "font-family:'Times New Roman',Georgia,serif;font-size:12rem;font-weight:900;color:#fff;line-height:1;text-shadow:0 4px 20px rgba(0,0,0,0.3);";
+    splash.querySelector('img').style.cssText = 'height:40vh;max-height:300px;width:auto;filter:drop-shadow(0 4px 20px rgba(0,0,0,0.3));';
     document.body.appendChild(splash);
     setTimeout(async () => {
       if (callback) await callback();
