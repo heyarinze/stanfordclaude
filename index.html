@@ -1113,6 +1113,8 @@
     uploadOverlay.classList.add('hidden');
     libUploadOverlay.classList.add('hidden');
     pendingAction = null;
+    editingProjectId = null;
+    editingLibraryId = null;
   }
 
   async function submitProject() {
@@ -1130,7 +1132,7 @@
       return;
     }
 
-    if (projects.length >= 5) {
+    if (!editingProjectId && projects.length >= 5) {
       uploadMsg.textContent = 'Showcase is full (5/5).';
       uploadMsg.className = 'msg msg-error show';
       return;
@@ -1144,13 +1146,20 @@
     }
 
     try {
-      await db.collection('projects').add({
-        author, email, name, link, desc, tools, howBuilt,
-        submittedBy: currentUser.email,
-        submittedByUid: currentUser.uid,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      uploadMsg.textContent = 'Project submitted!';
+      if (editingProjectId) {
+        await db.collection('projects').doc(editingProjectId).update({
+          author, email, name, link, desc, tools, howBuilt
+        });
+        uploadMsg.textContent = 'Project updated!';
+      } else {
+        await db.collection('projects').add({
+          author, email, name, link, desc, tools, howBuilt,
+          submittedBy: currentUser.email,
+          submittedByUid: currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        uploadMsg.textContent = 'Project submitted!';
+      }
       uploadMsg.className = 'msg msg-success show';
       setTimeout(async () => {
         closeModals();
@@ -1216,12 +1225,31 @@
       return;
     }
 
-    const item = {
-      author, title, url, why,
-      submittedBy: currentUser.email,
-      submittedByUid: currentUser.uid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    const item = { author, title, url, why };
+
+    if (!editingLibraryId) {
+      item.submittedBy = currentUser.email;
+      item.submittedByUid = currentUser.uid;
+      item.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    }
+
+    async function saveLibItem(item) {
+      try {
+        if (editingLibraryId) {
+          await db.collection('library').doc(editingLibraryId).update(item);
+          libUploadMsg.textContent = 'Library item updated!';
+        } else {
+          await db.collection('library').add(item);
+          libUploadMsg.textContent = 'Content added to the library!';
+        }
+        libUploadMsg.className = 'msg msg-success show';
+        setTimeout(async () => { closeModals(); await loadLibrary(); }, 600);
+      } catch (err) {
+        libUploadMsg.textContent = editingLibraryId ? 'Error updating. Please try again.' : 'Error saving. File may be too large (max ~1MB).';
+        libUploadMsg.className = 'msg msg-error show';
+        console.error(err);
+      }
+    }
 
     // Store file as data URL if provided (base64 in Firestore, max ~1MB per doc)
     if (pendingLibFile) {
@@ -1229,29 +1257,11 @@
       reader.onload = async function(e) {
         item.fileName = pendingLibFile.name;
         item.fileData = e.target.result;
-        try {
-          await db.collection('library').add(item);
-          libUploadMsg.textContent = 'Content added to the library!';
-          libUploadMsg.className = 'msg msg-success show';
-          setTimeout(async () => { closeModals(); await loadLibrary(); }, 600);
-        } catch (err) {
-          libUploadMsg.textContent = 'Error saving. File may be too large (max ~1MB).';
-          libUploadMsg.className = 'msg msg-error show';
-          console.error(err);
-        }
+        await saveLibItem(item);
       };
       reader.readAsDataURL(pendingLibFile);
     } else {
-      try {
-        await db.collection('library').add(item);
-        libUploadMsg.textContent = 'Content added to the library!';
-        libUploadMsg.className = 'msg msg-success show';
-        setTimeout(async () => { closeModals(); await loadLibrary(); }, 600);
-      } catch (err) {
-        libUploadMsg.textContent = 'Error saving content. Please try again.';
-        libUploadMsg.className = 'msg msg-error show';
-        console.error(err);
-      }
+      await saveLibItem(item);
     }
   }
 
@@ -1277,6 +1287,11 @@
       projects.forEach((p, i) => {
         const card = document.createElement('div');
         card.className = 'project-card';
+        const isOwner = currentUser && p.submittedByUid && p.submittedByUid === currentUser.uid;
+        const ownerActions = isOwner ? `<div style="display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+          <button onclick="editProject('${p.fireId}')" class="btn btn-secondary" style="padding:0.3rem 0.7rem; font-size:0.75rem;">Edit</button>
+          <button onclick="deleteProject('${p.fireId}')" class="btn btn-secondary" style="padding:0.3rem 0.7rem; font-size:0.75rem; color:#c0392b;">Delete</button>
+        </div>` : '';
         const authorLine = p.author ? `<div style="font-size:0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem;">by <strong style="color: var(--text-primary);">${escHtml(p.author)}</strong>${p.email ? ' &middot; <a href="mailto:' + escHtml(p.email) + '" style="color: var(--accent); text-decoration: none;">' + escHtml(p.email) + '</a>' : ''}</div>` : '';
         const howBuiltSection = p.howBuilt ? `<details style="margin-top: 0.75rem; font-size: 0.85rem;"><summary style="cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 0.4rem;">How I Built This</summary><p style="color: var(--text-secondary); line-height: 1.6; margin-top: 0.4rem;">${escHtml(p.howBuilt)}</p></details>` : '';
         card.innerHTML = `
@@ -1287,6 +1302,7 @@
           <div class="project-tools">${p.tools.map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')}</div>
           ${howBuiltSection}
           <a class="project-link" href="${escHtml(p.link)}" target="_blank" rel="noopener">View demo &rarr;</a>
+          ${ownerActions}
         `;
         grid.appendChild(card);
       });
@@ -1333,14 +1349,77 @@
           </a>`;
         }
 
+        const isLibOwner = currentUser && item.submittedByUid && item.submittedByUid === currentUser.uid;
+        const libOwnerActions = isLibOwner ? `<div style="display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+          <button onclick="editLibrary('${item.fireId}')" class="btn btn-secondary" style="padding:0.3rem 0.7rem; font-size:0.75rem;">Edit</button>
+          <button onclick="deleteLibrary('${item.fireId}')" class="btn btn-secondary" style="padding:0.3rem 0.7rem; font-size:0.75rem; color:#c0392b;">Delete</button>
+        </div>` : '';
+
         card.innerHTML = `
           <h3>${escHtml(item.title)}</h3>
           <div class="lib-author">Shared by ${escHtml(item.author)}</div>
           <p class="lib-why">${escHtml(item.why)}</p>
           <div class="lib-links">${linksHtml || '<span style="font-size:0.82rem; color: var(--text-secondary);">No links or files attached</span>'}</div>
+          ${libOwnerActions}
         `;
         grid.appendChild(card);
       });
+    }
+  }
+
+  // ========== EDIT & DELETE ==========
+  let editingProjectId = null;
+  let editingLibraryId = null;
+
+  function editProject(fireId) {
+    const p = projects.find(x => x.fireId === fireId);
+    if (!p) return;
+    editingProjectId = fireId;
+    uploadMsg.className = 'msg';
+    document.getElementById('projAuthor').value = p.author || '';
+    document.getElementById('projEmail').value = p.email || '';
+    document.getElementById('projName').value = p.name || '';
+    document.getElementById('projLink').value = p.link || '';
+    document.getElementById('projDesc').value = p.desc || '';
+    document.getElementById('projTools').value = (p.tools || []).join(', ');
+    document.getElementById('projHowBuilt').value = p.howBuilt || '';
+    uploadOverlay.classList.remove('hidden');
+  }
+
+  async function deleteProject(fireId) {
+    if (!confirm('Are you sure you want to delete this project? This cannot be undone.')) return;
+    try {
+      await db.collection('projects').doc(fireId).delete();
+      await loadProjects();
+    } catch (e) {
+      alert('Error deleting project. Please try again.');
+      console.error(e);
+    }
+  }
+
+  function editLibrary(fireId) {
+    const item = libraryItems.find(x => x.fireId === fireId);
+    if (!item) return;
+    editingLibraryId = fireId;
+    libUploadMsg.className = 'msg';
+    document.getElementById('libAuthor').value = item.author || '';
+    document.getElementById('libTitle').value = item.title || '';
+    document.getElementById('libUrl').value = item.url || '';
+    document.getElementById('libWhy').value = item.why || '';
+    document.getElementById('libFileInput').value = '';
+    document.getElementById('libFileName').textContent = item.fileName || '';
+    pendingLibFile = null;
+    libUploadOverlay.classList.remove('hidden');
+  }
+
+  async function deleteLibrary(fireId) {
+    if (!confirm('Are you sure you want to delete this library item? This cannot be undone.')) return;
+    try {
+      await db.collection('library').doc(fireId).delete();
+      await loadLibrary();
+    } catch (e) {
+      alert('Error deleting library item. Please try again.');
+      console.error(e);
     }
   }
 
