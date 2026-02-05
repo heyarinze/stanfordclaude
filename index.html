@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude @ Stanford</title>
+  <title>Claude@Stanford Builds</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
     :root {
@@ -37,667 +37,383 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    /* Splash */
+    #stanfordSplash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #8C1515;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #stanfordSplash span {
+      font-family: 'Times New Roman', Georgia, serif;
+      font-size: 12rem; font-weight: 900; color: #fff; line-height: 1;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    @keyframes splashFadeOut {
+      0% { opacity: 1; }
+      60% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .splash-fadeout {
+      animation: splashFadeOut 1s ease-out forwards;
+      pointer-events: none;
+    }
+
     /* Nav */
     nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
       background: rgba(250, 249, 247, 0.85);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
     }
     .nav-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 64px;
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
     }
     .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 1.05rem;
-      color: var(--text-primary);
-      text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 600; font-size: 1.05rem;
+      color: var(--text-primary); text-decoration: none;
     }
     .nav-brand svg { flex-shrink: 0; }
     .nav-links { display: flex; align-items: center; gap: 1.5rem; }
     .nav-links a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.15s;
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500; transition: color 0.15s;
     }
     .nav-links a:hover { color: var(--text-primary); }
     .nav-join-btn {
-      background: var(--accent);
-      color: #fff !important;
-      padding: 0.45rem 1rem;
-      border-radius: 8px;
-      font-weight: 600 !important;
-      font-size: 0.85rem !important;
+      background: var(--accent); color: #fff !important;
+      padding: 0.45rem 1rem; border-radius: 8px;
+      font-weight: 600 !important; font-size: 0.85rem !important;
       transition: background 0.15s !important;
     }
     .nav-join-btn:hover { background: var(--accent-hover); color: #fff !important; }
 
+    /* Hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px; z-index: 101;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text-primary); border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
     /* Hero */
     .hero {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 5rem 2rem 3rem;
-      text-align: center;
-    }
-    .hero-badge {
-      display: inline-block;
-      background: var(--tag-bg);
-      color: var(--tag-text);
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.35rem 0.9rem;
-      border-radius: 100px;
-      letter-spacing: 0.03em;
-      margin-bottom: 1.5rem;
+      max-width: 1200px; margin: 0 auto;
+      padding: 5rem 2rem 3rem; text-align: center;
     }
     .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.025em;
-      margin-bottom: 1rem;
+      font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 700;
+      line-height: 1.15; letter-spacing: -0.025em; margin-bottom: 1rem;
     }
     .hero p {
-      font-size: 1.15rem;
-      color: var(--text-secondary);
-      max-width: 560px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.7;
+      font-size: 1.15rem; color: var(--text-secondary);
+      max-width: 560px; margin: 0 auto 2rem; line-height: 1.7;
+    }
+
+    /* Global search */
+    .global-search {
+      max-width: 500px; margin: 1.5rem auto 0; position: relative;
+    }
+    .global-search input {
+      width: 100%; padding: 0.7rem 1rem 0.7rem 2.5rem;
+      border: 1px solid var(--border); border-radius: 10px;
+      font-size: 0.9rem; background: var(--surface);
+      font-family: var(--font-sans); color: var(--text-primary);
+      outline: none; transition: border-color 0.15s;
+    }
+    .global-search input:focus { border-color: var(--accent); }
+    .global-search svg {
+      position: absolute; left: 0.8rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-secondary);
     }
 
     /* Buttons */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.15s;
-      font-family: var(--font-sans);
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.5rem; border-radius: 8px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      border: none; transition: all 0.15s; font-family: var(--font-sans);
     }
-    .btn-primary {
-      background: var(--text-primary);
-      color: #fff;
-    }
+    .btn-primary { background: var(--text-primary); color: #fff; }
     .btn-primary:hover { background: #333; }
     .btn-secondary {
-      background: var(--surface);
-      color: var(--text-primary);
+      background: var(--surface); color: var(--text-primary);
       border: 1px solid var(--border);
     }
     .btn-secondary:hover { border-color: #ccc; }
-    .btn-accent {
-      background: var(--accent);
-      color: #fff;
-    }
+    .btn-accent { background: var(--accent); color: #fff; }
     .btn-accent:hover { background: var(--accent-hover); }
-
-    /* Counter */
-    .project-counter {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem 2rem;
-      text-align: center;
-    }
-    .counter-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      padding: 1rem 1.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .counter-fill-track {
-      flex: 1;
-      height: 6px;
-      background: var(--border);
-      border-radius: 100px;
-      overflow: hidden;
-    }
-    .counter-fill-bar {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 100px;
-      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .counter-text {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
 
     /* Sections */
     .section {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
+      max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;
     }
     .section-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 2rem;
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;
     }
     .section-header h2 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em;
     }
     .section-header span {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
+      font-size: 0.85rem; color: var(--text-secondary);
+    }
+    .section-header-right {
+      display: flex; align-items: center; gap: 1rem;
     }
 
-    /* Project Grid */
-    .project-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.25rem;
+    /* Filter bar */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;
     }
+    .filter-bar select, .filter-bar input {
+      padding: 0.5rem 0.8rem; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 0.85rem; font-family: var(--font-sans);
+      background: var(--bg); color: var(--text-primary); outline: none;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent); }
+
+    /* Carousel */
+    .carousel-container { position: relative; overflow: hidden; }
+    .carousel-track {
+      display: flex; gap: 1.25rem;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .carousel-track > * {
+      min-width: calc((100% - 5 * 1.25rem) / 6);
+      max-width: calc((100% - 5 * 1.25rem) / 6);
+      flex-shrink: 0;
+    }
+    .carousel-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 10; box-shadow: var(--card-shadow); transition: all 0.15s;
+      font-size: 1rem; color: var(--text-primary);
+    }
+    .carousel-arrow:hover { border-color: var(--accent); box-shadow: var(--card-shadow-hover); }
+    .carousel-arrow.prev { left: -4px; }
+    .carousel-arrow.next { right: -4px; }
+    .carousel-arrow:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+    /* Project / Build cards */
     .project-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: box-shadow 0.2s, border-color 0.2s;
-      position: relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      transition: box-shadow 0.2s, border-color 0.2s; position: relative;
+      animation: fadeUp 0.4s ease-out both;
     }
-    .project-card:hover {
-      box-shadow: var(--card-shadow-hover);
-      border-color: #d0cdc8;
-    }
-    .project-card h3 {
-      font-size: 1rem;
-      font-weight: 650;
-      margin-bottom: 0.5rem;
-    }
-    .project-card h3 a {
-      color: var(--text-primary);
-      text-decoration: none;
-    }
+    .project-card:hover { box-shadow: var(--card-shadow-hover); border-color: #d0cdc8; }
+    .project-card h3 { font-size: 1rem; font-weight: 650; margin-bottom: 0.5rem; }
+    .project-card h3 a { color: var(--text-primary); text-decoration: none; }
     .project-card h3 a:hover { text-decoration: underline; }
-    .project-desc {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-    .project-tools {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
-    .tool-tag {
-      background: var(--tag-bg);
-      color: var(--tag-text);
-      font-size: 0.78rem;
-      font-weight: 500;
-      padding: 0.25rem 0.65rem;
-      border-radius: 6px;
-    }
-    .project-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-decoration: none;
-    }
+    .project-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.75rem; }
+    .project-tools { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .tool-tag { background: var(--tag-bg); color: var(--tag-text); font-size: 0.78rem; font-weight: 500; padding: 0.25rem 0.65rem; border-radius: 6px; }
+    .category-tag { background: #EDE9FE; color: #5B21B6; font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 5px; }
+    .project-link { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--accent); text-decoration: none; }
     .project-link:hover { text-decoration: underline; }
-    .project-number {
-      position: absolute;
-      top: 1rem;
-      right: 1.25rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--border);
-      font-family: var(--font-mono);
-    }
+    .project-number { position: absolute; top: 1rem; right: 1.25rem; font-size: 0.75rem; font-weight: 700; color: var(--border); font-family: var(--font-mono); }
 
     /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--text-secondary);
-    }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
     .empty-state p { font-size: 0.95rem; }
 
     /* Modal / Auth overlay */
     .overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 2rem 1rem;
-      overflow-y: auto;
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 2rem 1rem; overflow-y: auto;
     }
     .overlay.hidden { display: none; }
     .modal {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 2.5rem;
-      max-width: 440px;
-      width: 100%;
+      background: var(--surface); border-radius: 16px;
+      padding: 2.5rem; max-width: 440px; width: 100%;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-      position: relative;
-      margin: auto 0;
-      flex-shrink: 0;
+      position: relative; margin: auto 0; flex-shrink: 0;
     }
-    .modal h2 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    .modal p {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
+    .modal h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .modal p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6; }
     .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-size: 1.2rem;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-secondary); font-size: 1.2rem;
+      width: 32px; height: 32px; display: flex;
+      align-items: center; justify-content: center; border-radius: 8px;
     }
     .modal-close:hover { background: var(--tag-bg); }
 
     /* Form fields */
-    .form-group {
-      margin-bottom: 1.25rem;
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-primary); }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 0.9rem; font-family: var(--font-sans);
+      color: var(--text-primary); background: var(--bg);
+      transition: border-color 0.15s; outline: none;
     }
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-      color: var(--text-primary);
-    }
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.7rem 0.9rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-family: var(--font-sans);
-      color: var(--text-primary);
-      background: var(--bg);
-      transition: border-color 0.15s;
-      outline: none;
-    }
-    .form-group input:focus,
-    .form-group textarea:focus {
-      border-color: var(--border-focus);
-    }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--border-focus); }
+    .form-group input[readonly] { background: #f0eeeb; cursor: not-allowed; color: var(--text-secondary); }
     .form-group textarea { resize: vertical; min-height: 80px; }
-    .form-hint {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      margin-top: 0.3rem;
+    .form-hint { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem; }
+
+    /* Multiselect */
+    .multiselect { position: relative; }
+    .multiselect-toggle {
+      width: 100%; padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 0.9rem; font-family: var(--font-sans);
+      color: var(--text-primary); background: var(--bg);
+      cursor: pointer; text-align: left;
+      display: flex; justify-content: space-between; align-items: center;
     }
+    .multiselect-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; box-shadow: var(--card-shadow-hover);
+      z-index: 50; display: none; max-height: 200px;
+      overflow-y: auto; margin-top: 4px;
+    }
+    .multiselect-dropdown.open { display: block; }
+    .multiselect-option {
+      padding: 0.5rem 0.9rem; cursor: pointer; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .multiselect-option:hover { background: var(--tag-bg); }
+    .multiselect-option input { margin: 0; }
 
     /* File upload */
     .file-upload-area {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 1.25rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      background: var(--bg);
+      border: 2px dashed var(--border); border-radius: 8px;
+      padding: 1.25rem; text-align: center; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s; background: var(--bg);
     }
-    .file-upload-area:hover {
-      border-color: var(--accent);
-      background: #FFF9F0;
-    }
-    .file-upload-area p {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin: 0;
-    }
-    .file-upload-area .upload-icon {
-      margin-bottom: 0.4rem;
-      color: var(--accent);
-    }
-    .file-name-display {
-      font-size: 0.8rem;
-      color: var(--accent);
-      font-weight: 600;
-      margin-top: 0.4rem;
-    }
+    .file-upload-area:hover { border-color: var(--accent); background: #FFF9F0; }
+    .file-upload-area p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+    .file-upload-area .upload-icon { margin-bottom: 0.4rem; color: var(--accent); }
+    .file-name-display { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-top: 0.4rem; }
 
     /* Messages */
-    .msg {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-      display: none;
-    }
+    .msg { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; margin-bottom: 1rem; display: none; }
     .msg.show { display: block; }
     .msg-error { background: var(--error-bg); color: var(--error); }
     .msg-success { background: var(--success-bg); color: var(--success); }
 
     /* Campus Leads */
-    .leads-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.25rem;
-    }
-    .lead-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem;
-      text-align: center;
-      transition: box-shadow 0.2s, border-color 0.2s;
-    }
-    .lead-card:hover {
-      box-shadow: var(--card-shadow-hover);
-      border-color: #d0cdc8;
-    }
+    .leads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .lead-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; text-align: center; transition: box-shadow 0.2s, border-color 0.2s; animation: fadeUp 0.4s ease-out both; }
+    .lead-card:hover { box-shadow: var(--card-shadow-hover); border-color: #d0cdc8; }
+    .lead-card:nth-child(2) { animation-delay: 0.05s; }
+    .lead-card:nth-child(3) { animation-delay: 0.1s; }
     .lead-avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
+      width: 72px; height: 72px; border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), #F59E0B);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700; color: #fff;
+      overflow: hidden;
     }
-    .lead-card h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-    .lead-role {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-      margin-bottom: 1rem;
-    }
-    .lead-actions {
-      display: flex;
-      justify-content: center;
-      gap: 0.6rem;
-    }
-    .lead-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.45rem 0.9rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.15s;
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      background: var(--surface);
-    }
-    .lead-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .lead-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .lead-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .lead-role { font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 1rem; }
+    .lead-actions { display: flex; justify-content: center; gap: 0.6rem; }
+    .lead-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: all 0.15s; border: 1px solid var(--border); color: var(--text-primary); background: var(--surface); }
+    .lead-btn:hover { border-color: var(--accent); color: var(--accent); }
     .lead-btn svg { flex-shrink: 0; }
 
     /* Library */
-    .library-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.25rem;
-    }
     .library-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
       transition: box-shadow 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease-out both;
     }
-    .library-card:hover {
-      box-shadow: var(--card-shadow-hover);
-      border-color: #d0cdc8;
-    }
-    .library-card h3 {
-      font-size: 1rem;
-      font-weight: 650;
-      margin-bottom: 0.35rem;
-    }
-    .library-card .lib-author {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
-    }
-    .library-card .lib-why {
-      font-size: 0.88rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 0.75rem;
-    }
-    .library-card .lib-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .lib-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-decoration: none;
-    }
+    .library-card:hover { box-shadow: var(--card-shadow-hover); border-color: #d0cdc8; }
+    .library-card h3 { font-size: 1rem; font-weight: 650; margin-bottom: 0.35rem; }
+    .library-card .lib-author { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+    .library-card .lib-why { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.75rem; }
+    .library-card .lib-links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .lib-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; font-weight: 600; color: var(--accent); text-decoration: none; }
     .lib-link:hover { text-decoration: underline; }
+    .video-thumb { margin-bottom: 0.75rem; border-radius: 8px; overflow: hidden; background: #000; }
+    .video-thumb video { width: 100%; max-height: 180px; object-fit: cover; display: block; }
 
     /* Tool Map */
-    .toolmap-section {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 3rem 2rem 5rem;
-    }
-    .toolmap-locked {
-      text-align: center;
-      padding: 3rem 2rem;
-      background: var(--surface);
-      border: 1px dashed var(--border);
-      border-radius: 16px;
-    }
-    .toolmap-locked h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .toolmap-locked p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-    .toolmap-locked .lock-icon {
-      font-size: 2rem;
-      margin-bottom: 0.75rem;
-      opacity: 0.5;
-    }
-
-    /* Chart container */
-    .chart-container {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-    }
-    .chart-title {
-      font-size: 1rem;
-      font-weight: 650;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Interactive bars */
+    .toolmap-section { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+    .toolmap-locked { text-align: center; padding: 3rem 2rem; background: var(--surface); border: 1px dashed var(--border); border-radius: 16px; }
+    .toolmap-locked h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .toolmap-locked p { color: var(--text-secondary); font-size: 0.9rem; }
+    .toolmap-locked .lock-icon { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.5; }
+    .chart-container { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .chart-title { font-size: 1rem; font-weight: 650; margin-bottom: 1.5rem; }
     .bar-chart { display: flex; flex-direction: column; gap: 0.75rem; }
-    .bar-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      cursor: default;
-      padding: 0.3rem 0;
-    }
-    .bar-label {
-      min-width: 140px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      text-align: right;
-      color: var(--text-primary);
-    }
-    .bar-track {
-      flex: 1;
-      height: 32px;
-      background: var(--tag-bg);
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 8px;
-      background: linear-gradient(90deg, var(--accent), #F59E0B);
-      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-      min-width: 2px;
-    }
-    .bar-count {
-      min-width: 36px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      font-family: var(--font-mono);
-    }
-    .bar-row:hover .bar-fill {
-      filter: brightness(1.1);
-    }
-    .bar-row:hover .bar-label {
-      color: var(--accent);
-    }
+    .bar-row { display: flex; align-items: center; gap: 1rem; cursor: default; padding: 0.3rem 0; }
+    .bar-label { min-width: 140px; font-size: 0.88rem; font-weight: 600; text-align: right; color: var(--text-primary); }
+    .bar-track { flex: 1; height: 32px; background: var(--tag-bg); border-radius: 8px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--accent), #F59E0B); transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); min-width: 2px; }
+    .bar-count { min-width: 36px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font-mono); }
+    .bar-row:hover .bar-fill { filter: brightness(1.1); }
+    .bar-row:hover .bar-label { color: var(--accent); }
+    .graph-wrapper { margin-top: 2rem; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; }
+    .graph-canvas { width: 100%; height: 400px; display: block; }
+    .graph-tooltip { position: absolute; background: var(--text-primary); color: #fff; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
 
-    /* Node graph */
-    .graph-wrapper {
-      margin-top: 2rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
+    /* Powered by */
+    .powered-by {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.75rem; font-size: 1rem; color: var(--text-secondary);
+      font-weight: 500; padding: 2rem;
     }
-    .graph-canvas {
-      width: 100%;
-      height: 400px;
-      display: block;
-    }
-    .graph-tooltip {
-      position: absolute;
-      background: var(--text-primary);
-      color: #fff;
-      padding: 0.4rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s;
-      white-space: nowrap;
-    }
+    .powered-by img { height: 22px; width: auto; }
+    .powered-by strong { font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; font-size: 1.1rem; }
 
     /* Divider */
-    .divider {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-    .divider hr {
-      border: none;
-      border-top: 1px solid var(--border);
-    }
+    .divider { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .divider hr { border: none; border-top: 1px solid var(--border); }
 
     /* Footer */
-    footer {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-      text-align: center;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-    }
+    footer { max-width: 1200px; margin: 0 auto; padding: 2rem; text-align: center; font-size: 0.82rem; color: var(--text-secondary); }
 
     /* Animations */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .animate-in {
-      animation: fadeUp 0.4s ease-out both;
-    }
-    .project-card { animation: fadeUp 0.4s ease-out both; }
-    .project-card:nth-child(2) { animation-delay: 0.05s; }
-    .project-card:nth-child(3) { animation-delay: 0.1s; }
-    .project-card:nth-child(4) { animation-delay: 0.15s; }
-    .project-card:nth-child(5) { animation-delay: 0.2s; }
-    .lead-card { animation: fadeUp 0.4s ease-out both; }
-    .lead-card:nth-child(2) { animation-delay: 0.05s; }
-    .lead-card:nth-child(3) { animation-delay: 0.1s; }
-    .library-card { animation: fadeUp 0.4s ease-out both; }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .project-grid { grid-template-columns: 1fr; }
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none; position: absolute; top: 64px; left: 0; right: 0;
+        background: rgba(250, 249, 247, 0.98); backdrop-filter: blur(12px);
+        flex-direction: column; padding: 1rem 2rem;
+        border-bottom: 1px solid var(--border); gap: 0.75rem;
+      }
+      .nav-links.open { display: flex; }
+      .nav-join-btn { text-align: center; }
+      #userStatus { margin-left: 0 !important; }
       .leads-grid { grid-template-columns: 1fr; }
-      .library-grid { grid-template-columns: 1fr; }
       .hero { padding: 3rem 1.25rem 2rem; }
       .section, .toolmap-section { padding-left: 1.25rem; padding-right: 1.25rem; }
       .bar-label { min-width: 100px; font-size: 0.8rem; }
-      .nav-links { gap: 0.75rem; }
-      .nav-links a { font-size: 0.8rem; }
-      .nav-join-btn { padding: 0.4rem 0.7rem; font-size: 0.78rem !important; }
+      .carousel-track > * {
+        min-width: 100% !important; max-width: 100% !important;
+      }
+      .carousel-arrow.prev { left: 4px; }
+      .carousel-arrow.next { right: 4px; }
+      .filter-bar { flex-direction: column; }
+      .filter-bar select, .filter-bar input { width: 100%; }
     }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -708,19 +424,25 @@
 </head>
 <body>
 
+<!-- Splash Screen -->
+<div id="stanfordSplash"><span>S</span></div>
+
 <!-- Nav -->
 <nav>
   <div class="nav-inner">
-    <a href="#" class="nav-brand">
+    <a href="/" class="nav-brand" onclick="window.location.href='/'; return false;">
       <img src="logo.png" alt="Claude@Stanford" style="height: 40px; width: auto; border-radius: 6px;">
       Claude@Stanford
     </a>
-    <div class="nav-links">
-      <a href="#projects">Projects</a>
-      <a href="#leads">Campus Leads</a>
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileNav()" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="#builds">Builds</a>
       <a href="#library">Library</a>
+      <a href="#leads">Campus Leads</a>
       <a href="#toolmap">Tool Map</a>
-      <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join the Club</a>
+      <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join</a>
     </div>
     <div id="userStatus" style="display:none; align-items:center; gap:0.6rem; margin-left:0.5rem;">
       <span id="userEmail" style="font-size:0.78rem; color:var(--text-secondary); font-weight:500; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
@@ -731,37 +453,73 @@
 
 <!-- Hero -->
 <section class="hero">
-  <div style="display: inline-block; background: #FDF6E8; color: #7A5A1A; font-size: 0.82rem; font-weight: 700; padding: 0.5rem 1.3rem; border-radius: 8px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(180,140,40,0.12); border: 1px solid #F0DDB0;">✨ THE WORLD'S LARGEST CLAUDE BUILDER CLUB ✨</div>
-  <h1>What the Stanford community<br>is building with Claude</h1>
-  <p>A showcase of projects built by Claude@Stanford members using Claude Code and other Anthropic tools.</p>
+  <div style="display: inline-block; background: #FDF6E8; color: #7A5A1A; font-size: 0.82rem; font-weight: 700; padding: 0.5rem 1.3rem; border-radius: 8px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(180,140,40,0.12); border: 1px solid #F0DDB0;">&#9874;&#65039; AMERICA'S LARGEST CLAUDE BUILDER CLUB &#129302;</div>
+  <h1>What Stanford is<br>building with Claude</h1>
+  <p>A showcase of projects built by Claude@Stanford members using Claude Code alongside other AI tools</p>
   <button class="btn btn-primary" id="uploadBtn" onclick="startUpload()">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    Submit a project
+    Submit your own Build
   </button>
+  <div class="global-search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="globalSearch" placeholder="Search builds and library..." oninput="handleGlobalSearch(this.value)">
+  </div>
 </section>
 
-<!-- Counter -->
-<div class="project-counter">
-  <div class="counter-bar">
-    <span class="counter-text"><span id="countNum">0</span> / 5 projects</span>
-    <div class="counter-fill-track">
-      <div class="counter-fill-bar" id="counterFill" style="width: 0%"></div>
-    </div>
-    <span class="counter-text" id="counterLabel">Tool map locked</span>
-  </div>
-</div>
-
-<!-- Projects Section -->
+<!-- Builds Section -->
 <div class="divider"><hr></div>
-<section class="section" id="projects">
+<section class="section" id="builds">
   <div class="section-header">
-    <h2>Projects</h2>
-    <span id="projectCountLabel">0 submitted</span>
-  </div>
-  <div id="projectGrid" class="project-grid">
-    <div class="empty-state" id="emptyState">
-      <p>No projects yet. Be the first to share what you've built.</p>
+    <h2>Builds</h2>
+    <div class="section-header-right">
+      <span id="projectCountLabel">0 builds</span>
+      <button class="btn btn-secondary" onclick="startUpload()" id="addBuildBtn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Your Build
+      </button>
     </div>
+  </div>
+  <div class="filter-bar">
+    <select id="buildsCategoryFilter" onchange="applyFilters('builds')">
+      <option value="">All categories</option>
+    </select>
+    <input type="text" id="buildsAuthorFilter" placeholder="Search by author..." oninput="applyFilters('builds')">
+  </div>
+  <div class="carousel-container" id="buildsCarousel">
+    <button class="carousel-arrow prev" onclick="carouselPrev('builds')" id="buildsPrev" disabled>&#8592;</button>
+    <div class="carousel-track" id="projectGrid"></div>
+    <button class="carousel-arrow next" onclick="carouselNext('builds')" id="buildsNext" disabled>&#8594;</button>
+  </div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <p>No builds yet. Be the first to share what you've built.</p>
+  </div>
+</section>
+
+<!-- Claude Library Section -->
+<div class="divider"><hr></div>
+<section class="section" id="library">
+  <div class="section-header">
+    <h2>Claude Library</h2>
+    <div class="section-header-right">
+      <button class="btn btn-secondary" onclick="startLibraryUpload()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Content
+      </button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <select id="libraryCategoryFilter" onchange="applyFilters('library')">
+      <option value="">All categories</option>
+    </select>
+    <input type="text" id="libraryAuthorFilter" placeholder="Search by author..." oninput="applyFilters('library')">
+  </div>
+  <div class="carousel-container" id="libraryCarousel">
+    <button class="carousel-arrow prev" onclick="carouselPrev('library')" id="libraryPrev" disabled>&#8592;</button>
+    <div class="carousel-track" id="libraryGrid"></div>
+    <button class="carousel-arrow next" onclick="carouselNext('library')" id="libraryNext" disabled>&#8594;</button>
+  </div>
+  <div class="empty-state" id="libraryEmpty" style="display:none;">
+    <p>No learning content yet. Share resources to help others learn Claude.</p>
   </div>
 </section>
 
@@ -772,9 +530,8 @@
     <h2>Campus Leads</h2>
   </div>
   <div class="leads-grid">
-    <!-- Arinze -->
     <div class="lead-card">
-      <div class="lead-avatar">AO</div>
+      <div class="lead-avatar"><img src="arinze.jpg" alt="Arinze Obiezue" onerror="this.style.display='none';this.parentElement.textContent='AO';"></div>
       <h3>Arinze Obiezue</h3>
       <div class="lead-role">Co-founder &amp; Grad Lead</div>
       <div class="lead-actions">
@@ -788,9 +545,8 @@
         </a>
       </div>
     </div>
-    <!-- William -->
     <div class="lead-card">
-      <div class="lead-avatar">WL</div>
+      <div class="lead-avatar"><img src="william.jpg" alt="William Liu" onerror="this.style.display='none';this.parentElement.textContent='WL';"></div>
       <h3>William Liu</h3>
       <div class="lead-role">Co-founder &amp; Undergrad Co-Lead</div>
       <div class="lead-actions">
@@ -804,9 +560,8 @@
         </a>
       </div>
     </div>
-    <!-- Diego -->
     <div class="lead-card">
-      <div class="lead-avatar">DS</div>
+      <div class="lead-avatar"><img src="diego.jpg" alt="Diego Sanchez" onerror="this.style.display='none';this.parentElement.textContent='DS';"></div>
       <h3>Diego Sanchez</h3>
       <div class="lead-role">Undergrad Co-Lead</div>
       <div class="lead-actions">
@@ -823,39 +578,29 @@
   </div>
 </section>
 
-<!-- Claude Library Section -->
-<div class="divider"><hr></div>
-<section class="section" id="library">
-  <div class="section-header">
-    <h2>Claude Library</h2>
-    <button class="btn btn-secondary" onclick="startLibraryUpload()">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      Add content
-    </button>
+<!-- Powered by Anthropic -->
+<div style="text-align:center; padding: 1.5rem 2rem 0;">
+  <div class="powered-by">
+    Powered by
+    <img src="anthropic-logo.png" alt="Anthropic" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+    <strong style="display:none;">Anthropic</strong>
   </div>
-  <div id="libraryGrid" class="library-grid">
-    <div class="empty-state" id="libraryEmpty">
-      <p>No learning content yet. Share resources to help others learn Claude.</p>
-    </div>
-  </div>
-</section>
+</div>
 
 <!-- Tool Map Section -->
 <div class="divider"><hr></div>
 <section class="toolmap-section" id="toolmap">
   <div class="section-header">
     <h2>Tool Map</h2>
-    <span id="toolmapStatus">Unlocks after 5 projects</span>
+    <span id="toolmapStatus">Unlocks after 5 builds</span>
   </div>
-
   <div id="toolmapLocked" class="toolmap-locked">
     <div class="lock-icon">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
     </div>
     <h3>Tool Map is locked</h3>
-    <p>Submit <span id="remainingCount">5</span> more project(s) to reveal the interactive tool usage graph.</p>
+    <p>Submit <span id="remainingCount">5</span> more build(s) to reveal the interactive tool usage graph.</p>
   </div>
-
   <div id="toolmapRevealed" style="display:none;" class="chart-container animate-in">
     <div class="chart-title">AI Tools Used in Development</div>
     <div id="barChart" class="bar-chart"></div>
@@ -868,7 +613,7 @@
 
 <!-- Footer -->
 <footer>
-  Claude@Stanford &bull; Built with &#10084;&#65039; by Claude Code and <a href="https://www.linkedin.com/in/arinzeobiezue" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none; font-weight: 600;">Arinze Obiezue</a>
+  Built with &#10084;&#65039; by Claude Code and <a href="https://www.linkedin.com/in/arinzeobiezue" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none; font-weight: 600;">Arinze Obiezue</a> for Claude@Stanford
 </footer>
 
 <!-- Google Sign-In Modal -->
@@ -891,16 +636,16 @@
   </div>
 </div>
 
-<!-- Upload Modal (projects) -->
+<!-- Upload Modal (builds) -->
 <div class="overlay hidden" id="uploadOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModals()">&times;</button>
-    <h2>Submit your project</h2>
+    <h2>Submit your build</h2>
     <p>Share what you've built with the group.</p>
     <div id="uploadMsg" class="msg"></div>
     <div class="form-group">
       <label for="projAuthor">Your name</label>
-      <input type="text" id="projAuthor" placeholder="e.g. Jane Doe">
+      <input type="text" id="projAuthor" placeholder="e.g. Jane Doe" readonly>
     </div>
     <div class="form-group">
       <label for="projEmail">Email <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
@@ -925,10 +670,20 @@
       <div class="form-hint">Comma-separated list of AI tools used for development.</div>
     </div>
     <div class="form-group">
-      <label for="projHowBuilt">How I Built This <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
-      <textarea id="projHowBuilt" placeholder="Walk us through your build process — which tools did what, key decisions, challenges, etc." style="min-height: 100px;"></textarea>
+      <label>Categories</label>
+      <div class="multiselect" id="projCategoriesSelect">
+        <button type="button" class="multiselect-toggle" onclick="toggleMultiselect('projCategories')">
+          <span id="projCategoriesLabel">Select categories...</span>
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="multiselect-dropdown" id="projCategoriesDropdown"></div>
+      </div>
     </div>
-    <button class="btn btn-accent" style="width:100%" onclick="submitProject()">Submit project</button>
+    <div class="form-group">
+      <label for="projHowBuilt">How I Built This <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
+      <textarea id="projHowBuilt" placeholder="Walk us through your build process..." style="min-height: 100px;"></textarea>
+    </div>
+    <button class="btn btn-accent" style="width:100%" onclick="submitProject()">Ship</button>
   </div>
 </div>
 
@@ -936,16 +691,26 @@
 <div class="overlay hidden" id="libUploadOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModals()">&times;</button>
-    <h2>Add to the Claude Library</h2>
+    <h2>Add to the Claude@Stanford Library</h2>
     <p>Share a resource, guide, or tutorial that helps others learn Claude.</p>
     <div id="libUploadMsg" class="msg"></div>
     <div class="form-group">
       <label for="libAuthor">Your name</label>
-      <input type="text" id="libAuthor" placeholder="e.g. Jane Doe">
+      <input type="text" id="libAuthor" placeholder="e.g. Jane Doe" readonly>
     </div>
     <div class="form-group">
       <label for="libTitle">Title</label>
       <input type="text" id="libTitle" placeholder="e.g. Getting Started with Claude Code">
+    </div>
+    <div class="form-group">
+      <label>Categories</label>
+      <div class="multiselect" id="libCategoriesSelect">
+        <button type="button" class="multiselect-toggle" onclick="toggleMultiselect('libCategories')">
+          <span id="libCategoriesLabel">Select categories...</span>
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="multiselect-dropdown" id="libCategoriesDropdown"></div>
+      </div>
     </div>
     <div class="form-group">
       <label for="libUrl">URL <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
@@ -962,12 +727,13 @@
       </div>
       <input type="file" id="libFileInput" style="display:none" onchange="handleFileSelect(this)">
       <div id="libFileName" class="file-name-display"></div>
+      <div class="form-hint">You must provide either a URL or upload a file (or both).</div>
     </div>
     <div class="form-group">
       <label for="libWhy">Why should people check this out?</label>
       <textarea id="libWhy" placeholder="What makes this resource valuable? Who is it for?"></textarea>
     </div>
-    <button class="btn btn-accent" style="width:100%" onclick="submitLibrary()">Add to library</button>
+    <button class="btn btn-accent" style="width:100%" onclick="submitLibrary()">Share</button>
   </div>
 </div>
 
@@ -989,18 +755,87 @@
   const googleProvider = new firebase.auth.GoogleAuthProvider();
   googleProvider.setCustomParameters({ hd: 'stanford.edu' });
   let currentUser = null;
-  let pendingAction = null; // 'project' or 'library'
+  let pendingAction = null;
+
+  // ========== CATEGORIES ==========
+  const PROJECT_CATEGORIES = ['Planning', 'Learning', 'Fun', 'Writing', 'Reasoning', 'Shopping', 'Agent', 'Surveillance', 'Companionship'];
+  const LIBRARY_CATEGORIES = ['Research', 'How-To', 'Fix-It', 'Hacks', 'Essays'];
+  let selectedProjCategories = [];
+  let selectedLibCategories = [];
 
   // ========== STATE ==========
   let projects = [];
   let libraryItems = [];
   let pendingLibFile = null;
+  let editingProjectId = null;
+  let editingLibraryId = null;
+  let globalSearchTerm = '';
+  let buildsPage = 0;
+  let libraryPage = 0;
 
   // ========== DOM REFS ==========
   const uploadOverlay = document.getElementById('uploadOverlay');
   const libUploadOverlay = document.getElementById('libUploadOverlay');
   const uploadMsg = document.getElementById('uploadMsg');
   const libUploadMsg = document.getElementById('libUploadMsg');
+
+  // ========== HELPERS ==========
+  function getItemsPerPage() {
+    return window.innerWidth <= 768 ? 1 : 6;
+  }
+
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ========== MULTISELECT ==========
+  function renderMultiselectOptions(prefix, categories, selectedArr) {
+    const container = document.getElementById(prefix + 'Dropdown');
+    container.innerHTML = categories.map(cat => `
+      <label class="multiselect-option">
+        <input type="checkbox" value="${cat}" ${selectedArr.includes(cat) ? 'checked' : ''} onchange="handleCategoryChange(this, '${prefix}')">
+        ${cat}
+      </label>
+    `).join('');
+  }
+
+  function toggleMultiselect(prefix) {
+    const dropdown = document.getElementById(prefix + 'Dropdown');
+    dropdown.classList.toggle('open');
+  }
+
+  function handleCategoryChange(checkbox, prefix) {
+    const isProject = prefix === 'projCategories';
+    const arr = isProject ? selectedProjCategories : selectedLibCategories;
+    if (checkbox.checked) { arr.push(checkbox.value); }
+    else { arr.splice(arr.indexOf(checkbox.value), 1); }
+    const labelId = isProject ? 'projCategoriesLabel' : 'libCategoriesLabel';
+    document.getElementById(labelId).textContent = arr.length ? arr.join(', ') : 'Select categories...';
+  }
+
+  // Close multiselect on outside click
+  document.addEventListener('click', e => {
+    document.querySelectorAll('.multiselect-dropdown.open').forEach(d => {
+      if (!d.parentElement.contains(e.target)) d.classList.remove('open');
+    });
+  });
+
+  // ========== POPULATE FILTER DROPDOWNS ==========
+  function populateFilterDropdowns() {
+    const bf = document.getElementById('buildsCategoryFilter');
+    bf.innerHTML = '<option value="">All categories</option>' +
+      PROJECT_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+    const lf = document.getElementById('libraryCategoryFilter');
+    lf.innerHTML = '<option value="">All categories</option>' +
+      LIBRARY_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+  populateFilterDropdowns();
+
+  // Init multiselect dropdowns
+  renderMultiselectOptions('projCategories', PROJECT_CATEGORIES, []);
+  renderMultiselectOptions('libCategories', LIBRARY_CATEGORIES, []);
 
   // ========== LOAD DATA FROM FIRESTORE ==========
   async function loadProjects() {
@@ -1019,7 +854,6 @@
     renderLibrary();
   }
 
-  // Init
   loadProjects();
   loadLibrary();
 
@@ -1053,6 +887,9 @@
       userStatus.style.display = 'none';
       userEmail.textContent = '';
     }
+    // Re-render to show/hide owner actions
+    renderProjects();
+    renderLibrary();
   }
 
   async function signInWithGoogle() {
@@ -1075,17 +912,85 @@
   }
 
   async function handleSignOut() {
-    await auth.signOut();
-    currentUser = null;
-    updateAuthUI(false);
+    showSplash(async () => {
+      await auth.signOut();
+      currentUser = null;
+      updateAuthUI(false);
+      window.location.reload();
+    });
+  }
+
+  // ========== SPLASH SCREEN ==========
+  function showSplash(callback) {
+    const splash = document.createElement('div');
+    splash.id = 'stanfordSplash';
+    splash.innerHTML = '<span>S</span>';
+    splash.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#8C1515;display:flex;align-items:center;justify-content:center;';
+    splash.querySelector('span').style.cssText = "font-family:'Times New Roman',Georgia,serif;font-size:12rem;font-weight:900;color:#fff;line-height:1;text-shadow:0 4px 20px rgba(0,0,0,0.3);";
+    document.body.appendChild(splash);
+    setTimeout(async () => {
+      if (callback) await callback();
+    }, 800);
+  }
+
+  // Page load splash
+  window.addEventListener('load', () => {
+    const splash = document.getElementById('stanfordSplash');
+    if (splash) {
+      splash.classList.add('splash-fadeout');
+      splash.addEventListener('animationend', () => splash.remove());
+    }
+  });
+
+  // ========== GLOBAL SEARCH ==========
+  function handleGlobalSearch(term) {
+    globalSearchTerm = term.toLowerCase().trim();
+    buildsPage = 0;
+    libraryPage = 0;
+    renderProjects();
+    renderLibrary();
+  }
+
+  // ========== FILTER ==========
+  function applyFilters(type) {
+    if (type === 'builds') { buildsPage = 0; renderProjects(); }
+    else { libraryPage = 0; renderLibrary(); }
+  }
+
+  // ========== CAROUSEL ==========
+  function updateCarousel(type) {
+    const page = type === 'builds' ? buildsPage : libraryPage;
+    const track = document.getElementById(type === 'builds' ? 'projectGrid' : 'libraryGrid');
+    const prevBtn = document.getElementById(type === 'builds' ? 'buildsPrev' : 'libraryPrev');
+    const nextBtn = document.getElementById(type === 'builds' ? 'buildsNext' : 'libraryNext');
+    const itemCount = track.children.length;
+    const perPage = getItemsPerPage();
+    const totalPages = Math.max(1, Math.ceil(itemCount / perPage));
+
+    prevBtn.disabled = page === 0;
+    nextBtn.disabled = page >= totalPages - 1;
+
+    const pct = page * (100 + (1.25 / (perPage > 1 ? perPage : 1)) * 100);
+    track.style.transform = `translateX(-${page * 100}%)`;
+  }
+
+  function carouselPrev(type) {
+    if (type === 'builds') { buildsPage = Math.max(0, buildsPage - 1); }
+    else { libraryPage = Math.max(0, libraryPage - 1); }
+    updateCarousel(type);
+  }
+
+  function carouselNext(type) {
+    const track = document.getElementById(type === 'builds' ? 'projectGrid' : 'libraryGrid');
+    const perPage = getItemsPerPage();
+    const maxPage = Math.max(0, Math.ceil(track.children.length / perPage) - 1);
+    if (type === 'builds') { buildsPage = Math.min(maxPage, buildsPage + 1); }
+    else { libraryPage = Math.min(maxPage, libraryPage + 1); }
+    updateCarousel(type);
   }
 
   // ========== PROJECT AUTH & UPLOAD ==========
   function startUpload() {
-    if (projects.length >= 5) {
-      alert('The showcase is full! 5 projects have already been submitted.');
-      return;
-    }
     if (!currentUser) {
       pendingAction = 'project';
       document.getElementById('signInMsg').className = 'msg';
@@ -1097,13 +1002,18 @@
 
   function openUploadModal() {
     uploadMsg.className = 'msg';
-    document.getElementById('projAuthor').value = currentUser && currentUser.displayName ? currentUser.displayName : '';
+    const authorInput = document.getElementById('projAuthor');
+    authorInput.value = currentUser && currentUser.displayName ? currentUser.displayName : '';
+    authorInput.readOnly = true;
     document.getElementById('projEmail').value = currentUser ? currentUser.email : '';
     document.getElementById('projName').value = '';
     document.getElementById('projLink').value = '';
     document.getElementById('projDesc').value = '';
     document.getElementById('projTools').value = '';
     document.getElementById('projHowBuilt').value = '';
+    selectedProjCategories = [];
+    renderMultiselectOptions('projCategories', PROJECT_CATEGORIES, []);
+    document.getElementById('projCategoriesLabel').textContent = 'Select categories...';
     uploadOverlay.classList.remove('hidden');
     setTimeout(() => document.getElementById('projName').focus(), 100);
   }
@@ -1125,15 +1035,10 @@
     const desc = document.getElementById('projDesc').value.trim();
     const toolsRaw = document.getElementById('projTools').value.trim();
     const howBuilt = document.getElementById('projHowBuilt').value.trim();
+    const categories = [...selectedProjCategories];
 
     if (!author || !name || !link || !desc || !toolsRaw) {
       uploadMsg.textContent = 'Please fill in all required fields.';
-      uploadMsg.className = 'msg msg-error show';
-      return;
-    }
-
-    if (!editingProjectId && projects.length >= 5) {
-      uploadMsg.textContent = 'Showcase is full (5/5).';
       uploadMsg.className = 'msg msg-error show';
       return;
     }
@@ -1148,25 +1053,22 @@
     try {
       if (editingProjectId) {
         await db.collection('projects').doc(editingProjectId).update({
-          author, email, name, link, desc, tools, howBuilt
+          author, email, name, link, desc, tools, howBuilt, categories
         });
-        uploadMsg.textContent = 'Project updated!';
+        uploadMsg.textContent = 'Build updated!';
       } else {
         await db.collection('projects').add({
-          author, email, name, link, desc, tools, howBuilt,
+          author, email, name, link, desc, tools, howBuilt, categories,
           submittedBy: currentUser.email,
           submittedByUid: currentUser.uid,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        uploadMsg.textContent = 'Project submitted!';
+        uploadMsg.textContent = 'Build shipped!';
       }
       uploadMsg.className = 'msg msg-success show';
-      setTimeout(async () => {
-        closeModals();
-        await loadProjects();
-      }, 600);
+      setTimeout(async () => { closeModals(); await loadProjects(); }, 600);
     } catch (e) {
-      uploadMsg.textContent = 'Error saving project. Please try again.';
+      uploadMsg.textContent = 'Error saving build. Please try again.';
       uploadMsg.className = 'msg msg-error show';
       console.error(e);
     }
@@ -1185,13 +1087,18 @@
 
   function openLibUploadModal() {
     libUploadMsg.className = 'msg';
-    document.getElementById('libAuthor').value = currentUser && currentUser.displayName ? currentUser.displayName : '';
+    const authorInput = document.getElementById('libAuthor');
+    authorInput.value = currentUser && currentUser.displayName ? currentUser.displayName : '';
+    authorInput.readOnly = true;
     document.getElementById('libTitle').value = '';
     document.getElementById('libUrl').value = '';
     document.getElementById('libWhy').value = '';
     document.getElementById('libFileInput').value = '';
     document.getElementById('libFileName').textContent = '';
     pendingLibFile = null;
+    selectedLibCategories = [];
+    renderMultiselectOptions('libCategories', LIBRARY_CATEGORIES, []);
+    document.getElementById('libCategoriesLabel').textContent = 'Select categories...';
     libUploadOverlay.classList.remove('hidden');
     setTimeout(() => document.getElementById('libTitle').focus(), 100);
   }
@@ -1208,24 +1115,29 @@
     const title = document.getElementById('libTitle').value.trim();
     const url = document.getElementById('libUrl').value.trim();
     const why = document.getElementById('libWhy').value.trim();
+    const categories = [...selectedLibCategories];
 
-    if (!author) {
-      libUploadMsg.textContent = 'Please enter your name.';
-      libUploadMsg.className = 'msg msg-error show';
-      return;
-    }
-    if (!title) {
-      libUploadMsg.textContent = 'Please enter a title.';
-      libUploadMsg.className = 'msg msg-error show';
-      return;
-    }
-    if (!why) {
-      libUploadMsg.textContent = 'Please explain why people should check this out.';
-      libUploadMsg.className = 'msg msg-error show';
-      return;
+    if (!author) { libUploadMsg.textContent = 'Please enter your name.'; libUploadMsg.className = 'msg msg-error show'; return; }
+    if (!title) { libUploadMsg.textContent = 'Please enter a title.'; libUploadMsg.className = 'msg msg-error show'; return; }
+    if (!why) { libUploadMsg.textContent = 'Please explain why people should check this out.'; libUploadMsg.className = 'msg msg-error show'; return; }
+
+    // Require at least URL or file
+    if (!url && !pendingLibFile) {
+      if (editingLibraryId) {
+        const existing = libraryItems.find(x => x.fireId === editingLibraryId);
+        if (!existing || !existing.fileData) {
+          libUploadMsg.textContent = 'Please provide either a URL or upload a file.';
+          libUploadMsg.className = 'msg msg-error show';
+          return;
+        }
+      } else {
+        libUploadMsg.textContent = 'Please provide either a URL or upload a file.';
+        libUploadMsg.className = 'msg msg-error show';
+        return;
+      }
     }
 
-    const item = { author, title, url, why };
+    const item = { author, title, url, why, categories };
 
     if (!editingLibraryId) {
       item.submittedBy = currentUser.email;
@@ -1240,7 +1152,7 @@
           libUploadMsg.textContent = 'Library item updated!';
         } else {
           await db.collection('library').add(item);
-          libUploadMsg.textContent = 'Content added to the library!';
+          libUploadMsg.textContent = 'Content shared!';
         }
         libUploadMsg.className = 'msg msg-success show';
         setTimeout(async () => { closeModals(); await loadLibrary(); }, 600);
@@ -1251,7 +1163,6 @@
       }
     }
 
-    // Store file as data URL if provided (base64 in Firestore, max ~1MB per doc)
     if (pendingLibFile) {
       const reader = new FileReader();
       reader.onload = async function(e) {
@@ -1265,26 +1176,40 @@
     }
   }
 
-  // ========== RENDER PROJECTS ==========
+  // ========== RENDER BUILDS ==========
   function renderProjects() {
     const grid = document.getElementById('projectGrid');
     const empty = document.getElementById('emptyState');
     const count = projects.length;
 
-    document.getElementById('countNum').textContent = count;
-    document.getElementById('counterFill').style.width = (count / 5 * 100) + '%';
-    document.getElementById('counterLabel').textContent = count >= 5 ? 'Tool map unlocked' : 'Tool map locked';
-    document.getElementById('projectCountLabel').textContent = count + ' submitted';
-    document.getElementById('remainingCount').textContent = 5 - count;
-    document.getElementById('uploadBtn').style.display = count >= 5 ? 'none' : '';
+    document.getElementById('projectCountLabel').textContent = count + ' build' + (count !== 1 ? 's' : '');
+    document.getElementById('remainingCount').textContent = Math.max(0, 5 - count);
 
-    if (count === 0) {
+    // Filter
+    let filtered = [...projects];
+    const catFilter = document.getElementById('buildsCategoryFilter').value;
+    const authorFilter = document.getElementById('buildsAuthorFilter').value.toLowerCase();
+    if (catFilter) filtered = filtered.filter(p => (p.categories || []).includes(catFilter));
+    if (authorFilter) filtered = filtered.filter(p => (p.author || '').toLowerCase().includes(authorFilter));
+    if (globalSearchTerm) {
+      filtered = filtered.filter(p =>
+        (p.name || '').toLowerCase().includes(globalSearchTerm) ||
+        (p.desc || '').toLowerCase().includes(globalSearchTerm) ||
+        (p.author || '').toLowerCase().includes(globalSearchTerm) ||
+        (p.tools || []).some(t => t.toLowerCase().includes(globalSearchTerm)) ||
+        (p.categories || []).some(c => c.toLowerCase().includes(globalSearchTerm))
+      );
+    }
+
+    if (filtered.length === 0) {
       grid.innerHTML = '';
-      grid.appendChild(empty);
       empty.style.display = '';
+      document.getElementById('buildsCarousel').style.display = 'none';
     } else {
+      empty.style.display = 'none';
+      document.getElementById('buildsCarousel').style.display = '';
       grid.innerHTML = '';
-      projects.forEach((p, i) => {
+      filtered.forEach((p, i) => {
         const card = document.createElement('div');
         card.className = 'project-card';
         const isOwner = currentUser && p.submittedByUid && p.submittedByUid === currentUser.uid;
@@ -1293,21 +1218,24 @@
           <button onclick="deleteProject('${p.fireId}')" class="btn btn-secondary" style="padding:0.3rem 0.7rem; font-size:0.75rem; color:#c0392b;">Delete</button>
         </div>` : '';
         const authorLine = p.author ? `<div style="font-size:0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem;">by <strong style="color: var(--text-primary);">${escHtml(p.author)}</strong>${p.email ? ' &middot; <a href="mailto:' + escHtml(p.email) + '" style="color: var(--accent); text-decoration: none;">' + escHtml(p.email) + '</a>' : ''}</div>` : '';
+        const categoryTags = (p.categories || []).map(c => `<span class="category-tag">${escHtml(c)}</span>`).join('');
         const howBuiltSection = p.howBuilt ? `<details style="margin-top: 0.75rem; font-size: 0.85rem;"><summary style="cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 0.4rem;">How I Built This</summary><p style="color: var(--text-secondary); line-height: 1.6; margin-top: 0.4rem;">${escHtml(p.howBuilt)}</p></details>` : '';
         card.innerHTML = `
           <span class="project-number">#${String(i + 1).padStart(2, '0')}</span>
           <h3><a href="${escHtml(p.link)}" target="_blank" rel="noopener">${escHtml(p.name)}</a></h3>
           ${authorLine}
           <p class="project-desc">${escHtml(p.desc)}</p>
-          <div class="project-tools">${p.tools.map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')}</div>
+          <div class="project-tools">${(p.tools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')} ${categoryTags}</div>
           ${howBuiltSection}
           <a class="project-link" href="${escHtml(p.link)}" target="_blank" rel="noopener">View demo &rarr;</a>
           ${ownerActions}
         `;
         grid.appendChild(card);
       });
+      updateCarousel('builds');
     }
 
+    // Tool map
     if (count >= 5) {
       document.getElementById('toolmapLocked').style.display = 'none';
       document.getElementById('toolmapRevealed').style.display = '';
@@ -1316,7 +1244,7 @@
     } else {
       document.getElementById('toolmapLocked').style.display = '';
       document.getElementById('toolmapRevealed').style.display = 'none';
-      document.getElementById('toolmapStatus').textContent = 'Unlocks after 5 projects';
+      document.getElementById('toolmapStatus').textContent = 'Unlocks after 5 builds';
     }
   }
 
@@ -1325,15 +1253,37 @@
     const grid = document.getElementById('libraryGrid');
     const empty = document.getElementById('libraryEmpty');
 
-    if (libraryItems.length === 0) {
+    let filtered = [...libraryItems];
+    const catFilter = document.getElementById('libraryCategoryFilter').value;
+    const authorFilter = document.getElementById('libraryAuthorFilter').value.toLowerCase();
+    if (catFilter) filtered = filtered.filter(item => (item.categories || []).includes(catFilter));
+    if (authorFilter) filtered = filtered.filter(item => (item.author || '').toLowerCase().includes(authorFilter));
+    if (globalSearchTerm) {
+      filtered = filtered.filter(item =>
+        (item.title || '').toLowerCase().includes(globalSearchTerm) ||
+        (item.author || '').toLowerCase().includes(globalSearchTerm) ||
+        (item.why || '').toLowerCase().includes(globalSearchTerm) ||
+        (item.categories || []).some(c => c.toLowerCase().includes(globalSearchTerm))
+      );
+    }
+
+    if (filtered.length === 0) {
       grid.innerHTML = '';
-      grid.appendChild(empty);
       empty.style.display = '';
+      document.getElementById('libraryCarousel').style.display = 'none';
     } else {
+      empty.style.display = 'none';
+      document.getElementById('libraryCarousel').style.display = '';
       grid.innerHTML = '';
-      libraryItems.forEach(item => {
+      filtered.forEach(item => {
         const card = document.createElement('div');
         card.className = 'library-card';
+
+        // Video thumbnail
+        let thumbnailHtml = '';
+        if (item.fileData && item.fileData.startsWith('data:video/')) {
+          thumbnailHtml = `<div class="video-thumb"><video src="${item.fileData}#t=0.5" muted preload="metadata"></video></div>`;
+        }
 
         let linksHtml = '';
         if (item.url) {
@@ -1342,12 +1292,14 @@
             Open link
           </a>`;
         }
-        if (item.fileData) {
+        if (item.fileData && !item.fileData.startsWith('data:video/')) {
           linksHtml += `<a class="lib-link" href="${item.fileData}" download="${escHtml(item.fileName)}" style="cursor:pointer;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             ${escHtml(item.fileName)}
           </a>`;
         }
+
+        const categoryTags = (item.categories || []).map(c => `<span class="category-tag">${escHtml(c)}</span>`).join('');
 
         const isLibOwner = currentUser && item.submittedByUid && item.submittedByUid === currentUser.uid;
         const libOwnerActions = isLibOwner ? `<div style="display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
@@ -1356,43 +1308,48 @@
         </div>` : '';
 
         card.innerHTML = `
+          ${thumbnailHtml}
           <h3>${escHtml(item.title)}</h3>
           <div class="lib-author">Shared by ${escHtml(item.author)}</div>
           <p class="lib-why">${escHtml(item.why)}</p>
+          ${categoryTags ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">' + categoryTags + '</div>' : ''}
           <div class="lib-links">${linksHtml || '<span style="font-size:0.82rem; color: var(--text-secondary);">No links or files attached</span>'}</div>
           ${libOwnerActions}
         `;
         grid.appendChild(card);
       });
+      updateCarousel('library');
     }
   }
 
   // ========== EDIT & DELETE ==========
-  let editingProjectId = null;
-  let editingLibraryId = null;
-
   function editProject(fireId) {
     const p = projects.find(x => x.fireId === fireId);
     if (!p) return;
     editingProjectId = fireId;
     uploadMsg.className = 'msg';
-    document.getElementById('projAuthor').value = p.author || '';
+    const authorInput = document.getElementById('projAuthor');
+    authorInput.value = p.author || '';
+    authorInput.readOnly = true;
     document.getElementById('projEmail').value = p.email || '';
     document.getElementById('projName').value = p.name || '';
     document.getElementById('projLink').value = p.link || '';
     document.getElementById('projDesc').value = p.desc || '';
     document.getElementById('projTools').value = (p.tools || []).join(', ');
     document.getElementById('projHowBuilt').value = p.howBuilt || '';
+    selectedProjCategories = [...(p.categories || [])];
+    renderMultiselectOptions('projCategories', PROJECT_CATEGORIES, selectedProjCategories);
+    document.getElementById('projCategoriesLabel').textContent = selectedProjCategories.length ? selectedProjCategories.join(', ') : 'Select categories...';
     uploadOverlay.classList.remove('hidden');
   }
 
   async function deleteProject(fireId) {
-    if (!confirm('Are you sure you want to delete this project? This cannot be undone.')) return;
+    if (!confirm('Are you sure you want to delete this build? This cannot be undone.')) return;
     try {
       await db.collection('projects').doc(fireId).delete();
       await loadProjects();
     } catch (e) {
-      alert('Error deleting project. Please try again.');
+      alert('Error deleting build. Please try again.');
       console.error(e);
     }
   }
@@ -1402,13 +1359,18 @@
     if (!item) return;
     editingLibraryId = fireId;
     libUploadMsg.className = 'msg';
-    document.getElementById('libAuthor').value = item.author || '';
+    const authorInput = document.getElementById('libAuthor');
+    authorInput.value = item.author || '';
+    authorInput.readOnly = true;
     document.getElementById('libTitle').value = item.title || '';
     document.getElementById('libUrl').value = item.url || '';
     document.getElementById('libWhy').value = item.why || '';
     document.getElementById('libFileInput').value = '';
     document.getElementById('libFileName').textContent = item.fileName || '';
     pendingLibFile = null;
+    selectedLibCategories = [...(item.categories || [])];
+    renderMultiselectOptions('libCategories', LIBRARY_CATEGORIES, selectedLibCategories);
+    document.getElementById('libCategoriesLabel').textContent = selectedLibCategories.length ? selectedLibCategories.join(', ') : 'Select categories...';
     libUploadOverlay.classList.remove('hidden');
   }
 
@@ -1423,19 +1385,29 @@
     }
   }
 
+  // ========== MOBILE NAV ==========
+  function toggleMobileNav() {
+    document.getElementById('hamburgerBtn').classList.toggle('open');
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.getElementById('hamburgerBtn')?.classList.remove('open');
+      document.getElementById('navLinks')?.classList.remove('open');
+    });
+  });
+
   // ========== TOOL MAP ==========
   function renderToolMap() {
     const toolCount = {};
     projects.forEach(p => {
-      p.tools.forEach(t => {
+      (p.tools || []).forEach(t => {
         const key = t.trim();
         toolCount[key] = (toolCount[key] || 0) + 1;
       });
     });
-
     const sorted = Object.entries(toolCount).sort((a, b) => b[1] - a[1]);
     const maxCount = sorted[0] ? sorted[0][1] : 1;
-
     const barChart = document.getElementById('barChart');
     barChart.innerHTML = sorted.map(([tool, count]) => `
       <div class="bar-row">
@@ -1446,138 +1418,75 @@
         <span class="bar-count">${count}</span>
       </div>
     `).join('');
-
     drawGraph(sorted);
   }
 
-  // ========== INTERACTIVE NODE GRAPH ==========
   function drawGraph(toolData) {
     const canvas = document.getElementById('graphCanvas');
     const ctx = canvas.getContext('2d');
     const tooltip = document.getElementById('graphTooltip');
     const dpr = window.devicePixelRatio || 1;
-
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
-
-    const W = rect.width;
-    const H = rect.height;
-    const cx = W / 2;
-    const cy = H / 2;
+    const W = rect.width, H = rect.height;
+    const cx = W / 2, cy = H / 2;
     const maxCount = Math.max(...toolData.map(d => d[1]), 1);
-
     const central = { x: cx, y: cy, r: 28, label: 'Claude@Stanford', count: null, color: '#1A1A1A' };
-
     const nodes = toolData.map(([tool, count], i) => {
       const angle = (2 * Math.PI * i) / toolData.length - Math.PI / 2;
       const radius = Math.min(W, H) * 0.32;
       const r = 16 + (count / maxCount) * 24;
-      return {
-        x: cx + Math.cos(angle) * radius,
-        y: cy + Math.sin(angle) * radius,
-        r, label: tool, count,
-        color: `hsl(${35 + i * (280 / Math.max(toolData.length, 1))}, 70%, 55%)`,
-        angle
-      };
+      return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius, r, label: tool, count, color: `hsl(${35 + i * (280 / Math.max(toolData.length, 1))}, 70%, 55%)`, angle };
     });
-
     let hoveredNode = null;
-
     function draw() {
       ctx.clearRect(0, 0, W, H);
       nodes.forEach(n => {
-        ctx.beginPath();
-        ctx.moveTo(central.x, central.y);
-        ctx.lineTo(n.x, n.y);
+        ctx.beginPath(); ctx.moveTo(central.x, central.y); ctx.lineTo(n.x, n.y);
         ctx.strokeStyle = hoveredNode === n ? 'rgba(217,119,6,0.5)' : 'rgba(0,0,0,0.06)';
-        ctx.lineWidth = hoveredNode === n ? 2.5 : 1.5;
-        ctx.stroke();
+        ctx.lineWidth = hoveredNode === n ? 2.5 : 1.5; ctx.stroke();
       });
-      ctx.beginPath();
-      ctx.arc(central.x, central.y, central.r, 0, Math.PI * 2);
-      ctx.fillStyle = central.color;
-      ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.font = '600 9px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.beginPath(); ctx.arc(central.x, central.y, central.r, 0, Math.PI * 2);
+      ctx.fillStyle = central.color; ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '600 9px Inter, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('Claude@', central.x, central.y - 5);
       ctx.fillText('Stanford', central.x, central.y + 6);
       nodes.forEach(n => {
         const isHovered = hoveredNode === n;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r + (isHovered ? 3 : 0), 0, Math.PI * 2);
-        ctx.fillStyle = n.color;
-        ctx.globalAlpha = isHovered ? 1 : 0.85;
-        ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r + (isHovered ? 3 : 0), 0, Math.PI * 2);
+        ctx.fillStyle = n.color; ctx.globalAlpha = isHovered ? 1 : 0.85; ctx.fill(); ctx.globalAlpha = 1;
         if (isHovered) { ctx.strokeStyle = n.color; ctx.lineWidth = 2; ctx.stroke(); }
-        ctx.fillStyle = '#fff';
-        ctx.font = `600 ${Math.max(9, n.r * 0.55)}px Inter, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff'; ctx.font = `600 ${Math.max(9, n.r * 0.55)}px Inter, sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         const name = n.label.length > 12 ? n.label.slice(0, 10) + '..' : n.label;
         ctx.fillText(name, n.x, n.y - (n.r > 24 ? 5 : 0));
-        if (n.r > 24) {
-          ctx.font = `700 ${Math.max(10, n.r * 0.5)}px JetBrains Mono, monospace`;
-          ctx.fillText(n.count, n.x, n.y + 8);
-        }
+        if (n.r > 24) { ctx.font = `700 ${Math.max(10, n.r * 0.5)}px JetBrains Mono, monospace`; ctx.fillText(n.count, n.x, n.y + 8); }
       });
     }
-
     canvas.addEventListener('mousemove', e => {
       const mr = canvas.getBoundingClientRect();
-      const mx = e.clientX - mr.left;
-      const my = e.clientY - mr.top;
+      const mx = e.clientX - mr.left, my = e.clientY - mr.top;
       let found = null;
-      for (const n of nodes) {
-        const dx = mx - n.x, dy = my - n.y;
-        if (dx * dx + dy * dy < (n.r + 4) * (n.r + 4)) { found = n; break; }
-      }
-      hoveredNode = found;
-      canvas.style.cursor = found ? 'pointer' : 'default';
-      if (found) {
-        tooltip.textContent = `${found.label}: ${found.count} project${found.count > 1 ? 's' : ''}`;
-        tooltip.style.left = (found.x + found.r + 12) + 'px';
-        tooltip.style.top = (found.y - 14) + 'px';
-        tooltip.style.opacity = '1';
-      } else { tooltip.style.opacity = '0'; }
-      draw();
+      for (const n of nodes) { const dx = mx - n.x, dy = my - n.y; if (dx * dx + dy * dy < (n.r + 4) * (n.r + 4)) { found = n; break; } }
+      hoveredNode = found; canvas.style.cursor = found ? 'pointer' : 'default';
+      if (found) { tooltip.textContent = `${found.label}: ${found.count} build${found.count > 1 ? 's' : ''}`; tooltip.style.left = (found.x + found.r + 12) + 'px'; tooltip.style.top = (found.y - 14) + 'px'; tooltip.style.opacity = '1'; }
+      else { tooltip.style.opacity = '0'; } draw();
     });
-
-    canvas.addEventListener('mouseleave', () => {
-      hoveredNode = null;
-      tooltip.style.opacity = '0';
-      draw();
-    });
-
+    canvas.addEventListener('mouseleave', () => { hoveredNode = null; tooltip.style.opacity = '0'; draw(); });
     const resizeObserver = new ResizeObserver(() => {
-      const nr = canvas.getBoundingClientRect();
-      canvas.width = nr.width * dpr;
-      canvas.height = nr.height * dpr;
-      ctx.scale(dpr, dpr);
-      const nW = nr.width, nH = nr.height;
-      central.x = nW / 2; central.y = nH / 2;
-      nodes.forEach((n, i) => {
-        const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
-        const radius = Math.min(nW, nH) * 0.32;
-        n.x = nW / 2 + Math.cos(angle) * radius;
-        n.y = nH / 2 + Math.sin(angle) * radius;
-      });
+      const nr = canvas.getBoundingClientRect(); canvas.width = nr.width * dpr; canvas.height = nr.height * dpr; ctx.scale(dpr, dpr);
+      const nW = nr.width, nH = nr.height; central.x = nW / 2; central.y = nH / 2;
+      nodes.forEach((n, i) => { const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2; const radius = Math.min(nW, nH) * 0.32; n.x = nW / 2 + Math.cos(angle) * radius; n.y = nH / 2 + Math.sin(angle) * radius; });
       draw();
     });
-    resizeObserver.observe(canvas);
-    draw();
+    resizeObserver.observe(canvas); draw();
   }
 
-  // ========== UTIL ==========
-  function escHtml(str) {
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-  }
+  // Responsive carousel on resize
+  window.addEventListener('resize', () => { updateCarousel('builds'); updateCarousel('library'); });
 </script>
 
 </body>
