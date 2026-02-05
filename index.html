@@ -702,6 +702,8 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -975,15 +977,27 @@
 </div>
 
 <script>
-  // ---------- State ----------
+  // ========== FIREBASE INIT ==========
+  firebase.initializeApp({
+    apiKey: "AIzaSyBp25Gon7aTdre7BfH3SE3scFxPTOygB10",
+    authDomain: "claude-at-stanford.firebaseapp.com",
+    projectId: "claude-at-stanford",
+    storageBucket: "claude-at-stanford.firebasestorage.app",
+    messagingSenderId: "353494362955",
+    appId: "1:353494362955:web:c6fc5a7b264d57180b16ce",
+    measurementId: "G-4CJRY919P3"
+  });
+  const db = firebase.firestore();
+
+  // ========== STATE ==========
   const SECRET = 'DN@L3L';
   let authenticated = false;
   let libAuthenticated = false;
-  let projects = JSON.parse(localStorage.getItem('cs_projects') || '[]');
-  let libraryItems = JSON.parse(localStorage.getItem('cs_library') || '[]');
+  let projects = [];
+  let libraryItems = [];
   let pendingLibFile = null;
 
-  // ---------- DOM refs ----------
+  // ========== DOM REFS ==========
   const authOverlay = document.getElementById('authOverlay');
   const uploadOverlay = document.getElementById('uploadOverlay');
   const libAuthOverlay = document.getElementById('libAuthOverlay');
@@ -993,9 +1007,26 @@
   const libAuthMsg = document.getElementById('libAuthMsg');
   const libUploadMsg = document.getElementById('libUploadMsg');
 
-  // ---------- Init ----------
-  renderProjects();
-  renderLibrary();
+  // ========== LOAD DATA FROM FIRESTORE ==========
+  async function loadProjects() {
+    try {
+      const snap = await db.collection('projects').orderBy('createdAt', 'asc').get();
+      projects = snap.docs.map(doc => ({ fireId: doc.id, ...doc.data() }));
+    } catch (e) { console.error('Error loading projects:', e); }
+    renderProjects();
+  }
+
+  async function loadLibrary() {
+    try {
+      const snap = await db.collection('library').orderBy('createdAt', 'asc').get();
+      libraryItems = snap.docs.map(doc => ({ fireId: doc.id, ...doc.data() }));
+    } catch (e) { console.error('Error loading library:', e); }
+    renderLibrary();
+  }
+
+  // Init
+  loadProjects();
+  loadLibrary();
 
   // Enter key handlers
   document.getElementById('secretInput').addEventListener('keydown', e => {
@@ -1056,7 +1087,7 @@
     libUploadOverlay.classList.add('hidden');
   }
 
-  function submitProject() {
+  async function submitProject() {
     const author = document.getElementById('projAuthor').value.trim();
     const email = document.getElementById('projEmail').value.trim();
     const name = document.getElementById('projName').value.trim();
@@ -1084,15 +1115,22 @@
       return;
     }
 
-    projects.push({ author, email, name, link, desc, tools, howBuilt, id: Date.now() });
-    localStorage.setItem('cs_projects', JSON.stringify(projects));
-
-    uploadMsg.textContent = 'Project submitted!';
-    uploadMsg.className = 'msg msg-success show';
-    setTimeout(() => {
-      closeModals();
-      renderProjects();
-    }, 600);
+    try {
+      await db.collection('projects').add({
+        author, email, name, link, desc, tools, howBuilt,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      uploadMsg.textContent = 'Project submitted!';
+      uploadMsg.className = 'msg msg-success show';
+      setTimeout(async () => {
+        closeModals();
+        await loadProjects();
+      }, 600);
+    } catch (e) {
+      uploadMsg.textContent = 'Error saving project. Please try again.';
+      uploadMsg.className = 'msg msg-error show';
+      console.error(e);
+    }
   }
 
   // ========== LIBRARY AUTH & UPLOAD ==========
@@ -1142,7 +1180,7 @@
     }
   }
 
-  function submitLibrary() {
+  async function submitLibrary() {
     const author = document.getElementById('libAuthor').value.trim();
     const title = document.getElementById('libTitle').value.trim();
     const url = document.getElementById('libUrl').value.trim();
@@ -1164,27 +1202,37 @@
       return;
     }
 
-    const item = { author, title, url, why, id: Date.now() };
+    const item = { author, title, url, why, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
 
-    // Store file as data URL if provided
+    // Store file as data URL if provided (base64 in Firestore, max ~1MB per doc)
     if (pendingLibFile) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         item.fileName = pendingLibFile.name;
         item.fileData = e.target.result;
-        libraryItems.push(item);
-        localStorage.setItem('cs_library', JSON.stringify(libraryItems));
-        libUploadMsg.textContent = 'Content added to the library!';
-        libUploadMsg.className = 'msg msg-success show';
-        setTimeout(() => { closeModals(); renderLibrary(); }, 600);
+        try {
+          await db.collection('library').add(item);
+          libUploadMsg.textContent = 'Content added to the library!';
+          libUploadMsg.className = 'msg msg-success show';
+          setTimeout(async () => { closeModals(); await loadLibrary(); }, 600);
+        } catch (err) {
+          libUploadMsg.textContent = 'Error saving. File may be too large (max ~1MB).';
+          libUploadMsg.className = 'msg msg-error show';
+          console.error(err);
+        }
       };
       reader.readAsDataURL(pendingLibFile);
     } else {
-      libraryItems.push(item);
-      localStorage.setItem('cs_library', JSON.stringify(libraryItems));
-      libUploadMsg.textContent = 'Content added to the library!';
-      libUploadMsg.className = 'msg msg-success show';
-      setTimeout(() => { closeModals(); renderLibrary(); }, 600);
+      try {
+        await db.collection('library').add(item);
+        libUploadMsg.textContent = 'Content added to the library!';
+        libUploadMsg.className = 'msg msg-success show';
+        setTimeout(async () => { closeModals(); await loadLibrary(); }, 600);
+      } catch (err) {
+        libUploadMsg.textContent = 'Error saving content. Please try again.';
+        libUploadMsg.className = 'msg msg-error show';
+        console.error(err);
+      }
     }
   }
 
