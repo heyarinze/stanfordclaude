@@ -223,6 +223,15 @@
     .project-link { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--accent); text-decoration: none; }
     .project-link:hover { text-decoration: underline; }
     .project-number { font-size: 0.75rem; font-weight: 700; color: var(--border); font-family: var(--font-mono); }
+    .project-actions { display: flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .project-link-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.82rem; font-weight: 600; color: var(--accent);
+      text-decoration: none; background: none; border: 1px solid var(--accent);
+      padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;
+      font-family: var(--font-sans); transition: all 0.15s;
+    }
+    .project-link-btn:hover { background: var(--accent); color: #fff; }
 
     /* Heart & Share buttons */
     .heart-btn, .share-btn {
@@ -236,12 +245,17 @@
     .heart-btn.hearted { color: #e74c3c; border-color: #e74c3c; }
     .heart-btn.hearted svg { fill: #e74c3c; stroke: #e74c3c; }
 
-    /* How I Built This content */
-    .how-built-content {
-      color: var(--text-secondary); line-height: 1.7; margin-top: 0.5rem;
+    /* How I Built This modal content */
+    .how-built-modal-content {
+      color: var(--text-secondary); line-height: 1.7;
+      max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;
     }
-    .how-built-content p { margin-bottom: 0.75rem; }
-    .how-built-content p:last-child { margin-bottom: 0; }
+    .how-built-modal-content p { margin-bottom: 0.75rem; }
+    .how-built-modal-content p:last-child { margin-bottom: 0; }
+    .how-built-modal-content::-webkit-scrollbar { width: 6px; }
+    .how-built-modal-content::-webkit-scrollbar-track { background: var(--bg); border-radius: 3px; }
+    .how-built-modal-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .how-built-modal-content::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
     /* Empty state */
     .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
@@ -759,6 +773,16 @@
   </div>
 </div>
 
+<!-- How I Built This Modal -->
+<div class="overlay hidden" id="howBuiltOverlay">
+  <div class="modal" style="max-width:600px;">
+    <button class="modal-close" onclick="closeHowBuilt()">&times;</button>
+    <h2 id="howBuiltTitle">How I Built This</h2>
+    <p id="howBuiltAuthor" style="margin-bottom:1rem;"></p>
+    <div id="howBuiltContent" class="how-built-modal-content"></div>
+  </div>
+</div>
+
 <script>
   // ========== FIREBASE INIT ==========
   firebase.initializeApp({
@@ -1257,7 +1281,7 @@
         const linkedinBtn = p.linkedin ? `<a href="${escHtml(p.linkedin)}" target="_blank" rel="noopener" class="lead-btn" style="font-size:0.75rem; padding:0.3rem 0.6rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>` : '';
         const authorLine = p.author ? `<div style="font-size:0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">by <strong style="color: var(--text-primary);">${escHtml(p.author)}</strong>${p.email ? ' <a href="mailto:' + escHtml(p.email) + '" style="color: var(--accent); text-decoration: none;">' + escHtml(p.email) + '</a>' : ''} ${linkedinBtn}</div>` : '';
         const categoryTags = (p.categories || []).map(c => `<span class="category-tag">${escHtml(c)}</span>`).join('');
-        const howBuiltSection = p.howBuilt ? `<details style="margin-top: 0.75rem; font-size: 0.85rem;"><summary style="cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 0.4rem;">How I Built This</summary><div class="how-built-content">${formatRichText(p.howBuilt)}</div></details>` : '';
+        const howBuiltBtn = p.howBuilt ? `<button onclick="showHowBuilt('${p.fireId}')" class="project-link-btn">How I Built This</button>` : '';
         const hearts = p.hearts || [];
         const heartCount = hearts.length;
         const hasHearted = currentUser && hearts.includes(currentUser.uid);
@@ -1278,8 +1302,10 @@
           ${authorLine}
           <p class="project-desc">${escHtml(p.desc)}</p>
           <div class="project-tools">${(p.tools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')} ${categoryTags}</div>
-          ${howBuiltSection}
-          <a class="project-link" href="${escHtml(p.link)}" target="_blank" rel="noopener">View demo &rarr;</a>
+          <div class="project-actions">
+            ${howBuiltBtn}
+            <a class="project-link-btn" href="${escHtml(p.link)}" target="_blank" rel="noopener">View Demo &rarr;</a>
+          </div>
           ${ownerActions}
         `;
         grid.appendChild(card);
@@ -1442,6 +1468,20 @@
       alert('Error deleting library item. Please try again.');
       console.error(e);
     }
+  }
+
+  // ========== HOW I BUILT THIS MODAL ==========
+  function showHowBuilt(fireId) {
+    const p = projects.find(x => x.fireId === fireId);
+    if (!p || !p.howBuilt) return;
+    document.getElementById('howBuiltTitle').textContent = p.name + ' — How I Built This';
+    document.getElementById('howBuiltAuthor').textContent = 'by ' + (p.author || 'Anonymous');
+    document.getElementById('howBuiltContent').innerHTML = formatRichText(p.howBuilt);
+    document.getElementById('howBuiltOverlay').classList.remove('hidden');
+  }
+
+  function closeHowBuilt() {
+    document.getElementById('howBuiltOverlay').classList.add('hidden');
   }
 
   // ========== HEART & SHARE ==========
