@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude@Stanford — Project Showcase</title>
+  <style>
+    :root {
+      --bg: #FAF9F7;
+      --surface: #FFFFFF;
+      --text-primary: #1A1A1A;
+      --text-secondary: #6B6B6B;
+      --accent: #D97706;
+      --accent-hover: #B45309;
+      --border: #E8E5E0;
+      --border-focus: #D97706;
+      --error: #DC2626;
+      --error-bg: #FEF2F2;
+      --success: #16A34A;
+      --success-bg: #F0FDF4;
+      --tag-bg: #F3F0EB;
+      --tag-text: #4A3728;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250, 249, 247, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .nav-brand svg { flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-join-btn {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-weight: 600 !important;
+      font-size: 0.85rem !important;
+      transition: background 0.15s !important;
+    }
+    .nav-join-btn:hover { background: var(--accent-hover); color: #fff !important; }
+
+    /* Hero */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      letter-spacing: 0.03em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      font-family: var(--font-sans);
+    }
+    .btn-primary {
+      background: var(--text-primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #333; }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: #ccc; }
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-accent:hover { background: var(--accent-hover); }
+
+    /* Counter */
+    .project-counter {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+      text-align: center;
+    }
+    .counter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .counter-fill-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .counter-fill-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 100px;
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .counter-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* Sections */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .section-header h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .section-header span {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Project Grid */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.25rem;
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    .project-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      border-color: #d0cdc8;
+    }
+    .project-card h3 {
+      font-size: 1rem;
+      font-weight: 650;
+      margin-bottom: 0.5rem;
+    }
+    .project-card h3 a {
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .project-card h3 a:hover { text-decoration: underline; }
+    .project-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .project-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .tool-tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .project-link:hover { text-decoration: underline; }
+    .project-number {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--border);
+      font-family: var(--font-mono);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+    }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* Modal / Auth overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+    }
+    .overlay.hidden { display: none; }
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      position: relative;
+      margin: auto 0;
+      flex-shrink: 0;
+    }
+    .modal h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .modal p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .modal-close:hover { background: var(--tag-bg); }
+
+    /* Form fields */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      background: var(--bg);
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--border-focus);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-hint {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+    }
+
+    /* File upload */
+    .file-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--bg);
+    }
+    .file-upload-area:hover {
+      border-color: var(--accent);
+      background: #FFF9F0;
+    }
+    .file-upload-area p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    .file-upload-area .upload-icon {
+      margin-bottom: 0.4rem;
+      color: var(--accent);
+    }
+    .file-name-display {
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 0.4rem;
+    }
+
+    /* Messages */
+    .msg {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .msg.show { display: block; }
+    .msg-error { background: var(--error-bg); color: var(--error); }
+    .msg-success { background: var(--success-bg); color: var(--success); }
+
+    /* Campus Leads */
+    .leads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .lead-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      text-align: center;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .lead-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      border-color: #d0cdc8;
+    }
+    .lead-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #F59E0B);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .lead-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .lead-role {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .lead-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+    .lead-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      background: var(--surface);
+    }
+    .lead-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .lead-btn svg { flex-shrink: 0; }
+
+    /* Library */
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+    .library-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .library-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      border-color: #d0cdc8;
+    }
+    .library-card h3 {
+      font-size: 1rem;
+      font-weight: 650;
+      margin-bottom: 0.35rem;
+    }
+    .library-card .lib-author {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .library-card .lib-why {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .library-card .lib-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .lib-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .lib-link:hover { text-decoration: underline; }
+
+    /* Tool Map */
+    .toolmap-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+    .toolmap-locked {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+    }
+    .toolmap-locked h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .toolmap-locked p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .toolmap-locked .lock-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    /* Chart container */
+    .chart-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 650;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Interactive bars */
+    .bar-chart { display: flex; flex-direction: column; gap: 0.75rem; }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: default;
+      padding: 0.3rem 0;
+    }
+    .bar-label {
+      min-width: 140px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: right;
+      color: var(--text-primary);
+    }
+    .bar-track {
+      flex: 1;
+      height: 32px;
+      background: var(--tag-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--accent), #F59E0B);
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      min-width: 2px;
+    }
+    .bar-count {
+      min-width: 36px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+    .bar-row:hover .bar-fill {
+      filter: brightness(1.1);
+    }
+    .bar-row:hover .bar-label {
+      color: var(--accent);
+    }
+
+    /* Node graph */
+    .graph-wrapper {
+      margin-top: 2rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .graph-canvas {
+      width: 100%;
+      height: 400px;
+      display: block;
+    }
+    .graph-tooltip {
+      position: absolute;
+      background: var(--text-primary);
+      color: #fff;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    /* Divider */
+    .divider {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .divider hr {
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Footer */
+    footer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .project-card { animation: fadeUp 0.4s ease-out both; }
+    .project-card:nth-child(2) { animation-delay: 0.05s; }
+    .project-card:nth-child(3) { animation-delay: 0.1s; }
+    .project-card:nth-child(4) { animation-delay: 0.15s; }
+    .project-card:nth-child(5) { animation-delay: 0.2s; }
+    .lead-card { animation: fadeUp 0.4s ease-out both; }
+    .lead-card:nth-child(2) { animation-delay: 0.05s; }
+    .lead-card:nth-child(3) { animation-delay: 0.1s; }
+    .library-card { animation: fadeUp 0.4s ease-out both; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .project-grid { grid-template-columns: 1fr; }
+      .leads-grid { grid-template-columns: 1fr; }
+      .library-grid { grid-template-columns: 1fr; }
+      .hero { padding: 3rem 1.25rem 2rem; }
+      .section, .toolmap-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .bar-label { min-width: 100px; font-size: 0.8rem; }
+      .nav-links { gap: 0.75rem; }
+      .nav-links a { font-size: 0.8rem; }
+      .nav-join-btn { padding: 0.4rem 0.7rem; font-size: 0.78rem !important; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">
+      <img src="logo.png" alt="Claude@Stanford" style="height: 40px; width: auto; border-radius: 6px;">
+      Claude@Stanford
+    </a>
+    <div class="nav-links">
+      <a href="#projects">Projects</a>
+      <a href="#leads">Campus Leads</a>
+      <a href="#library">Library</a>
+      <a href="#toolmap">Tool Map</a>
+      <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join the Club</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">PROJECT SHOWCASE</div>
+  <h1>What the Stanford community<br>is building with Claude</h1>
+  <p>A showcase of projects built by Claude@Stanford members using Claude Code and other Anthropic tools.</p>
+  <button class="btn btn-primary" id="uploadBtn" onclick="startUpload()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    Submit a project
+  </button>
+</section>
+
+<!-- Counter -->
+<div class="project-counter">
+  <div class="counter-bar">
+    <span class="counter-text"><span id="countNum">0</span> / 5 projects</span>
+    <div class="counter-fill-track">
+      <div class="counter-fill-bar" id="counterFill" style="width: 0%"></div>
+    </div>
+    <span class="counter-text" id="counterLabel">Tool map locked</span>
+  </div>
+</div>
+
+<!-- Projects Section -->
+<div class="divider"><hr></div>
+<section class="section" id="projects">
+  <div class="section-header">
+    <h2>Projects</h2>
+    <span id="projectCountLabel">0 submitted</span>
+  </div>
+  <div id="projectGrid" class="project-grid">
+    <div class="empty-state" id="emptyState">
+      <p>No projects yet. Be the first to share what you've built.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Campus Leads Section -->
+<div class="divider"><hr></div>
+<section class="section" id="leads">
+  <div class="section-header">
+    <h2>Campus Leads</h2>
+  </div>
+  <div class="leads-grid">
+    <!-- Arinze -->
+    <div class="lead-card">
+      <div class="lead-avatar">AO</div>
+      <h3>Arinze Obiezue</h3>
+      <div class="lead-role">Co-founder &amp; Grad Lead</div>
+      <div class="lead-actions">
+        <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener" class="lead-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href="mailto:arinzeo@stanford.edu" class="lead-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+          Email
+        </a>
+      </div>
+    </div>
+    <!-- William -->
+    <div class="lead-card">
+      <div class="lead-avatar">WL</div>
+      <h3>William Liu</h3>
+      <div class="lead-role">Co-founder &amp; Undergrad Co-Lead</div>
+      <div class="lead-actions">
+        <a href="https://www.linkedin.com/in/william-z-liu/" target="_blank" rel="noopener" class="lead-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href="mailto:wzliu@stanford.edu" class="lead-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+          Email
+        </a>
+      </div>
+    </div>
+    <!-- Diego -->
+    <div class="lead-card">
+      <div class="lead-avatar">DS</div>
+      <h3>Diego Sanchez</h3>
+      <div class="lead-role">Undergrad Co-Lead</div>
+      <div class="lead-actions">
+        <a href="https://www.linkedin.com/in/dsanh14/" target="_blank" rel="noopener" class="lead-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href="mailto:dsanh14@stanford.edu" class="lead-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+          Email
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Claude Library Section -->
+<div class="divider"><hr></div>
+<section class="section" id="library">
+  <div class="section-header">
+    <h2>Claude Library</h2>
+    <button class="btn btn-secondary" onclick="startLibraryUpload()">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Add content
+    </button>
+  </div>
+  <div id="libraryGrid" class="library-grid">
+    <div class="empty-state" id="libraryEmpty">
+      <p>No learning content yet. Share resources to help others learn Claude.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tool Map Section -->
+<div class="divider"><hr></div>
+<section class="toolmap-section" id="toolmap">
+  <div class="section-header">
+    <h2>Tool Map</h2>
+    <span id="toolmapStatus">Unlocks after 5 projects</span>
+  </div>
+
+  <div id="toolmapLocked" class="toolmap-locked">
+    <div class="lock-icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <h3>Tool Map is locked</h3>
+    <p>Submit <span id="remainingCount">5</span> more project(s) to reveal the interactive tool usage graph.</p>
+  </div>
+
+  <div id="toolmapRevealed" style="display:none;" class="chart-container animate-in">
+    <div class="chart-title">AI Tools Used in Development</div>
+    <div id="barChart" class="bar-chart"></div>
+    <div class="graph-wrapper">
+      <canvas class="graph-canvas" id="graphCanvas"></canvas>
+      <div class="graph-tooltip" id="graphTooltip"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  Claude@Stanford &bull; Built with &#10084;&#65039; by Claude Code and <a href="https://www.linkedin.com/in/arinzeobiezue" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none; font-weight: 600;">Arinze Obiezue</a>
+</footer>
+
+<!-- Auth Modal (for projects) -->
+<div class="overlay hidden" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">&times;</button>
+    <h2>Enter the secret word</h2>
+    <p>Only Claude@Stanford members can submit projects. Enter the secret word to continue.</p>
+    <div id="authMsg" class="msg msg-error"></div>
+    <div class="form-group">
+      <label for="secretInput">Secret word</label>
+      <input type="password" id="secretInput" placeholder="Case-sensitive" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="verifySecret()">Continue</button>
+  </div>
+</div>
+
+<!-- Auth Modal (for library) -->
+<div class="overlay hidden" id="libAuthOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">&times;</button>
+    <h2>Enter the secret word</h2>
+    <p>Only Claude@Stanford members can add content to the library. Enter the secret word to continue.</p>
+    <div id="libAuthMsg" class="msg msg-error"></div>
+    <div class="form-group">
+      <label for="libSecretInput">Secret word</label>
+      <input type="password" id="libSecretInput" placeholder="Case-sensitive" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="verifyLibSecret()">Continue</button>
+  </div>
+</div>
+
+<!-- Upload Modal (projects) -->
+<div class="overlay hidden" id="uploadOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">&times;</button>
+    <h2>Submit your project</h2>
+    <p>Share what you've built with the group.</p>
+    <div id="uploadMsg" class="msg"></div>
+    <div class="form-group">
+      <label for="projAuthor">Your name</label>
+      <input type="text" id="projAuthor" placeholder="e.g. Jane Doe">
+    </div>
+    <div class="form-group">
+      <label for="projEmail">Email <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
+      <input type="email" id="projEmail" placeholder="you@stanford.edu">
+      <div class="form-hint">Include if you'd like people to reach out about your project.</div>
+    </div>
+    <div class="form-group">
+      <label for="projName">Project name</label>
+      <input type="text" id="projName" placeholder="e.g. AI Study Buddy">
+    </div>
+    <div class="form-group">
+      <label for="projLink">Demo / site link</label>
+      <input type="url" id="projLink" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label for="projDesc">Quick description</label>
+      <textarea id="projDesc" placeholder="What does it do?"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="projTools">AI tools used</label>
+      <input type="text" id="projTools" placeholder="e.g. Claude Code, GPT-4, Cursor">
+      <div class="form-hint">Comma-separated list of AI tools used for development.</div>
+    </div>
+    <div class="form-group">
+      <label for="projHowBuilt">How I Built This <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
+      <textarea id="projHowBuilt" placeholder="Walk us through your build process — which tools did what, key decisions, challenges, etc." style="min-height: 100px;"></textarea>
+    </div>
+    <button class="btn btn-accent" style="width:100%" onclick="submitProject()">Submit project</button>
+  </div>
+</div>
+
+<!-- Upload Modal (library) -->
+<div class="overlay hidden" id="libUploadOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">&times;</button>
+    <h2>Add to the Claude Library</h2>
+    <p>Share a resource, guide, or tutorial that helps others learn Claude.</p>
+    <div id="libUploadMsg" class="msg"></div>
+    <div class="form-group">
+      <label for="libAuthor">Your name</label>
+      <input type="text" id="libAuthor" placeholder="e.g. Jane Doe">
+    </div>
+    <div class="form-group">
+      <label for="libTitle">Title</label>
+      <input type="text" id="libTitle" placeholder="e.g. Getting Started with Claude Code">
+    </div>
+    <div class="form-group">
+      <label for="libUrl">URL <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
+      <input type="url" id="libUrl" placeholder="https://...">
+      <div class="form-hint">Link to the content online.</div>
+    </div>
+    <div class="form-group">
+      <label>Upload a file <span style="font-weight:400; color: var(--text-secondary);">(optional)</span></label>
+      <div class="file-upload-area" onclick="document.getElementById('libFileInput').click()">
+        <div class="upload-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <p>Click to choose a file</p>
+      </div>
+      <input type="file" id="libFileInput" style="display:none" onchange="handleFileSelect(this)">
+      <div id="libFileName" class="file-name-display"></div>
+    </div>
+    <div class="form-group">
+      <label for="libWhy">Why should people check this out?</label>
+      <textarea id="libWhy" placeholder="What makes this resource valuable? Who is it for?"></textarea>
+    </div>
+    <button class="btn btn-accent" style="width:100%" onclick="submitLibrary()">Add to library</button>
+  </div>
+</div>
+
+<script>
+  // ---------- State ----------
+  const SECRET = 'DN@L3L';
+  let authenticated = false;
+  let libAuthenticated = false;
+  let projects = JSON.parse(localStorage.getItem('cs_projects') || '[]');
+  let libraryItems = JSON.parse(localStorage.getItem('cs_library') || '[]');
+  let pendingLibFile = null;
+
+  // ---------- DOM refs ----------
+  const authOverlay = document.getElementById('authOverlay');
+  const uploadOverlay = document.getElementById('uploadOverlay');
+  const libAuthOverlay = document.getElementById('libAuthOverlay');
+  const libUploadOverlay = document.getElementById('libUploadOverlay');
+  const authMsg = document.getElementById('authMsg');
+  const uploadMsg = document.getElementById('uploadMsg');
+  const libAuthMsg = document.getElementById('libAuthMsg');
+  const libUploadMsg = document.getElementById('libUploadMsg');
+
+  // ---------- Init ----------
+  renderProjects();
+  renderLibrary();
+
+  // Enter key handlers
+  document.getElementById('secretInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') verifySecret();
+  });
+  document.getElementById('libSecretInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') verifyLibSecret();
+  });
+
+  // ========== PROJECT AUTH & UPLOAD ==========
+  function startUpload() {
+    if (projects.length >= 5) {
+      alert('The showcase is full! 5 projects have already been submitted.');
+      return;
+    }
+    if (!authenticated) {
+      authMsg.classList.remove('show');
+      document.getElementById('secretInput').value = '';
+      authOverlay.classList.remove('hidden');
+      setTimeout(() => document.getElementById('secretInput').focus(), 100);
+    } else {
+      openUploadModal();
+    }
+  }
+
+  function verifySecret() {
+    const val = document.getElementById('secretInput').value;
+    if (val === SECRET) {
+      authenticated = true;
+      libAuthenticated = true;
+      authOverlay.classList.add('hidden');
+      openUploadModal();
+    } else {
+      authMsg.textContent = 'Wrong secret word. Access denied.';
+      authMsg.className = 'msg msg-error show';
+      document.getElementById('secretInput').value = '';
+      document.getElementById('secretInput').focus();
+    }
+  }
+
+  function openUploadModal() {
+    uploadMsg.className = 'msg';
+    document.getElementById('projAuthor').value = '';
+    document.getElementById('projEmail').value = '';
+    document.getElementById('projName').value = '';
+    document.getElementById('projLink').value = '';
+    document.getElementById('projDesc').value = '';
+    document.getElementById('projTools').value = '';
+    document.getElementById('projHowBuilt').value = '';
+    uploadOverlay.classList.remove('hidden');
+    setTimeout(() => document.getElementById('projAuthor').focus(), 100);
+  }
+
+  function closeModals() {
+    authOverlay.classList.add('hidden');
+    uploadOverlay.classList.add('hidden');
+    libAuthOverlay.classList.add('hidden');
+    libUploadOverlay.classList.add('hidden');
+  }
+
+  function submitProject() {
+    const author = document.getElementById('projAuthor').value.trim();
+    const email = document.getElementById('projEmail').value.trim();
+    const name = document.getElementById('projName').value.trim();
+    const link = document.getElementById('projLink').value.trim();
+    const desc = document.getElementById('projDesc').value.trim();
+    const toolsRaw = document.getElementById('projTools').value.trim();
+    const howBuilt = document.getElementById('projHowBuilt').value.trim();
+
+    if (!author || !name || !link || !desc || !toolsRaw) {
+      uploadMsg.textContent = 'Please fill in all required fields.';
+      uploadMsg.className = 'msg msg-error show';
+      return;
+    }
+
+    if (projects.length >= 5) {
+      uploadMsg.textContent = 'Showcase is full (5/5).';
+      uploadMsg.className = 'msg msg-error show';
+      return;
+    }
+
+    const tools = toolsRaw.split(',').map(t => t.trim()).filter(Boolean);
+    if (tools.length === 0) {
+      uploadMsg.textContent = 'Enter at least one AI tool.';
+      uploadMsg.className = 'msg msg-error show';
+      return;
+    }
+
+    projects.push({ author, email, name, link, desc, tools, howBuilt, id: Date.now() });
+    localStorage.setItem('cs_projects', JSON.stringify(projects));
+
+    uploadMsg.textContent = 'Project submitted!';
+    uploadMsg.className = 'msg msg-success show';
+    setTimeout(() => {
+      closeModals();
+      renderProjects();
+    }, 600);
+  }
+
+  // ========== LIBRARY AUTH & UPLOAD ==========
+  function startLibraryUpload() {
+    if (!libAuthenticated && !authenticated) {
+      libAuthMsg.classList.remove('show');
+      document.getElementById('libSecretInput').value = '';
+      libAuthOverlay.classList.remove('hidden');
+      setTimeout(() => document.getElementById('libSecretInput').focus(), 100);
+    } else {
+      openLibUploadModal();
+    }
+  }
+
+  function verifyLibSecret() {
+    const val = document.getElementById('libSecretInput').value;
+    if (val === SECRET) {
+      libAuthenticated = true;
+      authenticated = true;
+      libAuthOverlay.classList.add('hidden');
+      openLibUploadModal();
+    } else {
+      libAuthMsg.textContent = 'Wrong secret word. Access denied.';
+      libAuthMsg.className = 'msg msg-error show';
+      document.getElementById('libSecretInput').value = '';
+      document.getElementById('libSecretInput').focus();
+    }
+  }
+
+  function openLibUploadModal() {
+    libUploadMsg.className = 'msg';
+    document.getElementById('libAuthor').value = '';
+    document.getElementById('libTitle').value = '';
+    document.getElementById('libUrl').value = '';
+    document.getElementById('libWhy').value = '';
+    document.getElementById('libFileInput').value = '';
+    document.getElementById('libFileName').textContent = '';
+    pendingLibFile = null;
+    libUploadOverlay.classList.remove('hidden');
+    setTimeout(() => document.getElementById('libAuthor').focus(), 100);
+  }
+
+  function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+      pendingLibFile = input.files[0];
+      document.getElementById('libFileName').textContent = pendingLibFile.name;
+    }
+  }
+
+  function submitLibrary() {
+    const author = document.getElementById('libAuthor').value.trim();
+    const title = document.getElementById('libTitle').value.trim();
+    const url = document.getElementById('libUrl').value.trim();
+    const why = document.getElementById('libWhy').value.trim();
+
+    if (!author) {
+      libUploadMsg.textContent = 'Please enter your name.';
+      libUploadMsg.className = 'msg msg-error show';
+      return;
+    }
+    if (!title) {
+      libUploadMsg.textContent = 'Please enter a title.';
+      libUploadMsg.className = 'msg msg-error show';
+      return;
+    }
+    if (!why) {
+      libUploadMsg.textContent = 'Please explain why people should check this out.';
+      libUploadMsg.className = 'msg msg-error show';
+      return;
+    }
+
+    const item = { author, title, url, why, id: Date.now() };
+
+    // Store file as data URL if provided
+    if (pendingLibFile) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        item.fileName = pendingLibFile.name;
+        item.fileData = e.target.result;
+        libraryItems.push(item);
+        localStorage.setItem('cs_library', JSON.stringify(libraryItems));
+        libUploadMsg.textContent = 'Content added to the library!';
+        libUploadMsg.className = 'msg msg-success show';
+        setTimeout(() => { closeModals(); renderLibrary(); }, 600);
+      };
+      reader.readAsDataURL(pendingLibFile);
+    } else {
+      libraryItems.push(item);
+      localStorage.setItem('cs_library', JSON.stringify(libraryItems));
+      libUploadMsg.textContent = 'Content added to the library!';
+      libUploadMsg.className = 'msg msg-success show';
+      setTimeout(() => { closeModals(); renderLibrary(); }, 600);
+    }
+  }
+
+  // ========== RENDER PROJECTS ==========
+  function renderProjects() {
+    const grid = document.getElementById('projectGrid');
+    const empty = document.getElementById('emptyState');
+    const count = projects.length;
+
+    document.getElementById('countNum').textContent = count;
+    document.getElementById('counterFill').style.width = (count / 5 * 100) + '%';
+    document.getElementById('counterLabel').textContent = count >= 5 ? 'Tool map unlocked' : 'Tool map locked';
+    document.getElementById('projectCountLabel').textContent = count + ' submitted';
+    document.getElementById('remainingCount').textContent = 5 - count;
+    document.getElementById('uploadBtn').style.display = count >= 5 ? 'none' : '';
+
+    if (count === 0) {
+      grid.innerHTML = '';
+      grid.appendChild(empty);
+      empty.style.display = '';
+    } else {
+      grid.innerHTML = '';
+      projects.forEach((p, i) => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        const authorLine = p.author ? `<div style="font-size:0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem;">by <strong style="color: var(--text-primary);">${escHtml(p.author)}</strong>${p.email ? ' &middot; <a href="mailto:' + escHtml(p.email) + '" style="color: var(--accent); text-decoration: none;">' + escHtml(p.email) + '</a>' : ''}</div>` : '';
+        const howBuiltSection = p.howBuilt ? `<details style="margin-top: 0.75rem; font-size: 0.85rem;"><summary style="cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 0.4rem;">How I Built This</summary><p style="color: var(--text-secondary); line-height: 1.6; margin-top: 0.4rem;">${escHtml(p.howBuilt)}</p></details>` : '';
+        card.innerHTML = `
+          <span class="project-number">#${String(i + 1).padStart(2, '0')}</span>
+          <h3><a href="${escHtml(p.link)}" target="_blank" rel="noopener">${escHtml(p.name)}</a></h3>
+          ${authorLine}
+          <p class="project-desc">${escHtml(p.desc)}</p>
+          <div class="project-tools">${p.tools.map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')}</div>
+          ${howBuiltSection}
+          <a class="project-link" href="${escHtml(p.link)}" target="_blank" rel="noopener">View demo &rarr;</a>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    if (count >= 5) {
+      document.getElementById('toolmapLocked').style.display = 'none';
+      document.getElementById('toolmapRevealed').style.display = '';
+      document.getElementById('toolmapStatus').textContent = 'Unlocked';
+      renderToolMap();
+    } else {
+      document.getElementById('toolmapLocked').style.display = '';
+      document.getElementById('toolmapRevealed').style.display = 'none';
+      document.getElementById('toolmapStatus').textContent = 'Unlocks after 5 projects';
+    }
+  }
+
+  // ========== RENDER LIBRARY ==========
+  function renderLibrary() {
+    const grid = document.getElementById('libraryGrid');
+    const empty = document.getElementById('libraryEmpty');
+
+    if (libraryItems.length === 0) {
+      grid.innerHTML = '';
+      grid.appendChild(empty);
+      empty.style.display = '';
+    } else {
+      grid.innerHTML = '';
+      libraryItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'library-card';
+
+        let linksHtml = '';
+        if (item.url) {
+          linksHtml += `<a class="lib-link" href="${escHtml(item.url)}" target="_blank" rel="noopener">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open link
+          </a>`;
+        }
+        if (item.fileData) {
+          linksHtml += `<a class="lib-link" href="${item.fileData}" download="${escHtml(item.fileName)}" style="cursor:pointer;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            ${escHtml(item.fileName)}
+          </a>`;
+        }
+
+        card.innerHTML = `
+          <h3>${escHtml(item.title)}</h3>
+          <div class="lib-author">Shared by ${escHtml(item.author)}</div>
+          <p class="lib-why">${escHtml(item.why)}</p>
+          <div class="lib-links">${linksHtml || '<span style="font-size:0.82rem; color: var(--text-secondary);">No links or files attached</span>'}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+  }
+
+  // ========== TOOL MAP ==========
+  function renderToolMap() {
+    const toolCount = {};
+    projects.forEach(p => {
+      p.tools.forEach(t => {
+        const key = t.trim();
+        toolCount[key] = (toolCount[key] || 0) + 1;
+      });
+    });
+
+    const sorted = Object.entries(toolCount).sort((a, b) => b[1] - a[1]);
+    const maxCount = sorted[0] ? sorted[0][1] : 1;
+
+    const barChart = document.getElementById('barChart');
+    barChart.innerHTML = sorted.map(([tool, count]) => `
+      <div class="bar-row">
+        <span class="bar-label">${escHtml(tool)}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: ${(count / maxCount) * 100}%"></div>
+        </div>
+        <span class="bar-count">${count}</span>
+      </div>
+    `).join('');
+
+    drawGraph(sorted);
+  }
+
+  // ========== INTERACTIVE NODE GRAPH ==========
+  function drawGraph(toolData) {
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('graphTooltip');
+    const dpr = window.devicePixelRatio || 1;
+
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width;
+    const H = rect.height;
+    const cx = W / 2;
+    const cy = H / 2;
+    const maxCount = Math.max(...toolData.map(d => d[1]), 1);
+
+    const central = { x: cx, y: cy, r: 28, label: 'Claude@Stanford', count: null, color: '#1A1A1A' };
+
+    const nodes = toolData.map(([tool, count], i) => {
+      const angle = (2 * Math.PI * i) / toolData.length - Math.PI / 2;
+      const radius = Math.min(W, H) * 0.32;
+      const r = 16 + (count / maxCount) * 24;
+      return {
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius,
+        r, label: tool, count,
+        color: `hsl(${35 + i * (280 / Math.max(toolData.length, 1))}, 70%, 55%)`,
+        angle
+      };
+    });
+
+    let hoveredNode = null;
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.moveTo(central.x, central.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.strokeStyle = hoveredNode === n ? 'rgba(217,119,6,0.5)' : 'rgba(0,0,0,0.06)';
+        ctx.lineWidth = hoveredNode === n ? 2.5 : 1.5;
+        ctx.stroke();
+      });
+      ctx.beginPath();
+      ctx.arc(central.x, central.y, central.r, 0, Math.PI * 2);
+      ctx.fillStyle = central.color;
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = '600 9px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Claude@', central.x, central.y - 5);
+      ctx.fillText('Stanford', central.x, central.y + 6);
+      nodes.forEach(n => {
+        const isHovered = hoveredNode === n;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + (isHovered ? 3 : 0), 0, Math.PI * 2);
+        ctx.fillStyle = n.color;
+        ctx.globalAlpha = isHovered ? 1 : 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        if (isHovered) { ctx.strokeStyle = n.color; ctx.lineWidth = 2; ctx.stroke(); }
+        ctx.fillStyle = '#fff';
+        ctx.font = `600 ${Math.max(9, n.r * 0.55)}px Inter, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const name = n.label.length > 12 ? n.label.slice(0, 10) + '..' : n.label;
+        ctx.fillText(name, n.x, n.y - (n.r > 24 ? 5 : 0));
+        if (n.r > 24) {
+          ctx.font = `700 ${Math.max(10, n.r * 0.5)}px JetBrains Mono, monospace`;
+          ctx.fillText(n.count, n.x, n.y + 8);
+        }
+      });
+    }
+
+    canvas.addEventListener('mousemove', e => {
+      const mr = canvas.getBoundingClientRect();
+      const mx = e.clientX - mr.left;
+      const my = e.clientY - mr.top;
+      let found = null;
+      for (const n of nodes) {
+        const dx = mx - n.x, dy = my - n.y;
+        if (dx * dx + dy * dy < (n.r + 4) * (n.r + 4)) { found = n; break; }
+      }
+      hoveredNode = found;
+      canvas.style.cursor = found ? 'pointer' : 'default';
+      if (found) {
+        tooltip.textContent = `${found.label}: ${found.count} project${found.count > 1 ? 's' : ''}`;
+        tooltip.style.left = (found.x + found.r + 12) + 'px';
+        tooltip.style.top = (found.y - 14) + 'px';
+        tooltip.style.opacity = '1';
+      } else { tooltip.style.opacity = '0'; }
+      draw();
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      hoveredNode = null;
+      tooltip.style.opacity = '0';
+      draw();
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      const nr = canvas.getBoundingClientRect();
+      canvas.width = nr.width * dpr;
+      canvas.height = nr.height * dpr;
+      ctx.scale(dpr, dpr);
+      const nW = nr.width, nH = nr.height;
+      central.x = nW / 2; central.y = nH / 2;
+      nodes.forEach((n, i) => {
+        const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
+        const radius = Math.min(nW, nH) * 0.32;
+        n.x = nW / 2 + Math.cos(angle) * radius;
+        n.y = nH / 2 + Math.sin(angle) * radius;
+      });
+      draw();
+    });
+    resizeObserver.observe(canvas);
+    draw();
+  }
+
+  // ========== UTIL ==========
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+</script>
+
+</body>
+</html>
