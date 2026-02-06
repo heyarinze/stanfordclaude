@@ -712,9 +712,14 @@
       <textarea id="projDesc" placeholder="What does it do?"></textarea>
     </div>
     <div class="form-group">
-      <label for="projTools">AI tools used</label>
-      <input type="text" id="projTools" placeholder="e.g. Claude Code, GPT-4, Cursor">
-      <div class="form-hint">Comma-separated list of AI tools used for development.</div>
+      <label>Claude Tools Used</label>
+      <div class="multiselect" id="projToolsSelect">
+        <button type="button" class="multiselect-toggle" onclick="toggleMultiselect('projTools')">
+          <span id="projToolsLabel">Select tools...</span>
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="multiselect-dropdown" id="projToolsDropdown"></div>
+      </div>
     </div>
     <div class="form-group">
       <label>Categories</label>
@@ -748,6 +753,16 @@
     <div class="form-group">
       <label for="libTitle">Title</label>
       <input type="text" id="libTitle" placeholder="e.g. Getting Started with Claude Code">
+    </div>
+    <div class="form-group">
+      <label>Claude Tools Covered</label>
+      <div class="multiselect" id="libToolsSelect">
+        <button type="button" class="multiselect-toggle" onclick="toggleMultiselect('libTools')">
+          <span id="libToolsLabel">Select tools...</span>
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="multiselect-dropdown" id="libToolsDropdown"></div>
+      </div>
     </div>
     <div class="form-group">
       <label>Categories</label>
@@ -817,11 +832,14 @@
   let currentUser = null;
   let pendingAction = null;
 
-  // ========== CATEGORIES ==========
+  // ========== CATEGORIES & TOOLS ==========
   const PROJECT_CATEGORIES = ['Planning', 'Learning', 'Fun', 'Writing', 'Reasoning', 'Shopping', 'Agent', 'Surveillance', 'Companionship'];
   const LIBRARY_CATEGORIES = ['Research', 'How-To', 'Fix-It', 'Hacks', 'Essays'];
+  const CLAUDE_TOOLS = ['Claude', 'Claude Code', 'Claude Skills', 'Claude API', 'Claude Agent SDK', 'Claude Cowork'];
   let selectedProjCategories = [];
   let selectedLibCategories = [];
+  let selectedProjTools = [];
+  let selectedLibTools = [];
 
   // ========== STATE ==========
   let projects = [];
@@ -878,12 +896,27 @@
   }
 
   function handleCategoryChange(checkbox, prefix) {
-    const isProject = prefix === 'projCategories';
-    const arr = isProject ? selectedProjCategories : selectedLibCategories;
+    let arr, labelId, defaultText;
+    if (prefix === 'projCategories') {
+      arr = selectedProjCategories;
+      labelId = 'projCategoriesLabel';
+      defaultText = 'Select categories...';
+    } else if (prefix === 'libCategories') {
+      arr = selectedLibCategories;
+      labelId = 'libCategoriesLabel';
+      defaultText = 'Select categories...';
+    } else if (prefix === 'projTools') {
+      arr = selectedProjTools;
+      labelId = 'projToolsLabel';
+      defaultText = 'Select tools...';
+    } else if (prefix === 'libTools') {
+      arr = selectedLibTools;
+      labelId = 'libToolsLabel';
+      defaultText = 'Select tools...';
+    }
     if (checkbox.checked) { arr.push(checkbox.value); }
     else { arr.splice(arr.indexOf(checkbox.value), 1); }
-    const labelId = isProject ? 'projCategoriesLabel' : 'libCategoriesLabel';
-    document.getElementById(labelId).textContent = arr.length ? arr.join(', ') : 'Select categories...';
+    document.getElementById(labelId).textContent = arr.length ? arr.join(', ') : defaultText;
   }
 
   // Close multiselect on outside click
@@ -907,6 +940,8 @@
   // Init multiselect dropdowns
   renderMultiselectOptions('projCategories', PROJECT_CATEGORIES, []);
   renderMultiselectOptions('libCategories', LIBRARY_CATEGORIES, []);
+  renderMultiselectOptions('projTools', CLAUDE_TOOLS, []);
+  renderMultiselectOptions('libTools', CLAUDE_TOOLS, []);
 
   // ========== LOAD DATA FROM FIRESTORE ==========
   async function loadProjects() {
@@ -1115,11 +1150,13 @@
     document.getElementById('projName').value = '';
     document.getElementById('projLink').value = '';
     document.getElementById('projDesc').value = '';
-    document.getElementById('projTools').value = '';
     document.getElementById('projHowBuilt').value = '';
     selectedProjCategories = [];
+    selectedProjTools = [];
     renderMultiselectOptions('projCategories', PROJECT_CATEGORIES, []);
+    renderMultiselectOptions('projTools', CLAUDE_TOOLS, []);
     document.getElementById('projCategoriesLabel').textContent = 'Select categories...';
+    document.getElementById('projToolsLabel').textContent = 'Select tools...';
     uploadOverlay.classList.remove('hidden');
     setTimeout(() => document.getElementById('projName').focus(), 100);
   }
@@ -1140,19 +1177,18 @@
     const name = document.getElementById('projName').value.trim();
     const link = document.getElementById('projLink').value.trim();
     const desc = document.getElementById('projDesc').value.trim();
-    const toolsRaw = document.getElementById('projTools').value.trim();
     const howBuilt = document.getElementById('projHowBuilt').value.trim();
     const categories = [...selectedProjCategories];
+    const tools = [...selectedProjTools];
 
-    if (!author || !name || !link || !desc || !toolsRaw) {
+    if (!author || !name || !link || !desc) {
       uploadMsg.textContent = 'Please fill in all required fields.';
       uploadMsg.className = 'msg msg-error show';
       return;
     }
 
-    const tools = toolsRaw.split(',').map(t => t.trim()).filter(Boolean);
     if (tools.length === 0) {
-      uploadMsg.textContent = 'Enter at least one AI tool.';
+      uploadMsg.textContent = 'Please select at least one Claude tool.';
       uploadMsg.className = 'msg msg-error show';
       return;
     }
@@ -1205,8 +1241,11 @@
     document.getElementById('libFileName').textContent = '';
     pendingLibFile = null;
     selectedLibCategories = [];
+    selectedLibTools = [];
     renderMultiselectOptions('libCategories', LIBRARY_CATEGORIES, []);
+    renderMultiselectOptions('libTools', CLAUDE_TOOLS, []);
     document.getElementById('libCategoriesLabel').textContent = 'Select categories...';
+    document.getElementById('libToolsLabel').textContent = 'Select tools...';
     libUploadOverlay.classList.remove('hidden');
     setTimeout(() => document.getElementById('libTitle').focus(), 100);
   }
@@ -1224,6 +1263,7 @@
     const url = document.getElementById('libUrl').value.trim();
     const why = document.getElementById('libWhy').value.trim();
     const categories = [...selectedLibCategories];
+    const tools = [...selectedLibTools];
 
     if (!author) { libUploadMsg.textContent = 'Please enter your name.'; libUploadMsg.className = 'msg msg-error show'; return; }
     if (!title) { libUploadMsg.textContent = 'Please enter a title.'; libUploadMsg.className = 'msg msg-error show'; return; }
@@ -1245,7 +1285,7 @@
       }
     }
 
-    const item = { author, title, url, why, categories };
+    const item = { author, title, url, why, categories, tools };
 
     if (!editingLibraryId) {
       item.submittedBy = currentUser.email;
@@ -1389,7 +1429,8 @@
         (item.title || '').toLowerCase().includes(globalSearchTerm) ||
         (item.author || '').toLowerCase().includes(globalSearchTerm) ||
         (item.why || '').toLowerCase().includes(globalSearchTerm) ||
-        (item.categories || []).some(c => c.toLowerCase().includes(globalSearchTerm))
+        (item.categories || []).some(c => c.toLowerCase().includes(globalSearchTerm)) ||
+        (item.tools || []).some(t => t.toLowerCase().includes(globalSearchTerm))
       );
     }
 
@@ -1427,6 +1468,7 @@
         }
 
         const categoryTags = (item.categories || []).map(c => `<span class="category-tag">${escHtml(c)}</span>`).join('');
+        const toolTags = (item.tools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join(' ');
 
         const isLibOwner = currentUser && item.submittedByUid && item.submittedByUid === currentUser.uid;
         const libOwnerActions = isLibOwner ? `<div style="display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
@@ -1444,7 +1486,7 @@
           <h3>${escHtml(item.title)}</h3>
           <div class="lib-author">Shared by ${escHtml(item.author)}</div>
           <p class="lib-why">${escHtml(item.why)}</p>
-          ${categoryTags ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">' + categoryTags + '</div>' : ''}
+          ${toolTags || categoryTags ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">' + toolTags + ' ' + categoryTags + '</div>' : ''}
           <div class="lib-links">${linksHtml || '<span style="font-size:0.82rem; color: var(--text-secondary);">No links or files attached</span>'}</div>
           ${libOwnerActions}
         `;
@@ -1468,11 +1510,13 @@
     document.getElementById('projName').value = p.name || '';
     document.getElementById('projLink').value = p.link || '';
     document.getElementById('projDesc').value = p.desc || '';
-    document.getElementById('projTools').value = (p.tools || []).join(', ');
     document.getElementById('projHowBuilt').value = p.howBuilt || '';
     selectedProjCategories = [...(p.categories || [])];
+    selectedProjTools = [...(p.tools || [])];
     renderMultiselectOptions('projCategories', PROJECT_CATEGORIES, selectedProjCategories);
+    renderMultiselectOptions('projTools', CLAUDE_TOOLS, selectedProjTools);
     document.getElementById('projCategoriesLabel').textContent = selectedProjCategories.length ? selectedProjCategories.join(', ') : 'Select categories...';
+    document.getElementById('projToolsLabel').textContent = selectedProjTools.length ? selectedProjTools.join(', ') : 'Select tools...';
     uploadOverlay.classList.remove('hidden');
   }
 
@@ -1504,6 +1548,9 @@
     selectedLibCategories = [...(item.categories || [])];
     renderMultiselectOptions('libCategories', LIBRARY_CATEGORIES, selectedLibCategories);
     document.getElementById('libCategoriesLabel').textContent = selectedLibCategories.length ? selectedLibCategories.join(', ') : 'Select categories...';
+    selectedLibTools = [...(item.tools || [])];
+    renderMultiselectOptions('libTools', CLAUDE_TOOLS, selectedLibTools);
+    document.getElementById('libToolsLabel').textContent = selectedLibTools.length ? selectedLibTools.join(', ') : 'Select tools...';
     libUploadOverlay.classList.remove('hidden');
   }
 
