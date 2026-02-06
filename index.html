@@ -662,7 +662,7 @@
 
 <!-- Footer -->
 <footer>
-  Built with &#10084;&#65039; by Claude Code and <a href="https://www.linkedin.com/in/arinzeobiezue" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none; font-weight: 600;">Arinze Obiezue</a>
+  Built with &#10084;&#65039; by <a href="https://www.linkedin.com/in/arinzeobiezue" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none; font-weight: 600;">Arinze Obiezue</a> with Claude Code
 </footer>
 
 <!-- Google Sign-In Modal -->
@@ -872,6 +872,12 @@
     const d = document.createElement('div');
     d.textContent = str;
     return d.innerHTML;
+  }
+
+  function truncateWords(str, maxWords) {
+    const words = (str || '').split(/\s+/);
+    if (words.length <= maxWords) return str;
+    return words.slice(0, maxWords).join(' ') + '...';
   }
 
   function formatRichText(str) {
@@ -1402,7 +1408,7 @@
           </div>
           <h3><a href="${escHtml(p.link)}" target="_blank" rel="noopener">${escHtml(p.name)}</a></h3>
           ${authorLine}
-          <p class="project-desc">${escHtml(p.desc)}</p>
+          <p class="project-desc">${escHtml(truncateWords(p.desc, 21))}</p>
           <div class="project-tools">${(p.tools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')} ${categoryTags}</div>
           <div class="project-actions">
             ${howBuiltBtn}
@@ -1501,7 +1507,7 @@
           ${thumbnailHtml}
           <h3>${escHtml(item.title)}</h3>
           <div class="lib-author">Shared by ${escHtml(item.author)}</div>
-          <p class="lib-why">${escHtml(item.why)}</p>
+          <p class="lib-why">${escHtml(truncateWords(item.why, 21))}</p>
           ${toolTags || categoryTags ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">' + toolTags + ' ' + categoryTags + '</div>' : ''}
           <div class="lib-links">${linksHtml || '<span style="font-size:0.82rem; color: var(--text-secondary);">No links or files attached</span>'}</div>
           ${libOwnerActions}
