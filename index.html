@@ -1368,6 +1368,8 @@
         (p.categories || []).some(c => c.toLowerCase().includes(globalSearchTerm))
       );
     }
+    // Sort by number of hearts (most liked first)
+    filtered.sort((a, b) => (b.hearts || []).length - (a.hearts || []).length);
 
     if (filtered.length === 0) {
       grid.innerHTML = '';
