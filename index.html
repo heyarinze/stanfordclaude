@@ -485,6 +485,7 @@
       <a href="#library">Library</a>
       <a href="#leads">Campus Leads</a>
       <a href="#toolmap">Tool Map</a>
+      <a href="#about">About</a>
       <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join</a>
     </div>
     <div id="userStatus" style="display:none; align-items:center; gap:0.6rem; margin-left:0.5rem;">
@@ -539,19 +540,6 @@
   <div class="empty-state" id="emptyState" style="display:none;">
     <p>No builds yet. Be the first to share what you've built.</p>
   </div>
-</section>
-
-<!-- About Section -->
-<div class="divider"><hr></div>
-<section class="section" id="about" style="text-align: center; max-width: 700px; margin: 0 auto; padding: 2rem;">
-  <h2 style="margin-bottom: 1rem;">About</h2>
-  <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 1.5rem;">
-    Claude@Stanford is the community of Stanford students and affiliates building, creating, and learning with Claude by Anthropic. Attend any of our tablings, demos, or buildathons to get free Claude Pro and API credits.
-  </p>
-  <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    Join
-  </a>
 </section>
 
 <!-- Claude Library Section -->
@@ -671,6 +659,19 @@
       <div class="graph-tooltip" id="graphTooltip"></div>
     </div>
   </div>
+</section>
+
+<!-- About Section -->
+<div class="divider"><hr></div>
+<section class="section" id="about" style="text-align: center; max-width: 700px; margin: 0 auto; padding: 2rem;">
+  <h2 style="margin-bottom: 1rem;">About</h2>
+  <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 1.5rem;">
+    Claude@Stanford is the community of Stanford students and affiliates building, creating, and learning with Claude by Anthropic. Attend any of our tablings, demos, or buildathons to get free Claude Pro and API credits.
+  </p>
+  <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    Join
+  </a>
 </section>
 
 <!-- Footer -->
@@ -1381,8 +1382,15 @@
         (p.categories || []).some(c => c.toLowerCase().includes(globalSearchTerm))
       );
     }
-    // Sort by number of hearts (most liked first)
-    filtered.sort((a, b) => (b.hearts || []).length - (a.hearts || []).length);
+    // Sort by number of hearts (most liked first), then by newest if tied
+    filtered.sort((a, b) => {
+      const heartDiff = (b.hearts || []).length - (a.hearts || []).length;
+      if (heartDiff !== 0) return heartDiff;
+      // If hearts are equal, sort by createdAt (newest first)
+      const aTime = a.createdAt?.toMillis?.() || 0;
+      const bTime = b.createdAt?.toMillis?.() || 0;
+      return bTime - aTime;
+    });
 
     if (filtered.length === 0) {
       grid.innerHTML = '';
@@ -1808,6 +1816,38 @@
 
   // Responsive carousel on resize
   window.addEventListener('resize', () => { updateCarousel('builds'); updateCarousel('library'); });
+
+  // Touch swipe support for carousels
+  function addSwipeSupport(trackId, type) {
+    const track = document.getElementById(trackId);
+    let startX = 0;
+    let isDragging = false;
+
+    track.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+    }, { passive: true });
+
+    track.addEventListener('touchend', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          carouselNext(type);
+        } else {
+          carouselPrev(type);
+        }
+      }
+    }, { passive: true });
+  }
+  addSwipeSupport('projectGrid', 'builds');
+  addSwipeSupport('libraryGrid', 'library');
 </script>
 
 </body>
