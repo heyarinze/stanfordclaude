@@ -1648,6 +1648,14 @@
       }
     } catch (e) {
       console.error('Error toggling heart:', e);
+      // Revert local change if Firestore update failed
+      if (adding) {
+        hearts.pop();
+      } else {
+        hearts.push(currentUser.uid);
+      }
+      p.hearts = hearts;
+      alert('Unable to heart this build. Please check that Firestore rules allow heart updates.');
     }
   }
 
