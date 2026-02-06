@@ -780,13 +780,16 @@
   </div>
 </div>
 
-<!-- How I Built This Modal -->
-<div class="overlay hidden" id="howBuiltOverlay">
-  <div class="modal" style="max-width:600px;">
-    <button class="modal-close" onclick="closeHowBuilt()">&times;</button>
-    <h2 id="howBuiltTitle">How I Built This</h2>
-    <p id="howBuiltAuthor" style="margin-bottom:1rem;"></p>
-    <div id="howBuiltContent" class="how-built-modal-content"></div>
+<!-- Build Details Modal -->
+<div class="overlay hidden" id="buildDetailsOverlay">
+  <div class="modal" style="max-width:650px;">
+    <button class="modal-close" onclick="closeBuildDetails()">&times;</button>
+    <h2 id="buildDetailsTitle"></h2>
+    <p id="buildDetailsAuthor" style="margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-secondary);"></p>
+    <div id="buildDetailsLinks" style="margin-bottom:1rem;"></div>
+    <p id="buildDetailsDesc" style="margin-bottom:1rem; line-height:1.6;"></p>
+    <div id="buildDetailsTools" style="margin-bottom:1rem;"></div>
+    <div id="buildDetailsHowBuilt" class="how-built-modal-content"></div>
   </div>
 </div>
 
@@ -908,6 +911,7 @@
       projects = snap.docs.map(doc => ({ fireId: doc.id, ...doc.data() }));
     } catch (e) { console.error('Error loading projects:', e); }
     renderProjects();
+    checkHashAndOpenModal();
   }
 
   async function loadLibrary() {
@@ -917,6 +921,24 @@
     } catch (e) { console.error('Error loading library:', e); }
     renderLibrary();
   }
+
+  function checkHashAndOpenModal() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#build-')) {
+      const fireId = hash.replace('#build-', '');
+      const p = projects.find(x => x.fireId === fireId);
+      if (p) {
+        // Scroll to the card first
+        const card = document.getElementById('build-' + fireId);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Open the modal with build details
+        showBuildDetails(fireId);
+      }
+    }
+  }
+
+  // Listen for hash changes (e.g., when user clicks back/forward)
+  window.addEventListener('hashchange', checkHashAndOpenModal);
 
   loadProjects();
   loadLibrary();
@@ -1477,18 +1499,37 @@
     }
   }
 
-  // ========== HOW I BUILT THIS MODAL ==========
-  function showHowBuilt(fireId) {
+  // ========== BUILD DETAILS MODAL ==========
+  function showBuildDetails(fireId) {
     const p = projects.find(x => x.fireId === fireId);
-    if (!p || !p.howBuilt) return;
-    document.getElementById('howBuiltTitle').textContent = p.name + ' — How I Built This';
-    document.getElementById('howBuiltAuthor').textContent = 'by ' + (p.author || 'Anonymous');
-    document.getElementById('howBuiltContent').innerHTML = formatRichText(p.howBuilt);
-    document.getElementById('howBuiltOverlay').classList.remove('hidden');
+    if (!p) return;
+    document.getElementById('buildDetailsTitle').textContent = p.name;
+    document.getElementById('buildDetailsAuthor').innerHTML = 'by <strong>' + escHtml(p.author || 'Anonymous') + '</strong>' +
+      (p.email ? ' · <a href="mailto:' + escHtml(p.email) + '" style="color:var(--accent);">' + escHtml(p.email) + '</a>' : '') +
+      (p.linkedin ? ' · <a href="' + escHtml(p.linkedin) + '" target="_blank" style="color:var(--accent);">LinkedIn</a>' : '');
+    document.getElementById('buildDetailsLinks').innerHTML = '<a href="' + escHtml(p.link) + '" target="_blank" class="project-link-btn">View Build →</a>';
+    document.getElementById('buildDetailsDesc').textContent = p.desc || '';
+    document.getElementById('buildDetailsTools').innerHTML = (p.tools || []).map(t => '<span class="tool-tag">' + escHtml(t) + '</span>').join(' ') +
+      ' ' + (p.categories || []).map(c => '<span class="category-tag">' + escHtml(c) + '</span>').join(' ');
+    if (p.howBuilt) {
+      document.getElementById('buildDetailsHowBuilt').innerHTML = '<h3 style="font-size:1rem; margin-bottom:0.75rem; color:var(--text-primary);">How I Built This</h3>' + formatRichText(p.howBuilt);
+    } else {
+      document.getElementById('buildDetailsHowBuilt').innerHTML = '';
+    }
+    document.getElementById('buildDetailsOverlay').classList.remove('hidden');
+    // Update URL hash without triggering hashchange
+    history.replaceState(null, '', '#build-' + fireId);
   }
 
-  function closeHowBuilt() {
-    document.getElementById('howBuiltOverlay').classList.add('hidden');
+  function showHowBuilt(fireId) {
+    // Reuse showBuildDetails for the "How I Built This" button
+    showBuildDetails(fireId);
+  }
+
+  function closeBuildDetails() {
+    document.getElementById('buildDetailsOverlay').classList.add('hidden');
+    // Clear the hash
+    history.replaceState(null, '', window.location.pathname);
   }
 
   // ========== HEART & SHARE ==========
