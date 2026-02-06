@@ -526,6 +526,9 @@
     <select id="buildsCategoryFilter" onchange="applyFilters('builds')">
       <option value="">All categories</option>
     </select>
+    <select id="buildsProductFilter" onchange="applyFilters('builds')">
+      <option value="">All products</option>
+    </select>
     <input type="text" id="buildsAuthorFilter" placeholder="Search by author..." oninput="applyFilters('builds')">
   </div>
   <div class="carousel-container" id="buildsCarousel">
@@ -553,6 +556,9 @@
   <div class="filter-bar">
     <select id="libraryCategoryFilter" onchange="applyFilters('library')">
       <option value="">All categories</option>
+    </select>
+    <select id="libraryProductFilter" onchange="applyFilters('library')">
+      <option value="">All products</option>
     </select>
     <input type="text" id="libraryAuthorFilter" placeholder="Search by author..." oninput="applyFilters('library')">
   </div>
@@ -931,9 +937,15 @@
     const bf = document.getElementById('buildsCategoryFilter');
     bf.innerHTML = '<option value="">All categories</option>' +
       PROJECT_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+    const bpf = document.getElementById('buildsProductFilter');
+    bpf.innerHTML = '<option value="">All products</option>' +
+      CLAUDE_TOOLS.map(t => `<option value="${t}">${t}</option>`).join('');
     const lf = document.getElementById('libraryCategoryFilter');
     lf.innerHTML = '<option value="">All categories</option>' +
       LIBRARY_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+    const lpf = document.getElementById('libraryProductFilter');
+    lpf.innerHTML = '<option value="">All products</option>' +
+      CLAUDE_TOOLS.map(t => `<option value="${t}">${t}</option>`).join('');
   }
   populateFilterDropdowns();
 
@@ -1336,8 +1348,10 @@
     // Filter
     let filtered = [...projects];
     const catFilter = document.getElementById('buildsCategoryFilter').value;
+    const productFilter = document.getElementById('buildsProductFilter').value;
     const authorFilter = document.getElementById('buildsAuthorFilter').value.toLowerCase();
     if (catFilter) filtered = filtered.filter(p => (p.categories || []).includes(catFilter));
+    if (productFilter) filtered = filtered.filter(p => (p.tools || []).includes(productFilter));
     if (authorFilter) filtered = filtered.filter(p => (p.author || '').toLowerCase().includes(authorFilter));
     if (globalSearchTerm) {
       filtered = filtered.filter(p =>
@@ -1421,8 +1435,10 @@
 
     let filtered = [...libraryItems];
     const catFilter = document.getElementById('libraryCategoryFilter').value;
+    const productFilter = document.getElementById('libraryProductFilter').value;
     const authorFilter = document.getElementById('libraryAuthorFilter').value.toLowerCase();
     if (catFilter) filtered = filtered.filter(item => (item.categories || []).includes(catFilter));
+    if (productFilter) filtered = filtered.filter(item => (item.tools || []).includes(productFilter));
     if (authorFilter) filtered = filtered.filter(item => (item.author || '').toLowerCase().includes(authorFilter));
     if (globalSearchTerm) {
       filtered = filtered.filter(item =>
