@@ -113,6 +113,10 @@
       font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 700;
       line-height: 1.15; letter-spacing: -0.025em; margin-bottom: 1rem;
     }
+    #heroVerb {
+      display: inline-block; transition: opacity 0.3s ease;
+      color: var(--accent);
+    }
     .hero p {
       font-size: 1.15rem; color: var(--text-secondary);
       max-width: 560px; margin: 0 auto 2rem; line-height: 1.7;
@@ -493,7 +497,7 @@
 <!-- Hero -->
 <section class="hero">
   <div style="display: inline-block; background: #FDF6E8; color: #7A5A1A; font-size: 0.82rem; font-weight: 700; padding: 0.5rem 1.3rem; border-radius: 8px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(180,140,40,0.12); border: 1px solid #F0DDB0;">Anthropic's Largest Builder Club</div>
-  <h1>What Stanford is<br>building with Claude</h1>
+  <h1>What Stanford is<br><span id="heroVerb">building</span> with Claude</h1>
   <p>A showcase of projects built by Claude@Stanford members using Claude Code alongside other AI tools</p>
   <button class="btn btn-primary" id="uploadBtn" onclick="startUpload()">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -1027,6 +1031,21 @@
       splash.addEventListener('animationend', () => splash.remove());
     }
   });
+
+  // Hero verb rotation
+  const heroVerbs = ['building', 'learning', 'creating'];
+  let heroVerbIndex = 0;
+  setInterval(() => {
+    heroVerbIndex = (heroVerbIndex + 1) % heroVerbs.length;
+    const el = document.getElementById('heroVerb');
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = heroVerbs[heroVerbIndex];
+        el.style.opacity = '1';
+      }, 300);
+    }
+  }, 2500);
 
   // ========== GLOBAL SEARCH ==========
   function handleGlobalSearch(term) {
