@@ -226,6 +226,8 @@
     .project-tools::-webkit-scrollbar-track { background: var(--border); border-radius: 2px; }
     .project-tools::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 2px; }
     .tool-tag { background: var(--tag-bg); color: var(--tag-text); font-size: 0.78rem; font-weight: 500; padding: 0.25rem 0.65rem; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+    .hash-tag { color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; }
+    .category-hashtags { margin-bottom: 0.5rem; }
     .project-link { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--accent); text-decoration: none; }
     .project-link:hover { text-decoration: underline; }
     .project-number { font-size: 0.75rem; font-weight: 700; color: var(--border); font-family: var(--font-mono); }
@@ -827,6 +829,7 @@
   <div class="modal" style="max-width:650px;">
     <button class="modal-close" onclick="closeBuildDetails()">&times;</button>
     <h2 id="buildDetailsTitle"></h2>
+    <div id="buildDetailsCategories" class="category-hashtags"></div>
     <p id="buildDetailsAuthor" style="margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-secondary);"></p>
     <div id="buildDetailsLinks" style="margin-bottom:1rem;"></div>
     <p id="buildDetailsDesc" style="margin-bottom:1rem; line-height:1.6;"></p>
@@ -1417,7 +1420,7 @@
         </div>` : '';
         const linkedinBtn = p.linkedin ? `<a href="${escHtml(p.linkedin)}" target="_blank" rel="noopener" class="lead-btn" style="font-size:0.75rem; padding:0.3rem 0.6rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>` : '';
         const authorLine = p.author ? `<div style="font-size:0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">by <strong style="color: var(--text-primary);">${escHtml(p.author)}</strong>${p.email ? ' <a href="mailto:' + escHtml(p.email) + '" style="color: var(--accent); text-decoration: none;">' + escHtml(p.email) + '</a>' : ''} ${linkedinBtn}</div>` : '';
-        const categoryTags = (p.categories || []).map(c => `<span class="tool-tag">${escHtml(c)}</span>`).join('');
+        const categoryHashtags = (p.categories || []).map(c => `<span class="hash-tag">#${escHtml(c)}</span>`).join(' ');
         const otherToolTags = (p.otherTools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('');
         const howBuiltBtn = (p.howBuilt && p.howBuilt.trim()) ? `<button onclick="showHowBuilt('${p.fireId}')" class="project-link-btn">How I Built This</button>` : '';
         const hearts = p.hearts || [];
@@ -1437,9 +1440,10 @@
             <div style="display:flex; gap:0.4rem;">${heartBtn}${shareBtn}</div>
           </div>
           <h3><a href="${escHtml(p.link)}" target="_blank" rel="noopener">${escHtml(p.name)}</a></h3>
+          ${categoryHashtags ? `<div class="category-hashtags">${categoryHashtags}</div>` : ''}
           ${authorLine}
           <p class="project-desc">${escHtml(truncateWords(p.desc, 21))}</p>
-          <div class="project-tools">${(p.tools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')} ${otherToolTags} ${categoryTags}</div>
+          <div class="project-tools">${(p.tools || []).map(t => `<span class="tool-tag">${escHtml(t)}</span>`).join('')}${otherToolTags}</div>
           <div class="project-actions">
             ${howBuiltBtn}
             <a class="project-link-btn" href="${escHtml(p.link)}" target="_blank" rel="noopener">View Build &rarr;</a>
@@ -1623,14 +1627,14 @@
     const p = projects.find(x => x.fireId === fireId);
     if (!p) return;
     document.getElementById('buildDetailsTitle').textContent = p.name;
+    document.getElementById('buildDetailsCategories').innerHTML = (p.categories || []).map(c => '<span class="hash-tag">#' + escHtml(c) + '</span>').join(' ');
     document.getElementById('buildDetailsAuthor').innerHTML = 'by <strong>' + escHtml(p.author || 'Anonymous') + '</strong>' +
       (p.email ? ' · <a href="mailto:' + escHtml(p.email) + '" style="color:var(--accent);">' + escHtml(p.email) + '</a>' : '') +
       (p.linkedin ? ' · <a href="' + escHtml(p.linkedin) + '" target="_blank" style="color:var(--accent);">LinkedIn</a>' : '');
     document.getElementById('buildDetailsLinks').innerHTML = '<a href="' + escHtml(p.link) + '" target="_blank" class="project-link-btn">View Build →</a>';
     document.getElementById('buildDetailsDesc').textContent = p.desc || '';
     document.getElementById('buildDetailsTools').innerHTML = (p.tools || []).map(t => '<span class="tool-tag">' + escHtml(t) + '</span>').join('') +
-      (p.otherTools || []).map(t => '<span class="tool-tag">' + escHtml(t) + '</span>').join('') +
-      (p.categories || []).map(c => '<span class="tool-tag">' + escHtml(c) + '</span>').join('');
+      (p.otherTools || []).map(t => '<span class="tool-tag">' + escHtml(t) + '</span>').join('');
     if (p.howBuilt) {
       document.getElementById('buildDetailsHowBuilt').innerHTML = '<h3 style="font-size:1rem; margin-bottom:0.75rem; color:var(--text-primary);">How I Built This</h3>' + formatRichText(p.howBuilt);
     } else {
