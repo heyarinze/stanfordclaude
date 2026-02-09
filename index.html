@@ -1328,7 +1328,6 @@
     const count = projects.length;
 
     document.getElementById('projectCountLabel').textContent = count + ' build' + (count !== 1 ? 's' : '');
-    document.getElementById('remainingCount').textContent = Math.max(0, 5 - count);
 
     // Filter
     let filtered = [...projects];
