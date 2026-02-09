@@ -396,26 +396,6 @@
     .video-thumb { margin-bottom: 0.75rem; border-radius: 8px; overflow: hidden; background: #000; }
     .video-thumb video { width: 100%; max-height: 180px; object-fit: cover; display: block; }
 
-    /* Tool Map */
-    .toolmap-section { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 5rem; }
-    .toolmap-locked { text-align: center; padding: 3rem 2rem; background: var(--surface); border: 1px dashed var(--border); border-radius: 16px; }
-    .toolmap-locked h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .toolmap-locked p { color: var(--text-secondary); font-size: 0.9rem; }
-    .toolmap-locked .lock-icon { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.5; }
-    .chart-container { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
-    .chart-title { font-size: 1rem; font-weight: 650; margin-bottom: 1.5rem; }
-    .bar-chart { display: flex; flex-direction: column; gap: 0.75rem; }
-    .bar-row { display: flex; align-items: center; gap: 1rem; cursor: default; padding: 0.3rem 0; }
-    .bar-label { min-width: 140px; font-size: 0.88rem; font-weight: 600; text-align: right; color: var(--text-primary); }
-    .bar-track { flex: 1; height: 32px; background: var(--tag-bg); border-radius: 8px; overflow: hidden; position: relative; }
-    .bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--accent), #F59E0B); transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); min-width: 2px; }
-    .bar-count { min-width: 36px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font-mono); }
-    .bar-row:hover .bar-fill { filter: brightness(1.1); }
-    .bar-row:hover .bar-label { color: var(--accent); }
-    .graph-wrapper { margin-top: 2rem; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; }
-    .graph-canvas { width: 100%; height: 400px; display: block; }
-    .graph-tooltip { position: absolute; background: var(--text-primary); color: #fff; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
-
     /* Powered by */
     .powered-by {
       display: flex; align-items: center; justify-content: center;
@@ -452,7 +432,7 @@
       #userStatus { margin-left: 0 !important; }
       .leads-grid { grid-template-columns: 1fr; }
       .hero { padding: 3rem 1.25rem 2rem; }
-      .section, .toolmap-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .section { padding-left: 1.25rem; padding-right: 1.25rem; }
       .bar-label { min-width: 100px; font-size: 0.8rem; }
       .carousel-track > * {
         min-width: 100% !important; max-width: 100% !important;
@@ -488,7 +468,6 @@
       <a href="#builds">Builds</a>
       <a href="#library">Library</a>
       <a href="#leads">Campus Leads</a>
-      <a href="#toolmap">Tool Map</a>
       <a href="#about">About</a>
       <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join</a>
     </div>
@@ -641,29 +620,6 @@
   </div>
 </div>
 
-<!-- Tool Map Section -->
-<div class="divider"><hr></div>
-<section class="toolmap-section" id="toolmap">
-  <div class="section-header">
-    <h2>Tool Map</h2>
-    <span id="toolmapStatus">Unlocks after 5 builds</span>
-  </div>
-  <div id="toolmapLocked" class="toolmap-locked">
-    <div class="lock-icon">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-    </div>
-    <h3>Tool Map is locked</h3>
-    <p>Submit <span id="remainingCount">5</span> more build(s) to reveal the interactive tool usage graph.</p>
-  </div>
-  <div id="toolmapRevealed" style="display:none;" class="chart-container animate-in">
-    <div class="chart-title">AI Tools Used in Development</div>
-    <div id="barChart" class="bar-chart"></div>
-    <div class="graph-wrapper">
-      <canvas class="graph-canvas" id="graphCanvas"></canvas>
-      <div class="graph-tooltip" id="graphTooltip"></div>
-    </div>
-  </div>
-</section>
 
 <!-- About Section -->
 <div class="divider"><hr></div>
@@ -1455,17 +1411,6 @@
       updateCarousel('builds');
     }
 
-    // Tool map
-    if (count >= 5) {
-      document.getElementById('toolmapLocked').style.display = 'none';
-      document.getElementById('toolmapRevealed').style.display = '';
-      document.getElementById('toolmapStatus').textContent = 'Unlocked';
-      renderToolMap();
-    } else {
-      document.getElementById('toolmapLocked').style.display = '';
-      document.getElementById('toolmapRevealed').style.display = 'none';
-      document.getElementById('toolmapStatus').textContent = 'Unlocks after 5 builds';
-    }
   }
 
   // ========== RENDER LIBRARY ==========
@@ -1738,94 +1683,6 @@
       document.getElementById('navLinks')?.classList.remove('open');
     });
   });
-
-  // ========== TOOL MAP ==========
-  function renderToolMap() {
-    const toolCount = {};
-    projects.forEach(p => {
-      (p.tools || []).forEach(t => {
-        const key = t.trim();
-        toolCount[key] = (toolCount[key] || 0) + 1;
-      });
-    });
-    const sorted = Object.entries(toolCount).sort((a, b) => b[1] - a[1]);
-    const maxCount = sorted[0] ? sorted[0][1] : 1;
-    const barChart = document.getElementById('barChart');
-    barChart.innerHTML = sorted.map(([tool, count]) => `
-      <div class="bar-row">
-        <span class="bar-label">${escHtml(tool)}</span>
-        <div class="bar-track">
-          <div class="bar-fill" style="width: ${(count / maxCount) * 100}%"></div>
-        </div>
-        <span class="bar-count">${count}</span>
-      </div>
-    `).join('');
-    drawGraph(sorted);
-  }
-
-  function drawGraph(toolData) {
-    const canvas = document.getElementById('graphCanvas');
-    const ctx = canvas.getContext('2d');
-    const tooltip = document.getElementById('graphTooltip');
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-    const W = rect.width, H = rect.height;
-    const cx = W / 2, cy = H / 2;
-    const maxCount = Math.max(...toolData.map(d => d[1]), 1);
-    const central = { x: cx, y: cy, r: 28, label: 'Claude@Stanford', count: null, color: '#1A1A1A' };
-    const nodes = toolData.map(([tool, count], i) => {
-      const angle = (2 * Math.PI * i) / toolData.length - Math.PI / 2;
-      const radius = Math.min(W, H) * 0.32;
-      const r = 16 + (count / maxCount) * 24;
-      return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius, r, label: tool, count, color: `hsl(${35 + i * (280 / Math.max(toolData.length, 1))}, 70%, 55%)`, angle };
-    });
-    let hoveredNode = null;
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      nodes.forEach(n => {
-        ctx.beginPath(); ctx.moveTo(central.x, central.y); ctx.lineTo(n.x, n.y);
-        ctx.strokeStyle = hoveredNode === n ? 'rgba(217,119,6,0.5)' : 'rgba(0,0,0,0.06)';
-        ctx.lineWidth = hoveredNode === n ? 2.5 : 1.5; ctx.stroke();
-      });
-      ctx.beginPath(); ctx.arc(central.x, central.y, central.r, 0, Math.PI * 2);
-      ctx.fillStyle = central.color; ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = '600 9px Inter, sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('Claude@', central.x, central.y - 5);
-      ctx.fillText('Stanford', central.x, central.y + 6);
-      nodes.forEach(n => {
-        const isHovered = hoveredNode === n;
-        ctx.beginPath(); ctx.arc(n.x, n.y, n.r + (isHovered ? 3 : 0), 0, Math.PI * 2);
-        ctx.fillStyle = n.color; ctx.globalAlpha = isHovered ? 1 : 0.85; ctx.fill(); ctx.globalAlpha = 1;
-        if (isHovered) { ctx.strokeStyle = n.color; ctx.lineWidth = 2; ctx.stroke(); }
-        ctx.fillStyle = '#fff'; ctx.font = `600 ${Math.max(9, n.r * 0.55)}px Inter, sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        const name = n.label.length > 12 ? n.label.slice(0, 10) + '..' : n.label;
-        ctx.fillText(name, n.x, n.y - (n.r > 24 ? 5 : 0));
-        if (n.r > 24) { ctx.font = `700 ${Math.max(10, n.r * 0.5)}px JetBrains Mono, monospace`; ctx.fillText(n.count, n.x, n.y + 8); }
-      });
-    }
-    canvas.addEventListener('mousemove', e => {
-      const mr = canvas.getBoundingClientRect();
-      const mx = e.clientX - mr.left, my = e.clientY - mr.top;
-      let found = null;
-      for (const n of nodes) { const dx = mx - n.x, dy = my - n.y; if (dx * dx + dy * dy < (n.r + 4) * (n.r + 4)) { found = n; break; } }
-      hoveredNode = found; canvas.style.cursor = found ? 'pointer' : 'default';
-      if (found) { tooltip.textContent = `${found.label}: ${found.count} build${found.count > 1 ? 's' : ''}`; tooltip.style.left = (found.x + found.r + 12) + 'px'; tooltip.style.top = (found.y - 14) + 'px'; tooltip.style.opacity = '1'; }
-      else { tooltip.style.opacity = '0'; } draw();
-    });
-    canvas.addEventListener('mouseleave', () => { hoveredNode = null; tooltip.style.opacity = '0'; draw(); });
-    const resizeObserver = new ResizeObserver(() => {
-      const nr = canvas.getBoundingClientRect(); canvas.width = nr.width * dpr; canvas.height = nr.height * dpr; ctx.scale(dpr, dpr);
-      const nW = nr.width, nH = nr.height; central.x = nW / 2; central.y = nH / 2;
-      nodes.forEach((n, i) => { const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2; const radius = Math.min(nW, nH) * 0.32; n.x = nW / 2 + Math.cos(angle) * radius; n.y = nH / 2 + Math.sin(angle) * radius; });
-      draw();
-    });
-    resizeObserver.observe(canvas); draw();
-  }
 
   // Responsive carousel on resize
   window.addEventListener('resize', () => { updateCarousel('builds'); updateCarousel('library'); });
