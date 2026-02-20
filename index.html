@@ -89,6 +89,14 @@
       transition: background 0.15s !important;
     }
     .nav-join-btn:hover { background: var(--accent-hover); color: #fff !important; }
+    .nav-signin-btn {
+      background: #8C1515; color: #fff !important;
+      padding: 0.45rem 1rem; border-radius: 8px;
+      font-weight: 600 !important; font-size: 0.85rem !important;
+      transition: background 0.15s !important;
+      cursor: pointer; border: none; font-family: var(--font-sans);
+    }
+    .nav-signin-btn:hover { background: #6F1111; color: #fff !important; }
 
     /* Hamburger */
     .hamburger {
@@ -429,6 +437,7 @@
       }
       .nav-links.open { display: flex; }
       .nav-join-btn { text-align: center; }
+      .nav-signin-btn { text-align: center; width: 100%; }
       #userStatus { margin-left: 0 !important; }
       .leads-grid { grid-template-columns: 1fr; }
       .hero { padding: 3rem 1.25rem 2rem; }
@@ -470,6 +479,7 @@
       <a href="#leads">Campus Leads</a>
       <a href="#about">About</a>
       <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join</a>
+      <button id="navSignInBtn" class="nav-signin-btn" onclick="navSignIn()">Sign In</button>
     </div>
     <div id="userStatus" style="display:none; align-items:center; gap:0.6rem; margin-left:0.5rem;">
       <span id="userEmail" style="font-size:0.78rem; color:var(--text-secondary); font-weight:500; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
@@ -999,12 +1009,15 @@
   function updateAuthUI(isSignedIn) {
     const userStatus = document.getElementById('userStatus');
     const userEmail = document.getElementById('userEmail');
+    const navSignInBtn = document.getElementById('navSignInBtn');
     if (isSignedIn && currentUser) {
       userEmail.textContent = currentUser.email;
       userStatus.style.display = 'flex';
+      if (navSignInBtn) navSignInBtn.style.display = 'none';
     } else {
       userStatus.style.display = 'none';
       userEmail.textContent = '';
+      if (navSignInBtn) navSignInBtn.style.display = '';
     }
     // Re-render to show/hide owner actions
     renderProjects();
@@ -1027,6 +1040,21 @@
       console.error('Sign-in error:', error);
       signInMsg.textContent = 'Sign-in failed. Please try again.';
       signInMsg.className = 'msg msg-error show';
+    }
+  }
+
+  async function navSignIn() {
+    try {
+      const result = await auth.signInWithPopup(googleProvider);
+      const email = result.user.email;
+      if (!email || !email.endsWith('@stanford.edu')) {
+        await auth.signOut();
+        alert('Access denied. You must use a @stanford.edu email address.');
+      }
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') return;
+      console.error('Sign-in error:', error);
+      alert('Sign-in failed. Please try again.');
     }
   }
 
