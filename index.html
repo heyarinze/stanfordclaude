@@ -405,7 +405,8 @@
       animation: fadeUp 0.4s ease-out both;
       box-shadow: var(--card-shadow);
     }
-    .plaque:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); border-color: #d0cdc8; }
+    .plaque:hover,
+    .plaque:focus-within { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); border-color: #d0cdc8; }
     .plaque:nth-child(2) { animation-delay: 0.05s; }
     .plaque:nth-child(3) { animation-delay: 0.1s; }
     .plaque-ribbon {
