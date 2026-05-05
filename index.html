@@ -387,6 +387,220 @@
     .lead-btn:hover { border-color: var(--accent); color: var(--accent); }
     .lead-btn svg { flex-shrink: 0; }
 
+    /* Hackathon Winners — Plaques */
+    .winners-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .plaque {
+      position: relative;
+      background: linear-gradient(160deg, #FFFEFB 0%, #F6F2EA 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2.25rem 1.5rem 1.5rem;
+      text-align: center;
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease-out both;
+      box-shadow: var(--card-shadow);
+    }
+    .plaque:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); border-color: #d0cdc8; }
+    .plaque:nth-child(2) { animation-delay: 0.05s; }
+    .plaque:nth-child(3) { animation-delay: 0.1s; }
+    .plaque-ribbon {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 5px;
+    }
+    .plaque-gold .plaque-ribbon { background: linear-gradient(90deg, #B8860B, #F4D03F 50%, #B8860B); }
+    .plaque-silver .plaque-ribbon { background: linear-gradient(90deg, #888, #E0E0E0 50%, #888); }
+    .plaque-bronze .plaque-ribbon { background: linear-gradient(90deg, #8B5A2B, #E0A872 50%, #8B5A2B); }
+    .plaque-medal {
+      position: relative;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.85rem;
+      font-weight: 800; font-size: 1.55rem;
+      font-family: var(--font-sans);
+      color: #fff;
+      letter-spacing: -0.02em;
+      overflow: hidden;
+      box-shadow:
+        0 4px 10px rgba(0,0,0,0.22),
+        0 1px 2px rgba(0,0,0,0.15),
+        inset 0 -4px 6px rgba(0,0,0,0.28),
+        inset 0 3px 4px rgba(255,255,255,0.55),
+        inset 0 0 0 2px rgba(255,255,255,0.18);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.35), 0 0 6px rgba(255,255,255,0.15);
+    }
+    .plaque-medal span {
+      position: relative;
+      z-index: 2;
+      display: block;
+      line-height: 1;
+    }
+    /* Static specular highlight (catches the eye) */
+    .plaque-medal::before {
+      content: '';
+      position: absolute;
+      top: 10%; left: 18%;
+      width: 38%; height: 32%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* Animated shimmer streak */
+    .plaque-medal::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(
+        100deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0) 35%,
+        rgba(255,255,255,0.55) 50%,
+        rgba(255,255,255,0) 65%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: translateX(0) rotate(18deg);
+      animation: medalShimmer 3.6s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .plaque-silver .plaque-medal::after { animation-delay: 0.4s; }
+    .plaque-bronze .plaque-medal::after { animation-delay: 0.8s; }
+    @keyframes medalShimmer {
+      0% { transform: translateX(0) rotate(18deg); }
+      55%, 100% { transform: translateX(360%) rotate(18deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .plaque-medal::after { animation: none; }
+    }
+    .plaque-gold .plaque-medal { background: linear-gradient(145deg, #FFE99A 0%, #F4D03F 28%, #C9A227 62%, #8B6914 100%); }
+    .plaque-silver .plaque-medal { background: linear-gradient(145deg, #FAFAFA 0%, #D8D8D8 28%, #A0A0A0 62%, #6B6B6B 100%); }
+    .plaque-bronze .plaque-medal { background: linear-gradient(145deg, #F2C795 0%, #D89559 28%, #A66628 62%, #6B3F18 100%); }
+    .plaque-rank-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.65rem;
+    }
+    .plaque h3 {
+      font-size: 1.2rem; font-weight: 700;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+    .plaque-desc {
+      font-size: 0.88rem; color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.1rem;
+    }
+    .plaque-contributors {
+      padding-top: 0.9rem;
+      border-top: 1px dashed var(--border);
+      margin-bottom: 1rem;
+    }
+    .plaque-contributors-label {
+      display: block;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+    .plaque-contributors-names {
+      font-size: 0.85rem; color: var(--text-primary);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .plaque-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      background: var(--surface);
+      transition: all 0.15s;
+    }
+    .plaque-link:hover { border-color: var(--accent); color: var(--accent); }
+    .plaque-link svg { flex-shrink: 0; }
+    .plaque-track-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(217, 119, 6, 0.1);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.85rem;
+    }
+
+    /* Honorable Mentions */
+    .mentions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .mention-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .mention-card:hover { box-shadow: var(--card-shadow-hover); border-color: #d0cdc8; }
+    .mention-card:nth-child(2) { animation-delay: 0.05s; }
+    .mention-track {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(217, 119, 6, 0.08);
+      padding: 0.32rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.85rem;
+    }
+    .mention-card h3 {
+      font-size: 1.1rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .mention-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .mention-builders {
+      padding-top: 0.85rem;
+      border-top: 1px dashed var(--border);
+    }
+    .mention-builders-label {
+      display: block;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+    .mention-builders-names {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
     /* Library */
     .library-card {
       background: var(--surface); border: 1px solid var(--border);
@@ -440,6 +654,8 @@
       .nav-signin-btn { text-align: center; width: 100%; }
       #userStatus { margin-left: 0 !important; }
       .leads-grid { grid-template-columns: 1fr; }
+      .winners-grid { grid-template-columns: 1fr; }
+      .mentions-grid { grid-template-columns: 1fr; }
       .hero { padding: 3rem 1.25rem 2rem; }
       .section { padding-left: 1.25rem; padding-right: 1.25rem; }
       .bar-label { min-width: 100px; font-size: 0.8rem; }
@@ -477,6 +693,7 @@
       <a href="#builds">Builds</a>
       <a href="#library">Library</a>
       <a href="#leads">Campus Leads</a>
+      <a href="#winners">Winners</a>
       <a href="#about">About</a>
       <a href="https://www.jotform.com/253555944387168" target="_blank" rel="noopener" class="nav-join-btn">Join</a>
       <button id="navSignInBtn" class="nav-signin-btn" onclick="navSignIn()">Sign In</button>
@@ -616,6 +833,90 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
           Email
         </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Hackathon Winners Section -->
+<div class="divider"><hr></div>
+<section class="section" id="winners">
+  <div class="section-header">
+    <h2>Hackathon Winners</h2>
+  </div>
+  <div class="winners-grid">
+    <div class="plaque plaque-gold">
+      <div class="plaque-ribbon"></div>
+      <div class="plaque-medal"><span>1</span></div>
+      <div class="plaque-rank-label">First Place</div>
+      <h3>Crucible</h3>
+      <span class="plaque-track-badge">Better Track Winner</span>
+      <p class="plaque-desc">AI validates decisions instead of stress-testing them. Crucible enforces rigorous deliberation through structured stages before delivering a recommendation, making ethical safeguards architectural rather than superficial.</p>
+      <div class="plaque-contributors">
+        <span class="plaque-contributors-label">Built by</span>
+        <div class="plaque-contributors-names">Karthik Goel &middot; Noah Sabb &middot; Max Yan</div>
+      </div>
+      <a href="https://devpost.com/software/crucible-d3hkyc" target="_blank" rel="noopener" class="plaque-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View on Devpost
+      </a>
+    </div>
+    <div class="plaque plaque-silver">
+      <div class="plaque-ribbon"></div>
+      <div class="plaque-medal"><span>2</span></div>
+      <div class="plaque-rank-label">Second Place</div>
+      <h3>ArkSkill</h3>
+      <p class="plaque-desc">A free web app that generates tailored Claude skill files for humanities researchers, helping them extract structured data from sources like bibliographies, indexes, and tables of contents.</p>
+      <div class="plaque-contributors">
+        <span class="plaque-contributors-label">Built by</span>
+        <div class="plaque-contributors-names">Georgii Korotkov &middot; Valeriia Korotkova</div>
+      </div>
+      <a href="https://devpost.com/software/arkskill" target="_blank" rel="noopener" class="plaque-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View on Devpost
+      </a>
+    </div>
+    <div class="plaque plaque-bronze">
+      <div class="plaque-ribbon"></div>
+      <div class="plaque-medal"><span>3</span></div>
+      <div class="plaque-rank-label">Third Place</div>
+      <h3>Anchor</h3>
+      <p class="plaque-desc">AI holds the memory so humans can hold each other. An AI companion that preserves patient memories, delivers personalized morning briefs, and reduces caregiver coordination burden for Alzheimer's families.</p>
+      <div class="plaque-contributors">
+        <span class="plaque-contributors-label">Built by</span>
+        <div class="plaque-contributors-names">Esther Suebsubanant &middot; Antonio Aguirregomezcorta</div>
+      </div>
+      <a href="https://devpost.com/software/anchor-improve-alzheimer-s-patients-quality-of-life" target="_blank" rel="noopener" class="plaque-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View on Devpost
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Honorable Mentions Section -->
+<div class="divider"><hr></div>
+<section class="section" id="mentions">
+  <div class="section-header">
+    <h2>Honorable Mentions</h2>
+  </div>
+  <div class="mentions-grid">
+    <div class="mention-card">
+      <span class="mention-track">Smarter Track</span>
+      <h3>Mnemosyne</h3>
+      <p class="mention-desc">A human-AI context management system enabling transparent memory organization and branching conversations for non-linear chat exploration.</p>
+      <div class="mention-builders">
+        <span class="mention-builders-label">Built by</span>
+        <div class="mention-builders-names">Huijun Mao &middot; Yiheng Yao</div>
+      </div>
+    </div>
+    <div class="mention-card">
+      <span class="mention-track">Faster Track</span>
+      <h3>EventDrop</h3>
+      <p class="mention-desc">A personalized campus event discovery platform that curates weekly activity recommendations based on user preferences and interests.</p>
+      <div class="mention-builders">
+        <span class="mention-builders-label">Built by</span>
+        <div class="mention-builders-names">Hui Wen Zheng &middot; Grace Chen</div>
       </div>
     </div>
   </div>
