@@ -12,9 +12,38 @@ import { getConfig, yearLabel } from './config.js';
 
 const withId = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
+/* Session cache of public lists, so moving between pages renders instantly and refreshes behind
+   the scenes (stale-while-revalidate). Per tab, short-lived, and purely a speed-up. */
+const CACHE_TTL = 10 * 60 * 1000;
+const cacheKey = (name) => `published:${name}`;
+const toPlain = (item) => {
+  const out = { ...item };
+  ['createdAt', 'updatedAt', 'moderatedAt'].forEach((k) => { if (out[k]) out[k] = toMillis(out[k]); });
+  return out;
+};
+
+export function peekPublished(collectionName) {
+  try {
+    const raw = sessionStorage.getItem(cacheKey(collectionName));
+    if (!raw) return null;
+    const { t, items } = JSON.parse(raw);
+    return Date.now() - t < CACHE_TTL ? items : null;
+  } catch {
+    return null;
+  }
+}
+
+export function storePublished(collectionName, items) {
+  try {
+    sessionStorage.setItem(cacheKey(collectionName), JSON.stringify({ t: Date.now(), items: items.map(toPlain) }));
+  } catch { /* storage full or blocked: skip caching */ }
+}
+
 export async function fetchPublished(collectionName) {
   const q = fb.query(fb.collection(fb.db, collectionName), fb.where('status', '==', 'published'));
-  return withId(await fb.getDocs(q));
+  const items = withId(await fb.getDocs(q));
+  storePublished(collectionName, items);
+  return items;
 }
 
 export async function fetchOwn(collectionName, uid) {
@@ -502,6 +531,7 @@ export async function mountGallery(cfg) {
       await fb.updateDoc(fb.doc(fb.db, cfg.collection, item.id), {
         hearts: had ? fb.arrayRemove(user.uid) : fb.arrayUnion(user.uid),
       });
+      storePublished(cfg.collection, items.filter((i) => i.status === 'published'));
     } catch (err) {
       console.error(err);
       item.hearts = before;
@@ -570,12 +600,25 @@ export async function mountGallery(cfg) {
     }
   });
 
-  /* Boot */
+  /* Boot: paint from the session cache right away, then refresh from Firestore. */
   render();
-  await load();
-
   const deepLink = params.get(cfg.param);
-  if (deepLink && !openDetail(deepLink, { updateUrl: false })) {
+  let openedFromCache = false;
+  const cached = peekPublished(cfg.collection);
+  if (cached) {
+    items = cached;
+    loaded = true;
+    refreshFilterOptions();
+    render();
+    if (deepLink) openedFromCache = openDetail(deepLink, { updateUrl: false });
+  }
+  await load();
+  if (openedFromCache && detail.open) {
+    const fresh = items.find((i) => i.id === detailId);
+    if (fresh) renderDetail(fresh);
+  }
+
+  if (deepLink && !openedFromCache && !openDetail(deepLink, { updateUrl: false })) {
     // Might be the signed-in owner's hidden item; retry once auth is known.
     await fb.whenAuthReady();
     session = fb.getSession();
