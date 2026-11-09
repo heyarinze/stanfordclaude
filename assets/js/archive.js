@@ -1,6 +1,7 @@
 // Archive: one tab per academic year, each backed by /data/archive/<year>.json.
 
 import { html, icons, safeUrl } from './ui.js';
+import { coverArt } from './covers.js';
 import { getJSON, yearLabel } from './config.js';
 import { personCard } from './people.js';
 
@@ -13,13 +14,16 @@ function winnerCard(w) {
   const link = safeUrl(w.link);
   return html`
     <article class="card plaque plaque-${medal}">
-      <span class="medal" aria-hidden="true">${w.place}</span>
-      <span class="place">${label}</span>
-      <h3>${w.title}</h3>
-      ${w.track ? html`<div class="badge-row"><span class="tag tag-accent">${w.track}</span></div>` : ''}
-      <p>${w.desc}</p>
-      <div class="builders"><b>Built by</b>${(w.builders || []).join(' · ')}</div>
-      ${link ? html`<a class="btn btn-secondary btn-sm" href="${link}" target="_blank" rel="noopener noreferrer" style="align-self:flex-start">View on Devpost ${icons.external}</a>` : ''}
+      <div class="cover">${coverArt(w.title, { palette: medal, label: w.title })}</div>
+      <div class="card-body">
+        <span class="medal" aria-hidden="true">${w.place}</span>
+        <span class="place">${label}</span>
+        <h3>${w.title}</h3>
+        ${w.track ? html`<div class="badge-row"><span class="tag tag-accent">${w.track}</span></div>` : ''}
+        <p>${w.desc}</p>
+        <div class="builders"><b>Built by</b>${(w.builders || []).join(' · ')}</div>
+        ${link ? html`<a class="btn btn-secondary btn-sm" href="${link}" target="_blank" rel="noopener noreferrer" style="align-self:flex-start">View on Devpost ${icons.arrowUpRight}</a>` : ''}
+      </div>
     </article>`;
 }
 
@@ -41,10 +45,10 @@ function renderYear(data) {
     ${data.summary ? html`<p class="lede" style="margin-bottom:var(--space-6)">${data.summary}</p>` : ''}
     ${h ? html`
       <section class="section-tight" aria-labelledby="hack-${data.year}">
-        <div class="section-head"><div><span class="eyebrow">${h.when || ''}</span><h2 id="hack-${data.year}">${h.name || 'Hackathon'}</h2></div></div>
+        <div class="section-head"><div><span class="eyebrow">${h.when || 'Hackathon'}</span><h2 id="hack-${data.year}">${h.name || 'Hackathon'}</h2></div></div>
         <div class="grid">${(h.winners || []).map(winnerCard)}</div>
         ${(h.mentions || []).length ? html`
-          <h3 style="margin:var(--space-6) 0 var(--space-4)">Honorable mentions</h3>
+          <h3 class="eyebrow" style="margin:var(--space-7) 0 var(--space-4)">Honorable mentions</h3>
           <div class="grid">${h.mentions.map(mentionCard)}</div>` : ''}
       </section>` : ''}
     ${(data.team || []).length ? html`

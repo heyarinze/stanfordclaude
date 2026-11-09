@@ -1,7 +1,7 @@
 // Events: embeds the club's Luma calendar when site.json has lumaEmbedUrl.
 // Also used on the home page to show the "Next up" block.
 
-import { html, icons, safeUrl } from './ui.js';
+import { html, icons, safeUrl, sparkArt } from './ui.js';
 import { getConfig } from './config.js';
 
 export function lumaEmbed(config, { height = 640 } = {}) {
@@ -20,11 +20,12 @@ if (target) {
   if (subscribe && calendar) { subscribe.href = calendar; subscribe.hidden = false; }
   target.innerHTML = String(embed || html`
     <div class="empty">
+      ${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}
       <h3>The ${config.academicYear.replace('-', '–')} calendar is coming soon</h3>
       <p>Tablings, workshops, demo nights and buildathons will be posted here.${slack ? ' Join the Slack to hear first.' : ''}</p>
       <div class="btn-row">
         ${slack ? html`<a class="btn btn-primary" href="${slack}" target="_blank" rel="noopener">${icons.slack} Join the Slack</a>` : ''}
-        <a class="btn btn-secondary" href="/archive">See past events</a>
+        <a class="btn btn-secondary" href="/archive">See past events ${icons.arrow}</a>
       </div>
     </div>`);
 }

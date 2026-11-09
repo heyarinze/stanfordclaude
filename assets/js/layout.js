@@ -1,5 +1,6 @@
 // Shared header and footer for every page: <site-header current="builds"> and <site-footer>.
-// The nav is defined once here, so adding a page means editing NAV below.
+// Both render immediately (no network wait) and are patched once data/site.json arrives.
+// Also: header scrolled state and reveal-on-scroll for elements marked [data-reveal].
 
 import { html, icons, brandMark, initials } from './ui.js';
 import { getConfig, yearLabel } from './config.js';
@@ -12,18 +13,22 @@ const NAV = [
   { key: 'perks', href: '/perks', label: 'Perks' },
   { key: 'team', href: '/team', label: 'Team' },
 ];
+const DEFAULT_YEAR = '2026-27';
 
-function joinLink(config, cls) {
-  if (config.slackUrl) {
-    return html`<a class="${cls}" href="${config.slackUrl}" target="_blank" rel="noopener">${icons.slack} Join the Slack</a>`;
-  }
-  return html`<a class="${cls}" href="/#join">Join</a>`;
+/** Point every [data-join-link] at the Slack invite once we know it. */
+function applyJoinLinks(root, config) {
+  if (!config.slackUrl) return;
+  root.querySelectorAll('[data-join-link]').forEach((a) => {
+    a.href = config.slackUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = String(html`${icons.slack} ${a.dataset.joinLink || 'Join the Slack'}`);
+  });
 }
 
 class SiteHeader extends HTMLElement {
-  async connectedCallback() {
+  connectedCallback() {
     const current = this.getAttribute('current');
-    const config = await getConfig();
     this.innerHTML = String(html`
       <a class="skip-link" href="#main">Skip to content</a>
       <header class="site-header">
@@ -34,40 +39,50 @@ class SiteHeader extends HTMLElement {
           <nav aria-label="Main">
             <ul class="nav-links" id="nav-links">
               ${NAV.map((item) => html`<li><a href="${item.href}" ${item.key === current ? html`aria-current="page"` : ''}>${item.label}</a></li>`)}
-              <li class="nav-join-mobile">${joinLink(config, '')}</li>
+              <li class="nav-join-mobile"><a href="/#join" data-join-link="Join the Slack">Join</a></li>
             </ul>
           </nav>
           <div class="nav-actions">
-            ${joinLink(config, 'btn btn-primary btn-sm nav-join-desktop')}
+            <a class="btn btn-primary btn-sm nav-join-desktop" href="/#join" data-join-link="Join the Slack">Join</a>
             <div class="auth-slot" data-auth-slot></div>
             <button class="nav-toggle" type="button" aria-controls="nav-links" aria-expanded="false" aria-label="Open menu">${icons.menu}</button>
           </div>
         </div>
       </header>`);
 
+    const header = this.querySelector('.site-header');
     const toggle = this.querySelector('.nav-toggle');
     const links = this.querySelector('.nav-links');
-    toggle.addEventListener('click', () => {
-      const open = links.classList.toggle('open');
+    const setOpen = (open) => {
+      links.classList.toggle('open', open);
+      header.classList.toggle('menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    });
+      toggle.innerHTML = String(open ? icons.close : icons.menu);
+    };
+    toggle.addEventListener('click', () => setOpen(!links.classList.contains('open')));
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && links.classList.contains('open')) { links.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); toggle.focus(); }
+      if (event.key === 'Escape' && links.classList.contains('open')) { setOpen(false); toggle.focus(); }
     });
+    links.addEventListener('click', (event) => { if (event.target.closest('a')) setOpen(false); });
 
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    getConfig().then((config) => applyJoinLinks(this, config));
     this.mountAuth();
   }
 
-  // Firebase loads after the page is idle so static pages stay fast.
+  // Firebase loads shortly after the page so static pages paint first.
   mountAuth() {
     const slot = this.querySelector('[data-auth-slot]');
     const start = () => import('./firebase.js').then((fb) => {
       fb.onSession((session) => renderAuth(slot, session, fb));
     }).catch((err) => console.error('Auth failed to load', err));
     if (document.body.dataset.needsAuth !== undefined) start();
-    else if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2500 });
-    else setTimeout(start, 1200);
+    else if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 800 });
+    else setTimeout(start, 400);
   }
 }
 
@@ -107,9 +122,7 @@ function renderAuth(slot, session, fb) {
 }
 
 class SiteFooter extends HTMLElement {
-  async connectedCallback() {
-    const config = await getConfig();
-    const year = yearLabel(config.academicYear);
+  connectedCallback() {
     this.innerHTML = String(html`
       <footer class="site-footer">
         <div class="container">
@@ -117,7 +130,7 @@ class SiteFooter extends HTMLElement {
             <div class="footer-about">
               <a class="brand" href="/">${brandMark()}<span>Claude<span class="brand-at">@</span>Stanford</span></a>
               <p>A student-run community at Stanford for building, learning and creating with Claude.</p>
-              <div class="powered-by">Powered by <img class="invert-dark" src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="107" height="12"></div>
+              <div class="powered-by">Powered by <img src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="98" height="11"></div>
             </div>
             <div>
               <h2>Community</h2>
@@ -136,23 +149,65 @@ class SiteFooter extends HTMLElement {
             </div>
             <div>
               <h2>Club</h2>
-              <ul>
+              <ul data-footer-club>
                 <li><a href="/team">Team</a></li>
                 <li><a href="/archive">Archive</a></li>
-                <li>${config.slackUrl ? html`<a href="${config.slackUrl}" target="_blank" rel="noopener">Slack</a>` : html`<a href="/#join">Join</a>`}</li>
-                ${config.contactEmail ? html`<li><a href="mailto:${config.contactEmail}">Contact</a></li>` : ''}
+                <li><a href="/#join" data-join-link="Slack">Join</a></li>
               </ul>
             </div>
           </div>
           <div class="footer-bottom">
-            <span>Claude@Stanford · ${year}</span>
+            <span>Claude@Stanford · <span data-footer-year>${yearLabel(DEFAULT_YEAR)}</span></span>
             <span>Built with Claude Code. Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a>.</span>
           </div>
         </div>
+        <div class="footer-wordmark" aria-hidden="true">Claude<em>@</em>Stanford</div>
       </footer>`);
+    getConfig().then((config) => {
+      applyJoinLinks(this, config);
+      this.querySelector('[data-footer-year]').textContent = yearLabel(config.academicYear);
+      if (config.contactEmail) {
+        const li = document.createElement('li');
+        li.innerHTML = String(html`<a href="mailto:${config.contactEmail}">Contact</a>`);
+        this.querySelector('[data-footer-club]').append(li);
+      }
+    });
   }
 }
 
 customElements.define('site-header', SiteHeader);
 customElements.define('site-footer', SiteFooter);
 
+/* ---------- Reveal on scroll ---------- */
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const revealer = 'IntersectionObserver' in window && !reduceMotion
+  ? new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-in');
+        revealer.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 })
+  : null;
+
+/* ---------- Static cover slots: <div class="cover" data-cover-seed="…" data-palette data-pattern> ---------- */
+
+const coverSlots = document.querySelectorAll('[data-cover-seed]');
+if (coverSlots.length) {
+  import('./covers.js').then(({ coverArt }) => {
+    coverSlots.forEach((el) => {
+      el.innerHTML = String(coverArt(el.dataset.coverSeed, { palette: el.dataset.palette, pattern: el.dataset.pattern }));
+    });
+  });
+}
+
+/** Start revealing [data-reveal] elements inside root (call again for content added later). */
+export function reveal(root = document) {
+  root.querySelectorAll('[data-reveal]:not(.is-in)').forEach((el) => {
+    if (revealer) revealer.observe(el);
+    else el.classList.add('is-in');
+  });
+}
+reveal();

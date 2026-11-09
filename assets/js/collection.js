@@ -3,7 +3,7 @@
 // builds.js and library.js supply a config object; see mountGallery() below.
 
 import {
-  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, toMillis, debounce,
+  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, toMillis, debounce, sparkArt,
 } from './ui.js';
 import * as fb from './firebase.js';
 import { getConfig, yearLabel } from './config.js';
@@ -188,39 +188,45 @@ export async function mountGallery(cfg) {
 
   /* Toolbar */
   root.innerHTML = String(html`
-    <div class="toolbar" role="search">
-      <label class="search">
-        <span class="visually-hidden">Search ${cfg.nounPlural}</span>
-        ${icons.search}
-        <input type="search" name="q" placeholder="Search ${cfg.nounPlural}, people, tools…" autocomplete="off">
-      </label>
-      <select name="tool" aria-label="Filter by Claude product"><option value="">All products</option></select>
-      <select name="cat" aria-label="Filter by category"><option value="">All categories</option></select>
-      <select name="year" aria-label="Filter by academic year"><option value="">All years</option></select>
-      <select name="sort" aria-label="Sort">
-        ${Object.entries(cfg.sorts).map(([key, s]) => html`<option value="${key}">${s.label}</option>`)}
-      </select>
-      <span class="result-count" data-count aria-live="polite"></span>
+    <div class="toolbar-wrap" data-toolbar-wrap>
+      <div class="toolbar" role="search">
+        <label class="search">
+          <span class="visually-hidden">Search ${cfg.nounPlural}</span>
+          ${icons.search}
+          <input type="search" name="q" placeholder="Search ${cfg.nounPlural}, people, tools…" autocomplete="off">
+        </label>
+        <select name="tool" aria-label="Filter by Claude product"><option value="">All products</option></select>
+        <select name="year" aria-label="Filter by academic year"><option value="">All years</option></select>
+        <select name="sort" aria-label="Sort">
+          ${Object.entries(cfg.sorts).map(([key, s]) => html`<option value="${key}">${s.label}</option>`)}
+        </select>
+        <span class="result-count" data-count aria-live="polite"></span>
+      </div>
+      <div class="chips" role="group" aria-label="Filter by category" data-chips></div>
     </div>
-    <div class="notice notice-info" data-mine hidden style="margin-bottom:var(--space-4)">
+    <div class="notice notice-info" data-mine hidden style="margin-bottom:var(--space-5)">
       ${icons.info}<span>Showing only your ${cfg.nounPlural}. <a href="${cfg.path}">Show everyone's</a></span>
     </div>
     <div class="grid" data-grid aria-busy="true">
-      ${[1, 2, 3].map(() => raw('<div class="skeleton"></div>'))}
+      ${[1, 2, 3, 4, 5, 6].map(() => raw('<div class="skeleton"></div>'))}
     </div>`);
 
   const toolbar = root.querySelector('.toolbar');
+  const wrap = root.querySelector('[data-toolbar-wrap]');
+  const chips = root.querySelector('[data-chips]');
   const grid = root.querySelector('[data-grid]');
   const countEl = root.querySelector('[data-count]');
   toolbar.elements = {
     q: toolbar.querySelector('[name="q"]'),
     tool: toolbar.querySelector('[name="tool"]'),
-    cat: toolbar.querySelector('[name="cat"]'),
     year: toolbar.querySelector('[name="year"]'),
     sort: toolbar.querySelector('[name="sort"]'),
   };
   toolbar.elements.q.value = state.q;
   toolbar.elements.sort.value = state.sort;
+  const headerH = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 68;
+  const onScroll = () => wrap.classList.toggle('is-stuck', wrap.getBoundingClientRect().top <= headerH() + 1);
+  window.addEventListener('scroll', onScroll, { passive: true });
 
   function fillSelect(select, values, current, label = (v) => v) {
     const keep = select.options[0].outerHTML;
@@ -234,8 +240,9 @@ export async function mountGallery(cfg) {
     const cats = uniq([...cfg.categories, ...items.flatMap((i) => i.categories || [])]);
     const years = uniq([config.academicYear, ...items.map((i) => i.year)]).sort().reverse();
     fillSelect(toolbar.elements.tool, tools, state.tool);
-    fillSelect(toolbar.elements.cat, cats, state.cat);
     fillSelect(toolbar.elements.year, years, state.year, yearLabel);
+    if (state.cat && !cats.includes(state.cat)) state.cat = '';
+    chips.innerHTML = String(html`${['', ...cats].map((c) => html`<button type="button" class="chip" data-chip="${c}" aria-pressed="${state.cat === c ? 'true' : 'false'}">${c || 'All'}</button>`)}`);
   }
 
   function syncUrl() {
@@ -250,14 +257,21 @@ export async function mountGallery(cfg) {
   const onFilter = () => {
     state.q = toolbar.elements.q.value.trim();
     state.tool = toolbar.elements.tool.value;
-    state.cat = toolbar.elements.cat.value;
     state.year = toolbar.elements.year.value;
     state.sort = toolbar.elements.sort.value;
     syncUrl();
     render();
   };
   toolbar.elements.q.addEventListener('input', debounce(onFilter, 120));
-  ['tool', 'cat', 'year', 'sort'].forEach((k) => toolbar.elements[k].addEventListener('change', onFilter));
+  ['tool', 'year', 'sort'].forEach((k) => toolbar.elements[k].addEventListener('change', onFilter));
+  chips.addEventListener('click', (event) => {
+    const chip = event.target.closest('[data-chip]');
+    if (!chip) return;
+    state.cat = chip.dataset.chip;
+    chips.querySelectorAll('[data-chip]').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+    syncUrl();
+    render();
+  });
 
   /* Context for templates */
   function ctxFor(item) {
@@ -293,12 +307,12 @@ export async function mountGallery(cfg) {
     grid.setAttribute('aria-busy', 'false');
     if (loadError) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
+      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
       return;
     }
     if (state.mine && !session.user) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
+      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
       return;
     }
     const list = visibleItems();
@@ -306,8 +320,8 @@ export async function mountGallery(cfg) {
     if (!list.length) {
       const filtered = state.q || state.tool || state.cat || state.year || state.mine;
       grid.innerHTML = String(filtered
-        ? html`<div class="empty" style="grid-column:1/-1"><h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
-        : html`<div class="empty" style="grid-column:1/-1"><h3>No ${cfg.nounPlural} yet</h3><p>Be the first to share one.</p><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
+        ? html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
+        : html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>No ${cfg.nounPlural} yet</h3><p>Be the first to share one.</p><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
       return;
     }
     grid.innerHTML = list.map((item) => String(cfg.card(item, ctxFor(item)))).join('');
@@ -338,6 +352,7 @@ export async function mountGallery(cfg) {
   const detail = document.createElement('dialog');
   detail.setAttribute('aria-labelledby', 'detail-title');
   detail.innerHTML = String(html`
+    <div class="dialog-cover" data-cover hidden></div>
     <div class="dialog-head"><h2 id="detail-title"></h2><button type="button" class="dialog-close" data-close aria-label="Close">${icons.close}</button></div>
     <div class="dialog-body" data-body></div>
     <div class="dialog-foot" data-foot hidden></div>`);
@@ -353,6 +368,11 @@ export async function mountGallery(cfg) {
 
   function renderDetail(item) {
     const ctx = ctxFor(item);
+    const coverEl = detail.querySelector('[data-cover]');
+    const cover = cfg.detailCover ? cfg.detailCover(item) : null;
+    coverEl.hidden = !cover;
+    detail.classList.toggle('has-cover', Boolean(cover));
+    if (cover) coverEl.innerHTML = String(cover);
     detail.querySelector('#detail-title').textContent = item.title;
     detail.querySelector('[data-body]').innerHTML = String(cfg.detail(item, ctx));
     const foot = detail.querySelector('[data-foot]');
@@ -587,6 +607,6 @@ export function shareButton(item, noun = 'link') {
   return html`<button type="button" class="icon-btn" data-action="share" data-id="${item.id}" title="Share ${noun}" aria-label="Share ${noun}">${icons.share}</button>`;
 }
 
-export function statusTags(item) {
-  return html`${item.featured ? html`<span class="tag tag-accent">Featured</span>` : ''}${item.status === 'hidden' ? html`<span class="tag tag-warn">Hidden</span>` : ''}${item.year ? html`<span class="tag">${yearLabel(item.year)}</span>` : ''}`;
+export function statusTags(item, { year = true } = {}) {
+  return html`${item.featured ? html`<span class="tag tag-accent">Featured</span>` : ''}${item.status === 'hidden' ? html`<span class="tag tag-warn">Hidden</span>` : ''}${year && item.year ? html`<span class="tag">${yearLabel(item.year)}</span>` : ''}`;
 }

@@ -1,23 +1,34 @@
 // Library: articles, videos and guides members recommend for learning Claude.
 
 import { html, icons, richText, safeUrl } from './ui.js';
+import { swatch } from './covers.js';
 import { CLAUDE_PRODUCTS, RESOURCE_CATEGORIES, LIMITS } from './taxonomy.js';
 import { mountGallery, byNewest, shareButton, statusTags } from './collection.js';
 
 const host = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
+function sourceBadge(url) {
+  const name = host(url) || 'link';
+  const sw = swatch(name);
+  return html`<span class="source-badge" style="--badge-bg:${sw.bg};--badge-fg:${sw.fg}" aria-hidden="true">${name[0].toUpperCase()}</span><span class="source">${name}</span>`;
+}
+
 function resourceCard(item) {
   const url = safeUrl(item.url);
+  const type = (item.categories || [])[0];
   return html`
-    <article class="card item-card">
-      <div class="card-top"><div class="badge-row">${statusTags(item)}${(item.categories || []).map((c) => html`<span class="tag">${c}</span>`)}</div></div>
-      <h3><button type="button" data-action="open" data-id="${item.id}">${item.title}</button></h3>
-      <p class="byline">Recommended by ${item.authorName || 'a member'}${url ? html` · ${host(url)}` : ''}</p>
-      <p class="desc">${item.why}</p>
-      ${(item.tools || []).length ? html`<div class="badge-row">${item.tools.map((t) => html`<span class="tag tag-accent">${t}</span>`)}</div>` : ''}
-      <div class="card-foot">
-        ${url ? html`<a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener noreferrer">Open ${icons.external}</a>` : html`<span></span>`}
-        ${shareButton(item, 'resource')}
+    <article class="card item-card resource-card">
+      <div class="card-body">
+        <div class="resource-head">${sourceBadge(url)}${type ? html`<span class="tag">${type}</span>` : ''}</div>
+        ${item.featured || item.status === 'hidden' ? html`<div class="badge-row">${statusTags(item, { year: false })}</div>` : ''}
+        <h3><button type="button" data-action="open" data-id="${item.id}">${item.title}</button></h3>
+        <p class="byline">Recommended by ${item.authorName || 'a member'}</p>
+        <p class="desc">${item.why}</p>
+        ${(item.tools || []).length ? html`<div class="badge-row">${item.tools.slice(0, 3).map((t) => html`<span class="tag tag-accent">${t}</span>`)}</div>` : ''}
+        <div class="card-foot">
+          ${url ? html`<a class="btn btn-secondary btn-sm" href="${url}" target="_blank" rel="noopener noreferrer">Open ${icons.arrowUpRight}</a>` : html`<span></span>`}
+          ${shareButton(item, 'resource')}
+        </div>
       </div>
     </article>`;
 }

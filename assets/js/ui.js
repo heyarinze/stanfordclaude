@@ -94,6 +94,8 @@ export const icons = {
   heart: svg('<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>'),
   share: svg('<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>'),
   plus: svg('<path d="M12 5v14M5 12h14"/>'),
+  arrow: raw('<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'),
+  arrowUpRight: raw('<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>'),
   close: svg('<path d="M18 6 6 18M6 6l12 12"/>'),
   external: svg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'),
   search: svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
@@ -121,6 +123,19 @@ export function brandMark(cls = 'brand-mark') {
     d += `M${f(12 + r1 * Math.cos(a))} ${f(12 + r1 * Math.sin(a))}L${f(12 + r2 * Math.cos(a))} ${f(12 + r2 * Math.sin(a))}`;
   }
   return raw(`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="${d}"/></svg>`);
+}
+
+/** Large spark built from separate rays (each animatable via --i). viewBox 0 0 100 100. */
+export function sparkArt({ className = '', strokeWidth = 6 } = {}) {
+  let lines = '';
+  for (let i = 0; i < 12; i += 1) {
+    const a = (i * Math.PI) / 6 + (i % 2 ? 0.12 : 0);
+    const r1 = 12;
+    const r2 = i % 2 ? 39 : 47;
+    const p = (n) => (50 + n).toFixed(2);
+    lines += `<line x1="${p(r1 * Math.cos(a))}" y1="${p(r1 * Math.sin(a))}" x2="${p(r2 * Math.cos(a))}" y2="${p(r2 * Math.sin(a))}" pathLength="1" style="--i:${i}"/>`;
+  }
+  return raw(`<svg class="${className}" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" aria-hidden="true" focusable="false"><g>${lines}</g></svg>`);
 }
 
 /* ---------- Toasts ---------- */

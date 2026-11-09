@@ -1,51 +1,58 @@
-/* Design tokens for Claude@Stanford.
-   Warm cream + clay accent, with Stanford cardinal used sparingly.
-   All text/background pairs below meet WCAG AA (checked at 4.5:1 or higher). */
+/* Design tokens for Claude@Stanford (2026-27).
+   Editorial display serif + Inter, warm paper, clay accent, Stanford cardinal used sparingly.
+   Text/background pairs used for copy meet WCAG AA (4.5:1+). */
 
 :root {
   color-scheme: light dark;
 
-  /* Surfaces */
-  --bg: #F6F3EC;
-  --surface: #FFFDF9;
-  --surface-2: #EEE9DE;
-  --surface-sunk: #F1EDE4;
-  --line: #E2DCCF;
-  --line-strong: #CFC7B6;
+  /* Paper */
+  --bg: #F4EFE6;
+  --bg-band: #EDE6DA;          /* alternate section band */
+  --surface: #FFFCF7;
+  --surface-2: #F1EBE0;
+  --surface-sunk: #EFE8DC;
+  --line: #E2D9CA;
+  --line-strong: #CEC3B1;
 
-  /* Text */
-  --ink: #1C1B18;
-  --ink-2: #57524A;
-  --ink-3: #716B61;
+  /* Ink */
+  --ink: #191714;
+  --ink-2: #57514A;
+  --ink-3: #67605A;
 
-  /* Accent (clay) */
-  --accent: #B5562F;          /* fills: buttons, focus, badges */
-  --accent-ink: #A04A27;      /* accent-colored text and links */
-  --accent-soft: #F5E3D8;     /* tinted backgrounds */
+  /* Clay accent */
+  --accent: #B5562F;           /* fills: buttons, focus */
+  --accent-hover: #9C4624;
+  --accent-ink: #A04A27;       /* accent-colored text */
+  --accent-soft: #F4E0D4;
   --on-accent: #FFFFFF;
+  --glow: #E8946E;             /* decorative glows only */
 
   /* Stanford cardinal: small accents only */
   --cardinal: #8C1515;
-  --cardinal-soft: #F4E1DF;
+  --cardinal-soft: #F3DEDB;
+
+  /* Night band (same in both themes) */
+  --night: #161411;
+  --night-2: #211E1A;
+  --night-line: #34302A;
+  --night-ink: #F4EFE6;
+  --night-ink-2: #BDB4A6;
 
   /* Status */
   --success: #2F6B3A;
-  --success-soft: #E2F0E1;
+  --success-soft: #E2EFDF;
   --danger: #A3241C;
-  --danger-soft: #F8E1DE;
-  --warn-soft: #FBF0D9;
+  --danger-soft: #F7E0DC;
+  --warn-soft: #FAEFD7;
   --warn-ink: #6E4A0B;
 
   /* Medals */
   --gold: #B8860B;
-  --gold-soft: #FBF3DC;
-  --silver: #7D8790;
-  --silver-soft: #EEF1F3;
+  --silver: #7B8690;
   --bronze: #A0623A;
-  --bronze-soft: #F6E8DE;
 
   /* Type */
-  --font-serif: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-display: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
@@ -54,8 +61,9 @@
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
-  --text-2xl: clamp(1.6rem, 1.2rem + 1.4vw, 2.1rem);
-  --text-3xl: clamp(2.2rem, 1.4rem + 3.4vw, 3.6rem);
+  --text-h2: clamp(2.2rem, 1.5rem + 2.3vw, 3.4rem);
+  --text-display: clamp(2.9rem, 1.9rem + 3.6vw, 4.9rem);
+  --text-hero: clamp(3.2rem, 1.6rem + 5.4vw, 6.6rem);
 
   /* Space */
   --space-1: 0.25rem;
@@ -66,60 +74,65 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4.5rem;
+  --space-9: 6.5rem;
 
   /* Shape */
-  --radius-sm: 6px;
-  --radius: 12px;
-  --radius-lg: 18px;
+  --radius-sm: 8px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
   --radius-pill: 999px;
-  --shadow-sm: 0 1px 2px rgba(40, 30, 15, 0.06);
-  --shadow: 0 1px 2px rgba(40, 30, 15, 0.05), 0 6px 18px rgba(40, 30, 15, 0.06);
-  --shadow-lg: 0 18px 50px rgba(40, 30, 15, 0.18);
+  --shadow-sm: 0 1px 2px rgba(48, 32, 16, 0.06);
+  --shadow: 0 1px 2px rgba(48, 32, 16, 0.05), 0 8px 24px -8px rgba(48, 32, 16, 0.12);
+  --shadow-lift: 0 2px 4px rgba(48, 32, 16, 0.05), 0 18px 40px -12px rgba(48, 32, 16, 0.22);
+  --shadow-lg: 0 24px 60px -12px rgba(30, 20, 10, 0.3);
 
-  --max: 1120px;
-  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem);
-  --header-h: 64px;
+  --max: 1200px;
+  --gutter: clamp(1rem, 0.4rem + 2.8vw, 2.25rem);
+  --header-h: 68px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1B1A17;
-    --surface: #24221E;
-    --surface-2: #2E2B26;
-    --surface-sunk: #201E1B;
-    --line: #3A362F;
-    --line-strong: #4B463D;
+    --bg: #12110F;
+    --bg-band: #181613;
+    --surface: #1B1916;
+    --surface-2: #24211D;
+    --surface-sunk: #171512;
+    --line: #2E2A25;
+    --line-strong: #423C34;
 
-    --ink: #F3EFE7;
-    --ink-2: #BDB6A9;
-    --ink-3: #9C9589;
+    --ink: #F2ECE2;
+    --ink-2: #BCB3A5;
+    --ink-3: #9A9184;
 
     --accent: #E3825C;
+    --accent-hover: #EE9672;
     --accent-ink: #EE9A78;
-    --accent-soft: #3A2A21;
-    --on-accent: #1B1A17;
+    --accent-soft: #3A271E;
+    --on-accent: #12110F;
+    --glow: #C0613C;
 
     --cardinal: #E0716F;
     --cardinal-soft: #3A2222;
 
     --success: #8FCB98;
-    --success-soft: #20321F;
+    --success-soft: #1F311E;
     --danger: #F08C82;
     --danger-soft: #3B2220;
     --warn-soft: #3A3020;
     --warn-ink: #F0D49A;
 
     --gold: #E2B64A;
-    --gold-soft: #332B18;
     --silver: #B9C2CA;
-    --silver-soft: #2A2E31;
     --bronze: #D99A6C;
-    --bronze-soft: #33261D;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.25);
-    --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -10px rgba(0, 0, 0, 0.6);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 22px 44px -14px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 24px 60px -12px rgba(0, 0, 0, 0.7);
   }
 }

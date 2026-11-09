@@ -1,31 +1,37 @@
 // Builds gallery: projects members made with Claude.
 
 import { html, icons, richText, safeUrl, toMillis } from './ui.js';
+import { coverArt } from './covers.js';
 import { yearLabel } from './config.js';
 import { CLAUDE_PRODUCTS, BUILD_CATEGORIES, LIMITS } from './taxonomy.js';
 import { mountGallery, byNewest, heartButton, shareButton, statusTags } from './collection.js';
 
 const hearts = (item) => (item.hearts || []).length;
 
-/** Card used on /builds and (with teaser: true) on the home page. */
-export function buildCard(item, ctx, { teaser = false } = {}) {
-  const tools = item.tools || [];
-  const cats = item.categories || [];
+export const buildCover = (item) => coverArt(item.id, { label: item.title });
+
+/** Card used on /builds and (teaser: true) on the home page; large: true for the bento hero card. */
+export function buildCard(item, ctx, { teaser = false, large = false } = {}) {
+  const allTools = item.tools || [];
+  const tools = allTools.slice(0, large ? 4 : 3);
+  const cats = (item.categories || []).slice(0, 3);
   return html`
-    <article class="card item-card">
-      <div class="card-top"><div class="badge-row">${statusTags(item)}</div></div>
-      <h3>${teaser
-        ? html`<a href="/builds?b=${encodeURIComponent(item.id)}">${item.title}</a>`
-        : html`<button type="button" data-action="open" data-id="${item.id}">${item.title}</button>`}</h3>
-      <p class="byline">by ${item.authorName || 'a Stanford builder'}</p>
-      <p class="desc">${item.desc}</p>
-      ${tools.length ? html`<div class="badge-row">${tools.map((t) => html`<span class="tag tag-accent">${t}</span>`)}</div>` : ''}
-      <div class="card-foot">
-        <div class="badge-row">${cats.map((c) => html`<span class="hashtag">#${c}</span>`)}</div>
-        <div class="btn-row" style="gap:0.35rem; flex-wrap:nowrap">
-          ${teaser
-            ? html`<span class="heart-btn" aria-label="${hearts(item)} hearts">${icons.heart}<span>${hearts(item)}</span></span>`
-            : html`${heartButton(item, ctx)}${shareButton(item, 'build')}`}
+    <article class="card item-card build-card${large ? ' is-large' : ''}">
+      <div class="cover">${buildCover(item)}<div class="cover-tags">${statusTags(item)}</div></div>
+      <div class="card-body">
+        <h3>${teaser
+          ? html`<a href="/builds?b=${encodeURIComponent(item.id)}">${item.title}</a>`
+          : html`<button type="button" data-action="open" data-id="${item.id}">${item.title}</button>`}</h3>
+        <p class="byline">by ${item.authorName || 'a Stanford builder'}</p>
+        <p class="desc">${item.desc}</p>
+        ${tools.length ? html`<div class="badge-row">${tools.map((t) => html`<span class="tag tag-accent">${t}</span>`)}${allTools.length > tools.length ? html`<span class="tag">+${allTools.length - tools.length}</span>` : ''}</div>` : ''}
+        <div class="card-foot">
+          <div class="hashtags">${cats.map((c) => html`<span class="hashtag">#${c}</span>`)}</div>
+          <div class="btn-row" style="gap:0.35rem; flex-wrap:nowrap">
+            ${teaser
+              ? html`<span class="heart-btn" aria-label="${hearts(item)} hearts">${icons.heart}<span>${hearts(item)}</span></span>`
+              : html`${heartButton(item, ctx)}${shareButton(item, 'build')}`}
+          </div>
         </div>
       </div>
     </article>`;
@@ -74,6 +80,7 @@ export const buildsConfig = {
   searchText: (i) => [i.title, i.desc, i.authorName, ...(i.tools || []), ...(i.otherTools || []), ...(i.categories || [])].join(' '),
   card: buildCard,
   detail: buildDetail,
+  detailCover: buildCover,
   titleNew: 'Share your build',
   titleEdit: 'Edit your build',
   submitLabel: 'Share build',
