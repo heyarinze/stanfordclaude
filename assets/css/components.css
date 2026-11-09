@@ -288,6 +288,7 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4rem; }
 
 /* ---------- Empty / loading / notice ---------- */
 
+.grid > .empty { grid-column: 1 / -1; }
 .empty { padding: var(--space-7) var(--space-5); text-align: center; border: 1px dashed var(--line-strong); border-radius: var(--radius); color: var(--ink-2); }
 .empty h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.4rem; margin-bottom: var(--space-2); }
 .empty p { max-width: 46ch; margin-inline: auto; }
@@ -358,6 +359,8 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4rem; }
 .plaque h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; }
 .plaque p { color: var(--ink-2); font-size: var(--text-sm); }
 .plaque .builders { margin-top: auto; font-size: var(--text-sm); color: var(--ink-2); }
+.admin-leads { display: grid; gap: var(--space-3); justify-items: start; }
+.admin-leads p { max-width: 68ch; }
 .subhead { font-size: var(--text-lg); margin: var(--space-7) 0 var(--space-4); }
 
 /* ---------- Table (admin) ---------- */
@@ -374,10 +377,10 @@ td.title-cell small { display: block; color: var(--ink-3); }
 
 /* ---------- Learn ---------- */
 
-.workshop { display: flex; flex-direction: column; overflow: hidden; }
+.workshop { display: flex; flex-direction: column; }
 .workshop .when { font-size: var(--text-sm); color: var(--accent-ink); }
 .workshop p { color: var(--ink-2); font-size: var(--text-sm); }
-.workshop .btn-row { margin-top: auto; padding-top: var(--space-2); position: relative; z-index: 2; }
+.workshop .btn-row { margin-top: auto; padding-top: var(--space-2); }
 
 .link-list { list-style: none; padding: 0; border-top: 1px solid var(--line); }
 .link-list a { display: block; padding: var(--space-4) 0; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; }

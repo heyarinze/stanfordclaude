@@ -24,7 +24,7 @@ function render(builds) {
   if (allLink && builds.length > picks.length) allLink.textContent = `See all ${builds.length} builds`;
   grid.innerHTML = picks.length
     ? picks.map((b) => String(buildCard(b, {}, { teaser: true }))).join('')
-    : String(html`<div class="empty" style="grid-column:1/-1"><h3>No builds yet</h3><div class="btn-row"><a class="btn btn-primary" href="/builds?submit=1">Share a build</a></div></div>`);
+    : String(html`<div class="empty"><h3>No builds yet</h3><div class="btn-row"><a class="btn btn-primary" href="/builds?submit=1">Share a build</a></div></div>`);
   grid.setAttribute('aria-busy', 'false');
 }
 
@@ -56,7 +56,7 @@ try {
 } catch (err) {
   console.error(err);
   if (!shown) {
-    grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><p>Couldn't load builds. <a href="/builds">Open the gallery</a> or refresh the page.</p></div>`);
+    grid.innerHTML = String(html`<div class="empty"><p>Couldn't load builds. <a href="/builds">Open the gallery</a> or refresh the page.</p></div>`);
     grid.setAttribute('aria-busy', 'false');
   }
 }

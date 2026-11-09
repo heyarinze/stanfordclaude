@@ -1,5 +1,5 @@
-// Generative cover art for builds, workshops and archive entries.
-// Each cover is deterministic: the same seed (a post ID or title) always gives the same artwork,
+// Generative cover art for builds.
+// Each cover is deterministic: the same seed (a post ID) always gives the same artwork,
 // drawn from a small set of warm palettes and geometric patterns built around the Claude spark.
 
 import { raw } from './ui.js';
@@ -29,16 +29,13 @@ export function swatch(seed) {
   return { bg: p.bg, fg: p.bg === PALETTES.ink.bg || p.bg === PALETTES.cardinal.bg ? p.b : p.a };
 }
 
-export const PALETTES = {
+const PALETTES = {
   clay: { bg: '#F1D8C6', a: '#C2552E', b: '#8C1515', c: '#241F1A' },
   ink: { bg: '#1F1C18', a: '#E3825C', b: '#F1E8DA', c: '#C99A2E' },
   sand: { bg: '#E8DDC6', a: '#B5562F', b: '#54613F', c: '#241F1A' },
   cardinal: { bg: '#8C1515', a: '#F3D5C0', b: '#E3825C', c: '#2A0B0B' },
   sage: { bg: '#D9E0CC', a: '#3F5A39', b: '#C2552E', c: '#241F1A' },
   peach: { bg: '#F6E2D2', a: '#D97757', b: '#241F1A', c: '#C99A2E' },
-  gold: { bg: '#F3E6C4', a: '#B8860B', b: '#8C1515', c: '#241F1A' },
-  silver: { bg: '#E3E7EA', a: '#6F7A84', b: '#241F1A', c: '#B5562F' },
-  bronze: { bg: '#F0DCCB', a: '#A0623A', b: '#5B3A22', c: '#241F1A' },
 };
 const PALETTE_ROTATION = ['clay', 'ink', 'sand', 'cardinal', 'sage', 'peach'];
 
@@ -135,10 +132,6 @@ const PATTERNS = {
 };
 const PATTERN_ROTATION = Object.keys(PATTERNS);
 
-/**
- * Returns an inline SVG (Raw) that fills its container (CSS sizes it).
- * opts.palette / opts.pattern force a choice (e.g. medal colors in the archive).
- */
 // Avalanche the hash so palette and pattern come from independent bits. SALT was chosen so the
 // 2025-26 builds spread evenly across palettes and patterns; changing it reshuffles every cover.
 const SALT = 3183;
@@ -150,11 +143,12 @@ function mix(h) {
   return x >>> 0;
 }
 
-export function coverArt(seed, { palette, pattern, label = '' } = {}) {
+/** Returns an inline SVG (Raw) that fills its container (CSS sizes it). */
+export function coverArt(seed, { label = '' } = {}) {
   const h = mix(hashString(seed || 'claude'));
   const r = prng(h);
-  const p = PALETTES[palette] || PALETTES[PALETTE_ROTATION[h % PALETTE_ROTATION.length]];
-  const draw = PATTERNS[pattern] || PATTERNS[PATTERN_ROTATION[(h >>> 12) % PATTERN_ROTATION.length]];
+  const p = PALETTES[PALETTE_ROTATION[h % PALETTE_ROTATION.length]];
+  const draw = PATTERNS[PATTERN_ROTATION[(h >>> 12) % PATTERN_ROTATION.length]];
   const body = draw(r, p);
   return raw(`<svg class="cover-art" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${label ? `Cover art for ${String(label).replace(/[&<>"']/g, '')}` : 'Cover art'}" focusable="false"><rect width="${W}" height="${H}" fill="${p.bg}"/>${body}</svg>`);
 }

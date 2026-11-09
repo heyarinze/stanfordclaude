@@ -75,9 +75,9 @@ function renderShell(leads) {
       <span class="result-count" data-count></span>
     </div>
     <div data-table></div>
-    <section class="section">
-      <h2 style="font-size:var(--text-xl); margin-bottom:var(--space-3)">Leads</h2>
-      <p class="muted small" style="margin-bottom:var(--space-4)">To add a lead, create a document in the Firestore <code>leads</code> collection whose ID is their lowercase @stanford.edu email (Firebase console). See the README.</p>
+    <section class="section admin-leads">
+      <h2>Leads</h2>
+      <p class="muted small">Add or remove leads with <code>scripts/leads.mjs</code>, or in the Firebase console: each lead is a document in the <code>leads</code> collection whose ID is their lowercase @stanford.edu email. See the README.</p>
       <div class="badge-row">${leads.map((l) => html`<span class="tag">${l}</span>`)}</div>
     </section>`);
   const q = root.querySelector('[name="q"]');

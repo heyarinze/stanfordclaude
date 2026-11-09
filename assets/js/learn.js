@@ -29,7 +29,7 @@ try {
   const workshops = [...(data.workshops || [])].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
   grid.innerHTML = String(workshops.length
     ? html`${workshops.map(workshopCard)}`
-    : html`<div class="empty" style="grid-column:1/-1">
+    : html`<div class="empty">
         <h3>No workshops posted yet</h3>
         <p>Upcoming workshops are on the <a href="/events">events page</a>.</p>
       </div>`);
@@ -37,6 +37,6 @@ try {
     <li><a href="${safeUrl(r.url)}" target="_blank" rel="noopener noreferrer"><b>${r.title}</b>${r.description ? html`<span>${r.description}</span>` : ''}</a></li>`)}`);
 } catch (err) {
   console.error(err);
-  grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Couldn\'t load workshops. Refresh to try again.</p></div>';
+  grid.innerHTML = '<div class="empty"><p>Couldn\'t load workshops. Refresh to try again.</p></div>';
 }
 grid.setAttribute('aria-busy', 'false');

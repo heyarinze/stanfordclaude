@@ -11,9 +11,9 @@ try {
   const members = team.members || [];
   grid.innerHTML = String(members.length
     ? html`${members.map(personCard)}`
-    : html`<div class="empty" style="grid-column:1/-1"><p>We haven't posted the ${yearLabel(team.year)} team yet.</p></div>`);
+    : html`<div class="empty"><p>We haven't posted the ${yearLabel(team.year)} team yet.</p></div>`);
 } catch (err) {
   console.error(err);
-  grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Couldn\'t load the team. Refresh to try again.</p></div>';
+  grid.innerHTML = '<div class="empty"><p>Couldn\'t load the team. Refresh to try again.</p></div>';
 }
 grid.setAttribute('aria-busy', 'false');

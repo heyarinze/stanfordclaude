@@ -217,7 +217,7 @@ export async function mountGallery(cfg) {
 
   /* Toolbar */
   root.innerHTML = String(html`
-    <div class="toolbar-wrap" data-toolbar-wrap>
+    <div class="toolbar-wrap">
       <div class="toolbar" role="search">
         <label class="search">
           <span class="visually-hidden">Search ${cfg.nounPlural}</span>
@@ -332,12 +332,12 @@ export async function mountGallery(cfg) {
     grid.setAttribute('aria-busy', 'false');
     if (loadError) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
+      grid.innerHTML = String(html`<div class="empty"><h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
       return;
     }
     if (state.mine && !session.user) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
+      grid.innerHTML = String(html`<div class="empty"><h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
       return;
     }
     const list = visibleItems();
@@ -345,8 +345,8 @@ export async function mountGallery(cfg) {
     if (!list.length) {
       const filtered = state.q || state.tool || state.cat || state.year || state.mine;
       grid.innerHTML = String(filtered
-        ? html`<div class="empty" style="grid-column:1/-1"><h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
-        : html`<div class="empty" style="grid-column:1/-1"><h3>No ${cfg.nounPlural} yet</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
+        ? html`<div class="empty"><h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
+        : html`<div class="empty"><h3>No ${cfg.nounPlural} yet</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
       return;
     }
     grid.innerHTML = list.map((item) => String(cfg.card(item, ctxFor(item)))).join('');

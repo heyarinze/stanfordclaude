@@ -83,7 +83,7 @@ Then open http://localhost:3000/?emulator. The flag sticks for that browser tab,
 
 ```
 *.html                 one file per page; shared header/footer come from <site-header>/<site-footer>
-assets/css/            tokens.css ("Afterglow": dark-only colors, type, spacing), base.css, components.css
+assets/css/            tokens.css (colors, type, spacing; dark only), base.css, components.css
 assets/js/
   layout.js            header, nav and footer for every page (edit NAV to add a page)
   firebase.js          Firebase init, Stanford-only Google sign-in, session + lead check
@@ -91,10 +91,11 @@ assets/js/
   builds.js, library.js  field lists, cards and detail views for each gallery
   home.js, events.js, learn.js, team.js, archive.js, admin.js   page scripts
   ui.js                safe HTML templating (html``), icons, toasts, dialogs
+  covers.js            generated cover art for builds (same art for the same post every time)
 data/                  editable content (see above)
 firebase/              Firestore security rules + tests
 scripts/               one-off maintenance scripts (not deployed)
-docs/                  history, including the 2025-26 build report
+docs/                  history (the 2025-26 build report) and the club logo PNG in docs/brand/
 ```
 
 All user-submitted text is rendered through the `html` tagged template in `ui.js`, which escapes it, and links go through `safeUrl()`, which only allows `http(s)`. Keep it that way.
@@ -191,7 +192,8 @@ Moving to the new project also gets the site off the old one, whose rules let an
    node migrate-2026.mjs --dry-run
    node migrate-2026.mjs
    ```
-4. **Add yourself to `leads`**, then test on `localhost` in your own browser: sign in, submit, edit, heart, delete, and moderate.
+   (Done 2026-11-08.)
+4. **Add yourself to `leads`**, then test on `localhost` in your own browser: sign in, submit, edit, heart, delete, and moderate. (Done 2026-11-08.)
 5. **Re-run the migration** right before merging. It skips posts it already copied and picks up anything posted on the old site in the meantime.
 6. **Merge** the PR. Vercel deploys to production.
 7. **Ask Arinze to lock or delete the old `claude-at-stanford` project**, or at least deny reads on `projects` and `library`. This is the step that closes the email leak.

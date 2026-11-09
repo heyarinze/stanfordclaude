@@ -179,12 +179,6 @@ export async function signOutUser() {
 }
 
 /** Make sure someone is signed in with Stanford before an action. Returns the user or null. */
-export async function requireStanford() {
-  await ready;
-  if (session.user) return session.user;
-  return signIn();
-}
-
 /** Record the submitter's email privately (users/{uid}); public docs never store it. */
 export async function saveUserProfile(user, name) {
   await setDoc(doc(db, COLLECTIONS.users, user.uid), {
