@@ -123,6 +123,21 @@ Firebase only allows sign-in from domains listed under Authentication → Settin
 
 Sign-in IDs are different in every Firebase project, so the 21 builds and 7 library posts copied from last year's project arrive with no owner (`ownerUid: ''`). The migration also writes a private `claims/{email}` doc listing each person's posts. The first time that person signs in, the site links those posts to their account and deletes the claim (`claimLegacyPosts` in `assets/js/firebase.js`). Until then the posts show normally and leads can moderate them, but nobody can edit them.
 
+## Security
+
+- **The Firebase web config is public on purpose.** The `apiKey` in `assets/js/firebase.js` identifies the project to Google; every visitor's browser downloads it, so it can't be hidden on a static site, and it grants nothing by itself. GitHub's secret scanning still flags it as a "Google API Key". That alert is expected: close it as a false positive after confirming the key is restricted (below).
+- **What actually protects the data:** the Firestore rules (`firebase/firestore.rules`, with tests) and Firebase Auth's authorized domains.
+- **Key restriction** (Google Cloud console → APIs & Services → Credentials → *Browser key (auto created by Firebase)* → Application restrictions → **Websites**). Keep this list in sync with the domains the site runs on:
+  - `https://claudeatstanford.org/*`
+  - `https://www.claudeatstanford.org/*`
+  - `https://stanfordclaude.vercel.app/*`
+  - `https://claudeatstanford.firebaseapp.com/*` (Firebase's sign-in pop-up runs here; sign-in breaks without it)
+  - `http://localhost:3000/*` (local development)
+  - any Vercel preview domain you want to test sign-in on
+
+  Leave the key's API restrictions as Firebase created them. A referrer check only stops other *websites* from reusing the key; scripts can fake it. The project is on the free Spark plan, so abuse can at worst exhaust the daily free quota, never cost money. If that ever happens, turn on [App Check](https://firebase.google.com/docs/app-check).
+- **Real secrets never go in the repo.** That means service-account keys (`.gitignore` blocks the usual file names; keep them in `~/keys/`), Slack or Luma tokens, and anything else that grants access. If one is ever committed, revoke it in its console first, then clean up the repo.
+
 ## 2026-27 launch checklist
 
 Moving to the new project also gets the site off the old one, whose rules let anyone download every submitter's email. Arinze has to lock or delete that project to close the leak (step 7).
