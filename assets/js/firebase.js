@@ -26,16 +26,18 @@ import {
   serverTimestamp,
   arrayUnion,
   arrayRemove,
+  writeBatch,
 } from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore-lite.js';
 import { toast } from './ui.js';
 
+// 2026-27 project "claudeatstanford". (The 2025-26 site used "claude-at-stanford".)
 export const app = initializeApp({
-  apiKey: 'AIzaSyBp25Gon7aTdre7BfH3SE3scFxPTOygB10',
-  authDomain: 'claude-at-stanford.firebaseapp.com',
-  projectId: 'claude-at-stanford',
-  storageBucket: 'claude-at-stanford.firebasestorage.app',
-  messagingSenderId: '353494362955',
-  appId: '1:353494362955:web:c6fc5a7b264d57180b16ce',
+  apiKey: 'AIzaSyBXPlz4KabNBUZogPFJubVyt3mDccD_ymk',
+  authDomain: 'claudeatstanford.firebaseapp.com',
+  projectId: 'claudeatstanford',
+  storageBucket: 'claudeatstanford.firebasestorage.app',
+  messagingSenderId: '471913983423',
+  appId: '1:471913983423:web:52ccdbfcedd1c17689050a',
 });
 
 export const auth = getAuth(app);
@@ -69,6 +71,7 @@ export const COLLECTIONS = {
   resources: 'resources',
   users: 'users',
   leads: 'leads',
+  claims: 'claims',
 };
 
 const provider = new GoogleAuthProvider();
@@ -93,6 +96,7 @@ onAuthStateChanged(auth, async (user) => {
   }
   let isLead = false;
   if (user) {
+    await claimLegacyPosts(user).catch((err) => console.error('Claiming old posts failed', err));
     try {
       const snap = await getDoc(doc(db, COLLECTIONS.leads, user.email.toLowerCase()));
       isLead = snap.exists();
@@ -104,6 +108,39 @@ onAuthStateChanged(auth, async (user) => {
   resolveReady(session);
   listeners.forEach((fn) => fn(session));
 });
+
+/* ---------- Claiming 2025-26 posts ----------
+   Posts migrated from last year's Firebase project arrive unowned, because sign-in IDs
+   differ between projects. The migration leaves a private claims/{email} doc listing them;
+   on first sign-in we link them to this account, then delete the claims doc. */
+
+async function claimLegacyPosts(user) {
+  const flag = `claims-checked:${user.uid}`;
+  try { if (localStorage.getItem(flag)) return; } catch { /* storage blocked: just check */ }
+  const claimRef = doc(db, COLLECTIONS.claims, user.email.toLowerCase());
+  const claim = await getDoc(claimRef);
+  if (claim.exists()) {
+    const data = claim.data();
+    const batch = writeBatch(db);
+    let linked = 0;
+    for (const kind of [COLLECTIONS.builds, COLLECTIONS.resources]) {
+      for (const id of data[kind] || []) {
+        const ref = doc(db, kind, id);
+        let snap = null;
+        try { snap = await getDoc(ref); } catch { snap = null; } // hidden posts aren't readable yet
+        if (snap && !snap.exists()) continue; // deleted since migration
+        if (snap && snap.data().ownerUid !== '') continue; // already linked
+        batch.update(ref, { ownerUid: user.uid });
+        linked += 1;
+      }
+    }
+    batch.delete(claimRef);
+    await batch.commit();
+    await saveUserProfile(user, data.name);
+    if (linked) toast(`Welcome back! We linked ${linked} of your posts from last year to your account.`);
+  }
+  try { localStorage.setItem(flag, '1'); } catch { /* ignore */ }
+}
 
 export function getSession() { return session; }
 export function whenAuthReady() { return ready; }

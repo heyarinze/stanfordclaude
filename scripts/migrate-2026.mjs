@@ -1,33 +1,57 @@
 #!/usr/bin/env node
-// One-time migration from the 2025-26 schema to the 2026-27 schema.
+// One-time migration of the 2025-26 data into the 2026-27 Firebase project.
 //
-//   projects/{id} -> builds/{id}      (same IDs, so old share links keep working)
+// Source: the old project "claude-at-stanford" (owned by Arinze). Its old rules make the
+//         projects/library collections publicly readable, so this reads them over the public
+//         REST API. Nothing in the old project is changed.
+// Target: the new project (default: the one in ../.firebaserc), written with the Admin SDK.
+//
+//   projects/{id} -> builds/{id}      same IDs, so old share links keep working
 //   library/{id}  -> resources/{id}
-//   submittedBy   -> users/{uid}       (private; never copied into public docs)
+//   submittedBy   -> claims/{email}   private list of that person's posts
 //
-// It never changes or deletes the old collections, and skips docs that already exist in the
-// new ones (re-run it right before launch to pick up anything posted on the old site meanwhile).
+// Sign-in IDs differ between Firebase projects, so migrated posts arrive with ownerUid ''.
+// The site links them to the right person on their first sign-in, using claims/{email}
+// (see claimLegacyPosts in assets/js/firebase.js), then deletes that claims doc.
+//
+// Safe to re-run: posts already in the target are skipped unless --overwrite.
 //
 // Usage (from this folder):
 //   npm install
-//   export GOOGLE_APPLICATION_CREDENTIALS=/path/OUTSIDE/the/repo/service-account.json
+//   export GOOGLE_APPLICATION_CREDENTIALS=/path/OUTSIDE/the/repo/new-project-key.json
 //   node migrate-2026.mjs --dry-run      # prints what would happen, writes nothing
 //   node migrate-2026.mjs                # writes
 //
 // Flags:
 //   --dry-run               write nothing
-//   --overwrite             replace docs that already exist in builds/resources
+//   --overwrite             replace posts that already exist in the target
 //   --drop-contact-emails   don't carry the old public "email" field over to contactEmail
+//   --target=<projectId>    write somewhere other than the .firebaserc default
+//
+// Local testing: set FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 to write to the emulator instead.
 
+import { readFileSync } from 'node:fs';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
-const args = new Set(process.argv.slice(2));
-const DRY = args.has('--dry-run');
-const OVERWRITE = args.has('--overwrite');
-const DROP_CONTACT = args.has('--drop-contact-emails');
+const args = process.argv.slice(2);
+const flag = (name) => args.includes(`--${name}`);
+const DRY = flag('dry-run');
+const OVERWRITE = flag('overwrite');
+const DROP_CONTACT = flag('drop-contact-emails');
 const YEAR = '2025-26';
-const PROJECT_ID = 'claude-at-stanford';
+
+const SOURCE_PROJECT = 'claude-at-stanford';
+const SOURCE_KEY = 'AIzaSyBp25Gon7aTdre7BfH3SE3scFxPTOygB10'; // public web API key of the old project
+const SOURCE = `https://firestore.googleapis.com/v1/projects/${SOURCE_PROJECT}/databases/(default)/documents`;
+
+const TARGET = args.find((a) => a.startsWith('--target='))?.split('=')[1]
+  || JSON.parse(readFileSync(new URL('../.firebaserc', import.meta.url), 'utf8')).projects.default;
+
+if (TARGET === SOURCE_PROJECT) {
+  console.error('Target is the old project. Point .firebaserc (or --target=) at the new project.');
+  process.exit(1);
+}
 
 // Mirrors assets/js/taxonomy.js. Anything else in "tools" moves to otherTools.
 const CLAUDE_PRODUCTS = ['Claude', 'Claude Code', 'Claude Cowork', 'Claude Skills', 'Claude API', 'Claude Agent SDK', 'MCP'];
@@ -35,13 +59,49 @@ const RENAMES = { 'Claude Chat': 'Claude' };
 
 const EMULATOR = process.env.FIRESTORE_EMULATOR_HOST;
 if (!EMULATOR && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error('Set GOOGLE_APPLICATION_CREDENTIALS to a service-account key stored OUTSIDE this repo.');
+  console.error('Set GOOGLE_APPLICATION_CREDENTIALS to a service-account key for the NEW project, stored OUTSIDE this repo.');
   process.exit(1);
 }
-
-initializeApp(EMULATOR ? { projectId: PROJECT_ID } : { credential: applicationDefault(), projectId: PROJECT_ID });
-console.log(EMULATOR ? `Target: local emulator at ${EMULATOR}` : `Target: LIVE project ${PROJECT_ID}`);
+initializeApp(EMULATOR ? { projectId: TARGET } : { credential: applicationDefault(), projectId: TARGET });
 const db = getFirestore();
+console.log(`Source: ${SOURCE_PROJECT} (public, read-only)`);
+console.log(`Target: ${EMULATOR ? `emulator at ${EMULATOR}, project ${TARGET}` : `LIVE project ${TARGET}`}`);
+
+/* ---------- Reading the old project over REST ---------- */
+
+function decode(v) {
+  if ('stringValue' in v) return v.stringValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return v.doubleValue;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('nullValue' in v) return null;
+  if ('timestampValue' in v) return Timestamp.fromDate(new Date(v.timestampValue));
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(decode);
+  if ('mapValue' in v) return Object.fromEntries(Object.entries(v.mapValue.fields || {}).map(([k, x]) => [k, decode(x)]));
+  return undefined;
+}
+
+async function readSource(collection) {
+  const docs = [];
+  let pageToken = '';
+  do {
+    const url = `${SOURCE}/${collection}?pageSize=300&key=${SOURCE_KEY}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Reading ${collection} from ${SOURCE_PROJECT} failed (${res.status}). Has the old project been locked already?`);
+    const body = await res.json();
+    for (const d of body.documents || []) {
+      docs.push({
+        id: d.name.split('/').pop(),
+        createTime: Timestamp.fromDate(new Date(d.createTime)),
+        data: Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, decode(v)])),
+      });
+    }
+    pageToken = body.nextPageToken || '';
+  } while (pageToken);
+  return docs;
+}
+
+/* ---------- Mapping ---------- */
 
 const text = (v, max) => (typeof v === 'string' ? v.trim() : '').slice(0, max);
 const uniq = (a) => [...new Set(a)];
@@ -61,14 +121,13 @@ function splitTools(d) {
   };
 }
 
-const created = (d, snap) => (d.createdAt instanceof Timestamp ? d.createdAt : snap.createTime);
+const created = (src) => (src.data.createdAt instanceof Timestamp ? src.data.createdAt : src.createTime);
 
-function mapBuild(snap) {
-  const d = snap.data();
+function mapBuild(src) {
+  const d = src.data;
   const warnings = [];
   const link = httpUrl(d.link);
   if (!link) warnings.push(`link "${d.link}" isn't http(s); left blank (owner must add one to edit)`);
-  if (!d.submittedByUid) warnings.push('no owner uid; nobody can edit it (leads can still moderate)');
   const { tools, otherTools } = splitTools(d);
   return {
     warnings,
@@ -83,20 +142,20 @@ function mapBuild(snap) {
       authorName: text(d.author, 80),
       linkedin: httpUrl(d.linkedin),
       contactEmail: DROP_CONTACT ? '' : email(d.email),
-      ownerUid: d.submittedByUid || '',
+      ownerUid: '',
       year: YEAR,
       status: 'published',
       featured: false,
-      hearts: uniq(list(d.hearts)).filter((uid) => uid !== d.submittedByUid),
-      createdAt: created(d, snap),
+      hearts: uniq(list(d.hearts)),
+      createdAt: created(src),
       updatedAt: FieldValue.serverTimestamp(),
-      migratedFrom: `projects/${snap.id}`,
+      migratedFrom: `${SOURCE_PROJECT}/projects/${src.id}`,
     },
   };
 }
 
-function mapResource(snap) {
-  const d = snap.data();
+function mapResource(src) {
+  const d = src.data;
   const warnings = [];
   const url = httpUrl(d.url);
   if (!url) warnings.push(`url "${d.url}" isn't http(s); left blank`);
@@ -110,63 +169,73 @@ function mapResource(snap) {
       tools: splitTools(d).tools,
       categories: uniq(list(d.categories)).slice(0, 6),
       authorName: text(d.author, 80),
-      ownerUid: d.submittedByUid || '',
+      ownerUid: '',
       year: YEAR,
       status: 'published',
       featured: false,
-      createdAt: created(d, snap),
+      createdAt: created(src),
       updatedAt: FieldValue.serverTimestamp(),
-      migratedFrom: `library/${snap.id}`,
+      migratedFrom: `${SOURCE_PROJECT}/library/${src.id}`,
     },
   };
 }
 
-async function migrate(from, to, mapper, users) {
-  const [source, existing] = await Promise.all([db.collection(from).get(), db.collection(to).get()]);
+/* ---------- Run ---------- */
+
+const claims = new Map(); // email -> { name, builds: [], resources: [] }
+let unclaimable = 0;
+
+async function migrate(from, to, mapper) {
+  const [source, existing] = await Promise.all([readSource(from), db.collection(to).get()]);
   const have = new Set(existing.docs.map((d) => d.id));
   const writes = [];
-  console.log(`\n${from} -> ${to}: ${source.size} source docs, ${have.size} already in ${to}`);
-  for (const snap of source.docs) {
-    const d = snap.data();
-    if (d.submittedByUid && d.submittedBy) {
-      const prev = users.get(d.submittedByUid);
-      const at = created(d, snap);
-      if (!prev || at.toMillis() < prev.createdAt.toMillis()) {
-        users.set(d.submittedByUid, { email: email(d.submittedBy), name: text(d.author, 80), createdAt: at });
-      }
-    }
-    const skip = have.has(snap.id) && !OVERWRITE;
-    const { data, warnings } = mapper(snap);
-    console.log(`  ${skip ? 'skip ' : 'write'} ${snap.id}  ${data.title}${data.hearts ? `  (${data.hearts.length} hearts)` : ''}`);
+  console.log(`\n${from} -> ${to}: ${source.length} source docs, ${have.size} already in ${to}`);
+  for (const src of source) {
+    const skip = have.has(src.id) && !OVERWRITE;
+    const { data, warnings } = mapper(src);
+    const owner = email(src.data.submittedBy);
+    if (!owner) { warnings.push('no submitter email; nobody can claim it (leads can still moderate)'); }
+    console.log(`  ${skip ? 'skip ' : 'write'} ${src.id}  ${data.title}${data.hearts ? `  (${data.hearts.length} hearts)` : ''}`);
     warnings.forEach((w) => console.log(`        ! ${w}`));
-    if (!skip) writes.push([db.collection(to).doc(snap.id), data]);
+    if (skip) continue;
+    writes.push([db.collection(to).doc(src.id), data]);
+    if (owner) {
+      const c = claims.get(owner) || { name: text(src.data.author, 80), builds: [], resources: [] };
+      c[to].push(src.id);
+      claims.set(owner, c);
+    } else {
+      unclaimable += 1;
+    }
   }
   return writes;
 }
 
-async function commit(writes) {
-  for (let i = 0; i < writes.length; i += 400) {
-    const batch = db.batch();
-    writes.slice(i, i + 400).forEach(([ref, data, opts]) => batch.set(ref, data, opts || {}));
-    await batch.commit();
-  }
-}
+const buildWrites = await migrate('projects', 'builds', mapBuild);
+const resourceWrites = await migrate('library', 'resources', mapResource);
+// arrayUnion keeps re-runs additive if someone's claims doc still exists.
+const claimWrites = [...claims.entries()].map(([who, c]) => [
+  db.collection('claims').doc(who),
+  {
+    name: c.name,
+    ...(c.builds.length ? { builds: FieldValue.arrayUnion(...c.builds) } : {}),
+    ...(c.resources.length ? { resources: FieldValue.arrayUnion(...c.resources) } : {}),
+    createdAt: FieldValue.serverTimestamp(),
+  },
+  { merge: true },
+]);
 
-const users = new Map();
-const buildWrites = await migrate('projects', 'builds', mapBuild, users);
-const resourceWrites = await migrate('library', 'resources', mapResource, users);
-const existingUsers = new Set((await db.collection('users').get()).docs.map((d) => d.id));
-const userWrites = [...users.entries()]
-  .filter(([uid, u]) => u.email && (OVERWRITE || !existingUsers.has(uid)))
-  .map(([uid, u]) => [db.collection('users').doc(uid), { ...u, updatedAt: FieldValue.serverTimestamp() }, { merge: true }]);
-
-console.log(`\nusers: ${userWrites.length} private profiles (emails not printed)`);
+console.log(`\nclaims: ${claimWrites.length} private claim docs (emails not printed)${unclaimable ? `, ${unclaimable} posts without an owner email` : ''}`);
 console.log(`contact emails: ${DROP_CONTACT ? 'dropped' : 'carried over from the old public "email" field'}`);
-console.log(`\nTotal writes: ${buildWrites.length} builds, ${resourceWrites.length} resources, ${userWrites.length} users`);
+console.log(`\nTotal writes: ${buildWrites.length} builds, ${resourceWrites.length} resources, ${claimWrites.length} claims`);
 
 if (DRY) {
   console.log('\nDry run: nothing written. Re-run without --dry-run to apply.');
 } else {
-  await commit([...buildWrites, ...resourceWrites, ...userWrites]);
-  console.log('\nDone. Old projects/library collections were not modified.');
+  const all = [...buildWrites, ...resourceWrites, ...claimWrites];
+  for (let i = 0; i < all.length; i += 400) {
+    const batch = db.batch();
+    all.slice(i, i + 400).forEach(([ref, data, opts]) => batch.set(ref, data, opts || {}));
+    await batch.commit();
+  }
+  console.log(`\nDone. Nothing in ${SOURCE_PROJECT} was modified.`);
 }

@@ -8,7 +8,7 @@ import {
 } from '@firebase/rules-unit-testing';
 import {
   doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where,
-  serverTimestamp, arrayUnion, arrayRemove, Timestamp,
+  serverTimestamp, arrayUnion, arrayRemove, Timestamp, writeBatch,
 } from 'firebase/firestore';
 
 const PROJECT = 'demo-claude-at-stanford';
@@ -247,33 +247,46 @@ describe('user profiles', () => {
   });
 });
 
-// The transitional rules must keep the 2025-26 site (still in production during cutover) working.
-describe('legacy collections (transitional)', () => {
-  const oldProject = (owner, extra = {}) => ({
-    name: 'Old build', link: 'https://example.com', desc: 'd', tools: ['Claude Code'], otherTools: [], categories: ['Fun'],
-    howBuilt: '', author: 'Alice', email: owner.email, linkedin: '', submittedBy: owner.email, submittedByUid: owner.uid,
-    hearts: [], createdAt: serverTimestamp(), ...extra,
+// Posts migrated from the 2025-26 project arrive with ownerUid '' and a private claims/{email} doc.
+describe('claiming migrated posts', () => {
+  beforeEach(async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, 'builds', 'old'), seededBuild({ uid: '' }, { year: '2025-26', hearts: ['legacy-uid-1'] }));
+      await setDoc(doc(db, 'resources', 'oldres'), { ...newResource({ uid: '' }), year: '2025-26', createdAt: stamp, updatedAt: stamp });
+      await setDoc(doc(db, 'claims', ALICE.email), { name: 'Alice A', builds: ['old'], resources: ['oldres'] });
+    });
   });
-  test('old site: read, create, owner edit/delete', async () => {
-    await assertSucceeds(getDocs(collection(anon(), 'projects')));
-    await assertSucceeds(getDocs(collection(anon(), 'library')));
-    const ref = await assertSucceeds(addDoc(collection(as(ALICE), 'projects'), oldProject(ALICE)));
-    await assertSucceeds(updateDoc(doc(as(ALICE), 'projects', ref.id), { name: 'Renamed' }));
-    await assertFails(updateDoc(doc(as(BOB), 'projects', ref.id), { name: 'pwned' }));
-    await assertFails(addDoc(collection(as(GMAIL), 'projects'), oldProject(GMAIL)));
-    await assertFails(addDoc(collection(as(ALICE), 'projects'), oldProject(BOB)));
-    await assertSucceeds(deleteDoc(doc(as(ALICE), 'projects', ref.id)));
+  const claim = (db, coll, id, uid) => updateDoc(doc(db, coll, id), { ownerUid: uid });
+  test('claims docs are private', async () => {
+    await assertSucceeds(getDoc(doc(as(ALICE), 'claims', ALICE.email)));
+    await assertFails(getDoc(doc(as(BOB), 'claims', ALICE.email)));
+    await assertFails(getDoc(doc(anon(), 'claims', ALICE.email)));
+    await assertFails(getDocs(collection(as(BOB), 'claims')));
+    await assertSucceeds(getDoc(doc(as(LEAD), 'claims', ALICE.email)));
   });
-  test('old site: others can heart (whole-array write, hearts only)', async () => {
-    const ref = await addDoc(collection(as(ALICE), 'projects'), oldProject(ALICE));
-    await assertSucceeds(updateDoc(doc(as(BOB), 'projects', ref.id), { hearts: [BOB.uid] }));
-    await assertFails(updateDoc(doc(as(BOB), 'projects', ref.id), { hearts: [BOB.uid], name: 'x' }));
+  test('only the listed person can claim, once, setting only their own uid', async () => {
+    await assertFails(claim(as(BOB), 'builds', 'old', BOB.uid));
+    await assertFails(claim(as(ALICE), 'builds', 'old', BOB.uid));
+    await assertFails(updateDoc(doc(as(ALICE), 'builds', 'old'), { ownerUid: ALICE.uid, featured: true }));
+    await assertFails(claim(as(ALICE), 'builds', 'pub', ALICE.uid)); // not unclaimed, not listed
+    await assertSucceeds(claim(as(ALICE), 'builds', 'old', ALICE.uid));
+    await assertFails(claim(as(ALICE), 'builds', 'old', ALICE.uid)); // already owned now
+    await assertSucceeds(updateDoc(doc(as(ALICE), 'builds', 'old'), { title: 'Mine now', updatedAt: serverTimestamp() }));
   });
-  test('old library: create and owner edit', async () => {
-    const ref = await assertSucceeds(addDoc(collection(as(ALICE), 'library'), {
-      title: 'T', url: 'https://x.co', why: 'w', author: 'Alice', submittedBy: ALICE.email, submittedByUid: ALICE.uid, createdAt: serverTimestamp(),
-    }));
-    await assertSucceeds(updateDoc(doc(as(ALICE), 'library', ref.id), { why: 'better' }));
-    await assertFails(updateDoc(doc(as(BOB), 'library', ref.id), { why: 'x' }));
+  test('the site claims everything and deletes the claims doc in one batch', async () => {
+    const db = as(ALICE);
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'builds', 'old'), { ownerUid: ALICE.uid });
+    batch.update(doc(db, 'resources', 'oldres'), { ownerUid: ALICE.uid });
+    batch.delete(doc(db, 'claims', ALICE.email));
+    await assertSucceeds(batch.commit());
+  });
+  test('claims cannot be forged or edited from clients', async () => {
+    await assertFails(setDoc(doc(as(BOB), 'claims', BOB.email), { builds: ['old'] }));
+    await assertFails(updateDoc(doc(as(ALICE), 'claims', ALICE.email), { builds: ['pub'] }));
+    await assertFails(deleteDoc(doc(as(BOB), 'claims', ALICE.email)));
+  });
+  test('people can still heart unclaimed migrated builds', async () => {
+    await assertSucceeds(updateDoc(doc(as(BOB), 'builds', 'old'), { hearts: arrayUnion(BOB.uid) }));
   });
 });

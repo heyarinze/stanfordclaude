@@ -60,7 +60,7 @@ Then open http://localhost:3000. `serve` handles the clean URLs (`/builds` → `
 To try changes without touching the real database, run the Firebase emulators (needs Java, e.g. `brew install openjdk`):
 
 ```bash
-firebase emulators:start --only auth,firestore --project claude-at-stanford
+firebase emulators:start --only auth,firestore
 ```
 
 Then open http://localhost:3000/?emulator. The flag sticks for that browser tab, and it never activates on a real domain. Sign-in shows the emulator's fake account picker. The emulator starts empty, so add a doc to `leads` (e.g. with the emulator REST API or a quick script) to test moderation.
@@ -87,7 +87,7 @@ All user-submitted text is rendered through the `html` tagged template in `ui.js
 
 ## Firebase
 
-Project: `claude-at-stanford`. Sign-in is Google, restricted to `@stanford.edu`, and enforced in both the client and the rules.
+Project: **`claudeatstanford`** (owned by William Peracchio's account since 2026-27; the 2025-26 site used Arinze's `claude-at-stanford`). Sign-in is Google, restricted to `@stanford.edu`, and enforced in both the client and the rules. The web config lives in `assets/js/firebase.js`, and the CLI default is set in `.firebaserc`.
 
 | Collection | Who can read | Notes |
 |---|---|---|
@@ -95,6 +95,7 @@ Project: `claude-at-stanford`. Sign-in is Google, restricted to `@stanford.edu`,
 | `resources` | same | shown as "Library" |
 | `users` | the user and leads | private submitter emails |
 | `leads` | each lead's own doc; leads can list | lead allowlist |
+| `claims` | that person and leads | which migrated 2025-26 posts belong to an email (see below) |
 
 ### Adding a lead
 
@@ -105,7 +106,6 @@ In the Firebase console go to Firestore → `leads` → **Add document**. Set th
 The rules live in `firebase/firestore.rules` and are deployed with the Firebase CLI:
 
 ```bash
-firebase login
 firebase deploy --only firestore:rules
 ```
 
@@ -119,24 +119,28 @@ cd firebase && npm install && npm test
 
 Firebase only allows sign-in from domains listed under Authentication → Settings → **Authorized domains**. `localhost`, `claudeatstanford.org` and `stanfordclaude.vercel.app` need to be there. Add a Vercel preview domain too if you want to test sign-in on a PR preview.
 
+### Posts from 2025-26 ("claims")
+
+Sign-in IDs are different in every Firebase project, so the 21 builds and 7 library posts copied from last year's project arrive with no owner (`ownerUid: ''`). The migration also writes a private `claims/{email}` doc listing each person's posts. The first time that person signs in, the site links those posts to their account and deletes the claim (`claimLegacyPosts` in `assets/js/firebase.js`). Until then the posts show normally and leads can moderate them, but nobody can edit them.
+
 ## 2026-27 launch checklist
 
-The 2026-27 rebuild moved data from the old collections (`projects`, `library`) to new ones (`builds`, `resources`, `users`). The old rules made every submitter's email publicly readable, and finishing this checklist closes that.
+Moving to the new project also gets the site off the old one, whose rules let anyone download every submitter's email. Arinze has to lock or delete that project to close the leak (step 7).
 
-1. **Back up the current rules.** Copy them from Firestore → Rules in the console. The console also keeps a history.
-2. **Deploy the transitional rules** (`firebase deploy --only firestore:rules`). These are the new rules plus a `LEGACY` block that keeps the old site working.
-3. **Migrate.** Download a service-account key (Project settings → Service accounts) to a folder **outside this repo**, then:
+1. **Enable Google sign-in** (console → Authentication → Sign-in method → Google), and add the domains above under Authorized domains.
+2. **Deploy the rules** with `firebase deploy --only firestore:rules`. (Done 2026-11-08.)
+3. **Migrate.** This reads last year's posts from the old project's public API and writes them here. Download a service-account key for **this** project (Project settings → Service accounts → Generate new private key) to a folder **outside this repo**, then:
    ```bash
    cd scripts && npm install
-   export GOOGLE_APPLICATION_CREDENTIALS=~/keys/claude-at-stanford.json
+   export GOOGLE_APPLICATION_CREDENTIALS=~/keys/claudeatstanford-admin.json
    node migrate-2026.mjs --dry-run
    node migrate-2026.mjs
    ```
-4. **Test the PR preview**: browse, sign in, submit, edit, heart, delete. Add yourself to `leads` and try moderation.
-5. **Re-run the migration** right before merging (it skips docs it already copied) to pick up anything posted on the old site in the meantime.
+4. **Add yourself to `leads`**, then test on `localhost` in your own browser: sign in, submit, edit, heart, delete, and moderate.
+5. **Re-run the migration** right before merging. It skips posts it already copied and picks up anything posted on the old site in the meantime.
 6. **Merge** the PR. Vercel deploys to production.
-7. **Delete the `LEGACY` block** in `firebase/firestore.rules`, redeploy the rules, and commit. This is the step that closes the email leak.
-8. After a few weeks with no issues, delete the old `projects` and `library` collections and the service-account key.
+7. **Ask Arinze to lock or delete the old `claude-at-stanford` project**, or at least deny reads on `projects` and `library`. This is the step that closes the email leak.
+8. Delete the service-account key (Google Cloud console → IAM → Service accounts → Keys) once you no longer need it.
 
 ## History
 

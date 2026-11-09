@@ -105,7 +105,7 @@ root.addEventListener('click', async (event) => {
   try {
     if (act === 'export') {
       const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), ...data }, null, 2)], { type: 'application/json' });
-      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `claude-at-stanford-${new Date().toISOString().slice(0, 10)}.json` });
+      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `claudeatstanford-${new Date().toISOString().slice(0, 10)}.json` });
       a.click();
       URL.revokeObjectURL(a.href);
     } else if (act === 'feature' || act === 'hide') {

@@ -7,6 +7,8 @@ rules_version = '2';
 //   resources/{id}  public when status == 'published' (shown as "Library")
 //   users/{uid}     private: submitter emails. Readable by the user and leads only.
 //   leads/{email}   lead allowlist, doc ID = lowercase @stanford.edu email. Managed in the console.
+//   claims/{email}  private: which migrated 2025-26 posts belong to that email. Written only by the
+//                   migration script; the owner claims them on first sign-in (see claimPost).
 //
 // Deploy:  firebase deploy --only firestore:rules
 // Test:    cd firebase && npm install && npm test   (needs Java for the emulator)
@@ -90,6 +92,17 @@ service cloud.firestore {
         && request.resource.data.moderatedAt == request.time;
     }
 
+    // Posts migrated from the 2025-26 project arrive with ownerUid == '' because sign-in IDs
+    // differ between Firebase projects. The person whose email is on the claims doc can set
+    // ownerUid to their own uid, once, and change nothing else.
+    function claimPost(kind, id) {
+      return isStanford()
+        && resource.data.ownerUid == ''
+        && changed().hasOnly(['ownerUid'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && id in get(/databases/$(database)/documents/claims/$(myEmail())).data.get(kind, []);
+    }
+
     function readablePost() {
       return resource.data.status == 'published'
         || (signedIn() && resource.data.ownerUid == request.auth.uid)
@@ -153,7 +166,8 @@ service cloud.firestore {
           && buildContentOk(request.resource.data)
           && request.resource.data.updatedAt == request.time)
         || heartToggle()
-        || leadModeration();
+        || leadModeration()
+        || claimPost('builds', id);
 
       allow delete: if isOwner() || isLead();
     }
@@ -191,7 +205,8 @@ service cloud.firestore {
           && changed().hasOnly(resourceEditableKeys())
           && resourceContentOk(request.resource.data)
           && request.resource.data.updatedAt == request.time)
-        || leadModeration();
+        || leadModeration()
+        || claimPost('resources', id);
 
       allow delete: if isOwner() || isLead();
     }
@@ -216,23 +231,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // ---------- LEGACY: 2025-26 single-page site ----------
-    // Keeps the old site working while the new one is previewed and migrated.
-    // DELETE THIS WHOLE BLOCK and redeploy right after the new site goes live.
-    // Removing it is what stops submitters' emails being publicly readable.
-    match /projects/{id} {
-      allow read: if true;
-      allow create: if isStanford() && request.resource.data.submittedByUid == request.auth.uid;
-      allow update: if isStanford()
-        && (resource.data.submittedByUid == request.auth.uid
-          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hearts']));
-      allow delete: if isStanford() && resource.data.submittedByUid == request.auth.uid;
+    // ---------- Claims (private, migration-written) ----------
+
+    match /claims/{claimEmail} {
+      allow read: if (isStanford() && myEmail() == claimEmail) || isLead();
+      allow delete: if isStanford() && myEmail() == claimEmail;
+      allow create, update: if false;
     }
-    match /library/{id} {
-      allow read: if true;
-      allow create: if isStanford() && request.resource.data.submittedByUid == request.auth.uid;
-      allow update, delete: if isStanford() && resource.data.submittedByUid == request.auth.uid;
-    }
-    // ---------- END LEGACY ----------
   }
 }
