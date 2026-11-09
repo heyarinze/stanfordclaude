@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events · Claude@Stanford</title>
+  <meta name="description" content="Claude@Stanford tablings, workshops, demo nights and buildathons. RSVP on Luma.">
+  <link rel="canonical" href="https://claudeatstanford.org/events">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Claude@Stanford">
+  <meta property="og:title" content="Events · Claude@Stanford">
+  <meta property="og:description" content="Claude@Stanford tablings, workshops, demo nights and buildathons. RSVP on Luma.">
+  <meta property="og:url" content="https://claudeatstanford.org/events">
+  <meta property="og:image" content="https://claudeatstanford.org/assets/img/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1A17" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/favicon.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=swap">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <script type="module" src="/assets/js/layout.js"></script>
+</head>
+<body>
+  <site-header current="events"></site-header>
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <span class="eyebrow">Calendar</span>
+        <h1>Events</h1>
+        <p class="lede">Tablings, workshops, demo nights and buildathons. RSVP on Luma to get reminders. Most events include Claude credits for attendees.</p>
+        <div class="btn-row" style="margin-top:var(--space-5)">
+          <a class="btn btn-primary" href="#" data-luma-subscribe hidden target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Subscribe on Luma</a>
+          <a class="btn btn-secondary" href="/archive">Past events</a>
+        </div>
+      </div>
+    </section>
+    <section class="container" aria-label="Upcoming events">
+      <div data-events><div class="skeleton" style="min-height:420px"></div></div>
+    </section>
+  </main>
+  <site-footer></site-footer>
+  <script type="module" src="/assets/js/events.js"></script>
+</body>
+</html>

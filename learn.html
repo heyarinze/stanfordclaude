@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learn · Claude@Stanford</title>
+  <meta name="description" content="Workshop slides, recordings and starter code from Claude@Stanford sessions.">
+  <link rel="canonical" href="https://claudeatstanford.org/learn">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Claude@Stanford">
+  <meta property="og:title" content="Learn · Claude@Stanford">
+  <meta property="og:description" content="Workshop slides, recordings and starter code from Claude@Stanford sessions.">
+  <meta property="og:url" content="https://claudeatstanford.org/learn">
+  <meta property="og:image" content="https://claudeatstanford.org/assets/img/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1A17" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/favicon.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=swap">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <script type="module" src="/assets/js/layout.js"></script>
+</head>
+<body>
+  <site-header current="learn"></site-header>
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <span class="eyebrow">Learn</span>
+        <h1>Workshops</h1>
+        <p class="lede">Slides, recordings and starter code from Claude@Stanford sessions, from your first Claude Code project to agents and skills.</p>
+      </div>
+    </section>
+    <section class="container" aria-labelledby="ws-title">
+      <h2 id="ws-title" class="visually-hidden">All workshops</h2>
+      <div class="grid" data-workshops aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div class="grid grid-2" style="align-items:start">
+          <div>
+            <span class="eyebrow">Self-paced</span>
+            <h2 style="margin:var(--space-3) 0 var(--space-4)">Official resources</h2>
+            <p class="muted">Docs and courses straight from Anthropic, good for going deeper between sessions.</p>
+          </div>
+          <ul class="link-list" data-resources></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  <site-footer></site-footer>
+  <script type="module" src="/assets/js/learn.js"></script>
+</body>
+</html>

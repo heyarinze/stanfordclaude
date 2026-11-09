@@ -1,0 +1,17 @@
+.DS_Store
+node_modules/
+.vercel/
+.firebase/
+*.log
+firebase-debug.log*
+firestore-debug.log*
+
+# Never commit Firebase/GCP credentials.
+*serviceAccount*.json
+*service-account*.json
+*-firebase-adminsdk-*.json
+.env
+.env.*
+
+# Local tooling
+.claude/

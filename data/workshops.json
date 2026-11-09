@@ -1,0 +1,20 @@
+{
+  "workshops": [],
+  "resources": [
+    {
+      "title": "Claude Code docs",
+      "url": "https://code.claude.com/docs/en/overview",
+      "description": "Official guide to installing and working with Claude Code."
+    },
+    {
+      "title": "Anthropic Academy",
+      "url": "https://academy.claude.com/",
+      "description": "Free self-paced courses from Anthropic on Claude, the API and agents."
+    },
+    {
+      "title": "Claude Developer Platform docs",
+      "url": "https://platform.claude.com/docs/en/home",
+      "description": "API reference, prompting guides and the Agent SDK."
+    }
+  ]
+}

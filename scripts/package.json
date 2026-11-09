@@ -1,0 +1,13 @@
+{
+  "name": "claude-at-stanford-scripts",
+  "private": true,
+  "type": "module",
+  "description": "One-off maintenance scripts. Not part of the deployed site.",
+  "scripts": {
+    "migrate:dry": "node migrate-2026.mjs --dry-run",
+    "migrate": "node migrate-2026.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.5.0"
+  }
+}
