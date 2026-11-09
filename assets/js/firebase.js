@@ -1,9 +1,9 @@
 // Firebase: Stanford-only Google sign-in plus Firestore Lite (REST, no realtime, smaller download).
 //
 // The web config below (including apiKey) is PUBLIC BY DESIGN: every visitor's browser downloads it,
-// and it only identifies the project. It is not a password. Access control lives in
-// firebase/firestore.rules, and the key is restricted to the site's domains in Google Cloud
-// (see README → Security). GitHub's secret scanning flags it anyway; that alert is expected.
+// and it only names the project. It grants no access to data; Firestore rules do that
+// (firebase/firestore.rules). The key is API-restricted to Firebase services in Google Cloud
+// (see README → Security). GitHub's secret scanning flags it anyway; close that alert as "Won't fix".
 // Never put a service-account key or any other real secret in this repo.
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js';

@@ -53,7 +53,7 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 npx serve .
 ```
 
-Then open http://localhost:3000. `serve` handles the clean URLs (`/builds` → `builds.html`) the same way Vercel does. Sign-in works on `localhost` out of the box.
+Then open http://localhost:3000. `serve` handles the clean URLs (`/builds` → `builds.html`) the same way Vercel does. Real sign-in on localhost only works if `localhost` is listed under Firebase Auth → Settings → Authorized domains. New projects don't include it, and Google discourages leaving it on a production project, so prefer the emulators below for day-to-day work.
 
 ### Against local emulators (fake accounts, local data)
 
@@ -87,7 +87,7 @@ All user-submitted text is rendered through the `html` tagged template in `ui.js
 
 ## Firebase
 
-Project: **`claudeatstanford`** (owned by William Peracchio's account since 2026-27; the 2025-26 site used Arinze's `claude-at-stanford`). Sign-in is Google, restricted to `@stanford.edu`, and enforced in both the client and the rules. The web config lives in `assets/js/firebase.js`, and the CLI default is set in `.firebaserc`.
+Project: **`claudeatstanford`** (owned by William Peracchio's account since 2026-27; the 2025-26 site used Arinze's `claude-at-stanford`). Sign-in is Google. Only `@stanford.edu` accounts can post, and the Firestore rules enforce that. The client-side check just gives a friendly error: any Google account can still create a Firebase Auth user, but the rules won't let it write anything. The web config lives in `assets/js/firebase.js`, and the CLI default is set in `.firebaserc`.
 
 | Collection | Who can read | Notes |
 |---|---|---|
@@ -125,24 +125,50 @@ Sign-in IDs are different in every Firebase project, so the 21 builds and 7 libr
 
 ## Security
 
-- **The Firebase web config is public on purpose.** The `apiKey` in `assets/js/firebase.js` identifies the project to Google; every visitor's browser downloads it, so it can't be hidden on a static site, and it grants nothing by itself. GitHub's secret scanning still flags it as a "Google API Key". That alert is expected: close it as a false positive after confirming the key is restricted (below).
-- **What actually protects the data:** the Firestore rules (`firebase/firestore.rules`, with tests) and Firebase Auth's authorized domains.
-- **Key restriction** (Google Cloud console → APIs & Services → Credentials → *Browser key (auto created by Firebase)* → Application restrictions → **Websites**). Keep this list in sync with the domains the site runs on:
-  - `https://claudeatstanford.org/*`
-  - `https://www.claudeatstanford.org/*`
-  - `https://stanfordclaude.vercel.app/*`
-  - `https://claudeatstanford.firebaseapp.com/*` (Firebase's sign-in pop-up runs here; sign-in breaks without it)
-  - `http://localhost:3000/*` (local development)
-  - any Vercel preview domain you want to test sign-in on
+**The Firebase web config is public on purpose.** The `apiKey` in `assets/js/firebase.js` names the project to Google; it grants no access to data by itself. Every visitor's browser downloads it (Auth and Firestore Lite both send it on each request), so a static site can't hide it, and rotating it would only publish a new public key. Firebase's guidance: [API keys for Firebase](https://firebase.google.com/docs/projects/api-keys).
 
-  Leave the key's API restrictions as Firebase created them. A referrer check only stops other *websites* from reusing the key; scripts can fake it. The project is on the free Spark plan, so abuse can at worst exhaust the daily free quota, never cost money. If that ever happens, turn on [App Check](https://firebase.google.com/docs/app-check).
-- **Real secrets never go in the repo.** That means service-account keys (`.gitignore` blocks the usual file names; keep them in `~/keys/`), Slack or Luma tokens, and anything else that grants access. If one is ever committed, revoke it in its console first, then clean up the repo.
+**What protects the data:** the Firestore rules (`firebase/firestore.rules`, with tests in `firebase/rules.test.mjs`). Authorized domains only control where the sign-in pop-up may run.
+
+**GitHub's "Google API Key" secret-scanning alert is expected.** After checking the key (below), close it as **Won't fix** with a comment such as: "Firebase web API key, public by design (firebase.google.com/docs/projects/api-keys). API-restricted to Firebase services; data protected by Firestore rules." Don't pick *Revoked*, because it isn't revoked. Don't pick *False positive* either, because the detection is valid.
+
+### Checking the key
+
+In Google Cloud console → APIs & Services → [Credentials](https://console.cloud.google.com/apis/credentials?project=claudeatstanford), open **Browser key (auto created by Firebase)**. Confirm its key string matches the one in `firebase.js`.
+
+1. **API restrictions (the important one).** It should say *Restrict key*, listing only Firebase APIs. That list must include **Identity Toolkit API**, **Token Service API** and **Cloud Firestore API**, and must **not** include the **Generative Language API** (Gemini). Firebase sets this up for keys it creates; don't remove anything. Use a separate key for any non-Firebase API.
+2. **Website restrictions (optional, stops other sites from using the key).** Under Application restrictions → Websites, list every origin the site runs on, using exact hostnames:
+   - `https://claudeatstanford.org/*`
+   - `https://stanfordclaude.vercel.app/*`
+   - `https://claudeatstanford.firebaseapp.com/*` (the sign-in pop-up runs here)
+   - `http://localhost:3000/*`, only while testing real sign-in locally
+   - the exact branch URL of any Vercel preview you test on, e.g. `https://stanfordclaude-git-<branch>-arinzebuilds.vercel.app/*`. Remove it after merging.
+
+   Rules for this list:
+   - No wildcards in the middle of a name, and never `*.vercel.app` (that matches every Vercel site).
+   - Firestore uses the key too, so a missing origin breaks the whole site there, not just sign-in. Add the same hostnames under Firebase Auth → Authorized domains.
+   - Changes take a few minutes to apply.
+   - A blocked origin shows up as `auth/requests-from-referer-…-are-blocked` or as a Firestore `permission-denied` "Requests from referer … are blocked". The second looks like a rules problem but isn't.
+   - Keep the Firebase SDK at 12.15.0 or newer (this site uses 13.2.0). Older Auth versions don't send a referrer.
+   - Scripts can fake a referrer, so this only stops other *websites*.
+
+### Abuse and cost
+
+- The project is on the free **Spark** plan as long as no billing account is linked. Abuse can then only use up free quota: 50k Firestore reads/day, 10 GiB/month transfer, and so on. That would be an outage for real users, not a bill.
+- Linking any billing account (even trial credit) moves the project to **Blaze**, where usage is billed and budget alerts don't cap spending. Set budget alerts before doing that.
+- To watch usage, check the Firebase console's Usage tabs.
+- Stronger protection is [App Check](https://firebase.google.com/docs/app-check). It needs a reCAPTCHA Enterprise key and some setup, so plan it as its own task.
+
+### Real secrets
+
+- Service-account keys, Slack/Luma tokens and anything else that grants access never go in the repo folder. Keep keys in `~/keys/`; `.gitignore` also blocks common key filenames.
+- If a real secret is ever committed, revoke it in its own console first, then clean up the repo.
+- Deploys go through Git (Vercel's GitHub integration). Don't run `vercel deploy` from a folder that holds keys: the Vercel CLI uploads files `.gitignore` would skip.
 
 ## 2026-27 launch checklist
 
 Moving to the new project also gets the site off the old one, whose rules let anyone download every submitter's email. Arinze has to lock or delete that project to close the leak (step 7).
 
-1. **Enable Google sign-in** (console → Authentication → Sign-in method → Google), and add the domains above under Authorized domains.
+1. **Enable Google sign-in** (console → Authentication → Sign-in method → Google), and add the site's domains under Authorized domains. (Done 2026-11-08.)
 2. **Deploy the rules** with `firebase deploy --only firestore:rules`. (Done 2026-11-08.)
 3. **Migrate.** This reads last year's posts from the old project's public API and writes them here. Download a service-account key for **this** project (Project settings → Service accounts → Generate new private key) to a folder **outside this repo**, then:
    ```bash
@@ -155,7 +181,8 @@ Moving to the new project also gets the site off the old one, whose rules let an
 5. **Re-run the migration** right before merging. It skips posts it already copied and picks up anything posted on the old site in the meantime.
 6. **Merge** the PR. Vercel deploys to production.
 7. **Ask Arinze to lock or delete the old `claude-at-stanford` project**, or at least deny reads on `projects` and `library`. This is the step that closes the email leak.
-8. Delete the service-account key (Google Cloud console → IAM → Service accounts → Keys) once you no longer need it.
+8. Check the browser key and close GitHub's secret-scanning alert as **Won't fix** (see Security). Remove `localhost` from Authorized domains once launch testing is done.
+9. Delete the service-account key (Google Cloud console → IAM → Service accounts → Keys) once you no longer need it.
 
 ## History
 
