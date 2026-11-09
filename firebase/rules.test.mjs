@@ -246,3 +246,34 @@ describe('user profiles', () => {
     await assertFails(setDoc(doc(as(LEAD), 'leads', BOB.email), { role: 'Lead' }));
   });
 });
+
+// The transitional rules must keep the 2025-26 site (still in production during cutover) working.
+describe('legacy collections (transitional)', () => {
+  const oldProject = (owner, extra = {}) => ({
+    name: 'Old build', link: 'https://example.com', desc: 'd', tools: ['Claude Code'], otherTools: [], categories: ['Fun'],
+    howBuilt: '', author: 'Alice', email: owner.email, linkedin: '', submittedBy: owner.email, submittedByUid: owner.uid,
+    hearts: [], createdAt: serverTimestamp(), ...extra,
+  });
+  test('old site: read, create, owner edit/delete', async () => {
+    await assertSucceeds(getDocs(collection(anon(), 'projects')));
+    await assertSucceeds(getDocs(collection(anon(), 'library')));
+    const ref = await assertSucceeds(addDoc(collection(as(ALICE), 'projects'), oldProject(ALICE)));
+    await assertSucceeds(updateDoc(doc(as(ALICE), 'projects', ref.id), { name: 'Renamed' }));
+    await assertFails(updateDoc(doc(as(BOB), 'projects', ref.id), { name: 'pwned' }));
+    await assertFails(addDoc(collection(as(GMAIL), 'projects'), oldProject(GMAIL)));
+    await assertFails(addDoc(collection(as(ALICE), 'projects'), oldProject(BOB)));
+    await assertSucceeds(deleteDoc(doc(as(ALICE), 'projects', ref.id)));
+  });
+  test('old site: others can heart (whole-array write, hearts only)', async () => {
+    const ref = await addDoc(collection(as(ALICE), 'projects'), oldProject(ALICE));
+    await assertSucceeds(updateDoc(doc(as(BOB), 'projects', ref.id), { hearts: [BOB.uid] }));
+    await assertFails(updateDoc(doc(as(BOB), 'projects', ref.id), { hearts: [BOB.uid], name: 'x' }));
+  });
+  test('old library: create and owner edit', async () => {
+    const ref = await assertSucceeds(addDoc(collection(as(ALICE), 'library'), {
+      title: 'T', url: 'https://x.co', why: 'w', author: 'Alice', submittedBy: ALICE.email, submittedByUid: ALICE.uid, createdAt: serverTimestamp(),
+    }));
+    await assertSucceeds(updateDoc(doc(as(ALICE), 'library', ref.id), { why: 'better' }));
+    await assertFails(updateDoc(doc(as(BOB), 'library', ref.id), { why: 'x' }));
+  });
+});
