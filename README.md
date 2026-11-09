@@ -99,7 +99,7 @@ Project: **`claudeatstanford`** (owned by William Peracchio's account since 2026
 
 ### Adding a lead
 
-In the Firebase console go to Firestore → `leads` → **Add document**. Set the document ID to the person's lowercase `@stanford.edu` email and add a field `role` (string). They'll see **Moderation** in their account menu after their next sign-in. The `/admin` page lets leads feature, hide or delete posts, email a poster, and export everything as JSON.
+In the Firebase console go to Firestore → `leads` → **Add document**. Set the document ID to the person's lowercase `@stanford.edu` email and add a field `role` (string). Or, with a service-account key, run `cd scripts && node leads.mjs add someone@stanford.edu` (also `list` and `remove`). They'll see **Moderation** in their account menu after their next sign-in. The `/admin` page lets leads feature, hide or delete posts, email a poster, and export everything as JSON.
 
 ### Rules
 
