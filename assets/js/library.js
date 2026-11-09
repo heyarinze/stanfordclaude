@@ -17,7 +17,7 @@ function resourceCard(item) {
   const url = safeUrl(item.url);
   const type = (item.categories || [])[0];
   return html`
-    <article class="card item-card resource-card">
+    <article class="card item-card spotlight resource-card">
       <div class="card-body">
         <div class="resource-head">${sourceBadge(url)}${type ? html`<span class="tag">${type}</span>` : ''}</div>
         ${item.featured || item.status === 'hidden' ? html`<div class="badge-row">${statusTags(item, { year: false })}</div>` : ''}

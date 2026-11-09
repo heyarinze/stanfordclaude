@@ -13,7 +13,7 @@ function winnerCard(w) {
   const [medal, label] = PLACES[w.place] || ['bronze', `Place ${w.place}`];
   const link = safeUrl(w.link);
   return html`
-    <article class="card plaque plaque-${medal}">
+    <article class="card spotlight plaque plaque-${medal}">
       <div class="cover">${coverArt(w.title, { palette: medal, label: w.title })}</div>
       <div class="card-body">
         <span class="medal" aria-hidden="true">${w.place}</span>
@@ -30,7 +30,7 @@ function winnerCard(w) {
 function mentionCard(m) {
   const link = safeUrl(m.link);
   return html`
-    <article class="card card-pad" style="display:grid; gap:var(--space-3); align-content:start">
+    <article class="card card-pad spotlight" style="display:grid; gap:var(--space-3); align-content:start; overflow:hidden">
       ${m.track ? html`<div class="badge-row"><span class="tag">${m.track}</span></div>` : ''}
       <h3>${m.title}</h3>
       <p class="muted small">${m.desc}</p>

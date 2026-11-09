@@ -15,8 +15,8 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#F4EFE6" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#12110F" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#0A0907">
+  <meta name="color-scheme" content="dark">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/assets/img/favicon.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
@@ -42,28 +42,20 @@
   <site-header current="home"></site-header>
   <main id="main">
     <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <a class="hero-badge" href="/events" data-hero-badge><span class="year" data-year>2026–27</span><span class="text" data-badge-text>Anthropic's Largest Builder Club</span></a>
-          <h1 class="hero-title">What Stanford is <span class="visually-hidden">building</span><span class="verb-slot" data-hero-verb aria-hidden="true"><em class="is-active">building</em><em>learning</em><em>creating</em></span> with Claude</h1>
-          <p class="lede">Claude@Stanford is the student community for building, learning and creating with Claude. Come to a workshop, ship something, and share it with everyone here.</p>
-          <div class="btn-row">
-            <a class="btn btn-primary btn-lg" href="#join" data-join>Join the community <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a class="btn btn-secondary btn-lg" href="/builds?submit=1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Share your build</a>
-          </div>
-          <dl class="stats" data-stats>
-            <div><dt>Builds shared</dt><dd data-stat="builds">–</dd></div>
-            <div><dt>Library picks</dt><dd data-stat="resources">–</dd></div>
-            <div><dt>Builders</dt><dd data-stat="builders">–</dd></div>
-          </dl>
+      <svg class="hero-rays" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><radialGradient id="ray-hero" cx="50" cy="50" r="48" gradientUnits="userSpaceOnUse"><stop offset=".12" stop-color="#FFE2CC"/><stop offset=".45" stop-color="#E3825C" stop-opacity=".85"/><stop offset="1" stop-color="#B3261E" stop-opacity="0"/></radialGradient><filter id="ray-hero-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#ray-hero-glow)"><line x1="66.00" y1="50.00" x2="98.00" y2="50.00" stroke="url(#ray-hero)" stroke-width="2.2" stroke-linecap="round" pathLength="1" style="--i:0"/><line x1="62.80" y1="59.60" x2="82.00" y2="74.00" stroke="url(#ray-hero)" stroke-width="1.6" stroke-linecap="round" pathLength="1" style="--i:1"/><line x1="58.00" y1="63.86" x2="74.00" y2="91.57" stroke="url(#ray-hero)" stroke-width="2.2" stroke-linecap="round" pathLength="1" style="--i:2"/><line x1="48.08" y1="65.88" x2="45.21" y2="89.71" stroke="url(#ray-hero)" stroke-width="1.6" stroke-linecap="round" pathLength="1" style="--i:3"/><line x1="42.00" y1="63.86" x2="26.00" y2="91.57" stroke="url(#ray-hero)" stroke-width="2.2" stroke-linecap="round" pathLength="1" style="--i:4"/><line x1="35.29" y1="56.28" x2="13.21" y2="65.71" stroke="url(#ray-hero)" stroke-width="1.6" stroke-linecap="round" pathLength="1" style="--i:5"/><line x1="34.00" y1="50.00" x2="2.00" y2="50.00" stroke="url(#ray-hero)" stroke-width="2.2" stroke-linecap="round" pathLength="1" style="--i:6"/><line x1="37.20" y1="40.40" x2="18.00" y2="26.00" stroke="url(#ray-hero)" stroke-width="1.6" stroke-linecap="round" pathLength="1" style="--i:7"/><line x1="42.00" y1="36.14" x2="26.00" y2="8.43" stroke="url(#ray-hero)" stroke-width="2.2" stroke-linecap="round" pathLength="1" style="--i:8"/><line x1="51.92" y1="34.12" x2="54.79" y2="10.29" stroke="url(#ray-hero)" stroke-width="1.6" stroke-linecap="round" pathLength="1" style="--i:9"/><line x1="58.00" y1="36.14" x2="74.00" y2="8.43" stroke="url(#ray-hero)" stroke-width="2.2" stroke-linecap="round" pathLength="1" style="--i:10"/><line x1="64.71" y1="43.72" x2="86.79" y2="34.29" stroke="url(#ray-hero)" stroke-width="1.6" stroke-linecap="round" pathLength="1" style="--i:11"/></g></svg>
+      <div class="container hero-inner">
+        <a class="hero-chip" href="/events" data-hero-badge><span class="dot"></span><span class="text"><b data-year>2026–27</b> · <span data-badge-text>Anthropic's largest builder club</span></span><span class="go"><svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <h1 class="hero-title">What Stanford<br>builds <em>with Claude</em></h1>
+        <p class="lede">The student community for building, learning and creating with Claude. Come to a workshop, ship something, and show everyone what you made.</p>
+        <div class="btn-row" style="justify-content:center">
+          <a class="btn btn-primary btn-lg" href="#join" data-join>Join the community <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-secondary btn-lg" href="/builds">Explore builds</a>
         </div>
-        <div class="hero-visual">
-          <div class="hero-glow" aria-hidden="true"></div>
-          <svg class="hero-spark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.8" stroke-linecap="round" aria-hidden="true" focusable="false"><g><line x1="62.00" y1="50.00" x2="97.00" y2="50.00" pathLength="1" style="--i:0"/><line x1="59.60" y1="57.20" x2="81.20" y2="73.40" pathLength="1" style="--i:1"/><line x1="56.00" y1="60.39" x2="73.50" y2="90.70" pathLength="1" style="--i:2"/><line x1="48.56" y1="61.91" x2="45.33" y2="88.72" pathLength="1" style="--i:3"/><line x1="44.00" y1="60.39" x2="26.50" y2="90.70" pathLength="1" style="--i:4"/><line x1="38.96" y1="54.71" x2="14.13" y2="65.32" pathLength="1" style="--i:5"/><line x1="38.00" y1="50.00" x2="3.00" y2="50.00" pathLength="1" style="--i:6"/><line x1="40.40" y1="42.80" x2="18.80" y2="26.60" pathLength="1" style="--i:7"/><line x1="44.00" y1="39.61" x2="26.50" y2="9.30" pathLength="1" style="--i:8"/><line x1="51.44" y1="38.09" x2="54.67" y2="11.28" pathLength="1" style="--i:9"/><line x1="56.00" y1="39.61" x2="73.50" y2="9.30" pathLength="1" style="--i:10"/><line x1="61.04" y1="45.29" x2="85.87" y2="34.68" pathLength="1" style="--i:11"/></g></svg>
-          <a class="float-chip" data-chip="0" hidden></a>
-          <a class="float-chip" data-chip="1" hidden></a>
-          <a class="float-chip" data-chip="2" hidden></a>
-        </div>
+        <dl class="stats" data-stats>
+          <div><dt>Builds shared</dt><dd data-stat="builds">0</dd></div>
+          <div><dt>Library picks</dt><dd data-stat="resources">0</dd></div>
+          <div><dt>Builders</dt><dd data-stat="builders">0</dd></div>
+        </dl>
       </div>
     </section>
 
@@ -72,10 +64,10 @@
     <section class="section" aria-labelledby="featured-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <div><span class="eyebrow">From the community</span><h2 id="featured-title">Featured <em>builds</em></h2></div>
-          <a class="btn btn-secondary" href="/builds">All builds <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <div><span class="eyebrow">Featured builds</span><h2 id="featured-title">Made on campus,<br><em>this year.</em></h2></div>
+          <a class="btn btn-secondary" href="/builds"><span>All <span data-build-count></span> builds</span> <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <div class="bento" data-featured aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="features" data-featured aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
       </div>
     </section>
 
@@ -92,31 +84,30 @@
     <section class="section band" aria-labelledby="year-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <div><span class="eyebrow">This year</span><h2 id="year-title">Four ways <em>in</em></h2></div>
+          <div><span class="eyebrow">This year</span><h2 id="year-title">Four ways <em>in.</em></h2></div>
           <p>Whether you've never opened a terminal or you ship agents for fun, there's a place to start.</p>
         </div>
         <div class="tiles">
-          <a class="card tile" href="/events" data-reveal style="--i:0"><div class="cover" data-cover-seed="events" data-palette="clay" data-pattern="sunrise"></div><div class="tile-body"><h3>Events</h3><p>Tablings, workshops, demo nights and buildathons across campus.</p><span class="more">See the calendar <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
-          <a class="card tile" href="/learn" data-reveal style="--i:1"><div class="cover" data-cover-seed="learn" data-palette="sage" data-pattern="dots"></div><div class="tile-body"><h3>Learn</h3><p>Slides, recordings and starter code from our Claude Code workshops.</p><span class="more">Start learning <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
-          <a class="card tile" href="/perks" data-reveal style="--i:2"><div class="cover" data-cover-seed="perks" data-palette="cardinal" data-pattern="spark"></div><div class="tile-body"><h3>Perks</h3><p>How members get Claude Pro and API credits to build with.</p><span class="more">See perks <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
-          <a class="card tile" href="/library" data-reveal style="--i:3"><div class="cover" data-cover-seed="library" data-palette="sand" data-pattern="waves"></div><div class="tile-body"><h3>Library</h3><p>Guides, talks and articles members recommend.</p><span class="more">Browse the Library <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
+          <a class="card tile spotlight" href="/events" data-reveal style="--i:0"><div class="cover" data-cover-seed="events" data-palette="clay" data-pattern="sunrise"></div><div class="tile-body"><h3>Events</h3><p>Tablings, workshops, demo nights and buildathons across campus.</p><span class="more">See the calendar <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
+          <a class="card tile spotlight" href="/learn" data-reveal style="--i:1"><div class="cover" data-cover-seed="learn" data-palette="sage" data-pattern="dots"></div><div class="tile-body"><h3>Learn</h3><p>Slides, recordings and starter code from our Claude Code workshops.</p><span class="more">Start learning <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
+          <a class="card tile spotlight" href="/perks" data-reveal style="--i:2"><div class="cover" data-cover-seed="perks" data-palette="cardinal" data-pattern="spark"></div><div class="tile-body"><h3>Perks</h3><p>How members get Claude Pro and API credits to build with.</p><span class="more">See perks <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
+          <a class="card tile spotlight" href="/library" data-reveal style="--i:3"><div class="cover" data-cover-seed="library" data-palette="ink" data-pattern="waves"></div><div class="tile-body"><h3>Library</h3><p>Guides, talks and articles members recommend.</p><span class="more">Browse the Library <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
         </div>
       </div>
     </section>
 
-    <section class="night" id="join" aria-labelledby="join-title">
-      <div class="container join-grid">
-        <div data-reveal>
+    <section class="section" id="join" aria-labelledby="join-title">
+      <div class="container">
+        <div class="join-panel" data-reveal>
           <span class="eyebrow">Join us</span>
           <h2 id="join-title">Come build <em>with us.</em></h2>
-          <p>Our Slack is where members share what they're building, find teammates, and hear about events and credits first. It's open to all Stanford students and affiliates.</p>
+          <p>Our Slack is where members share what they're building, find teammates, and hear about events and credits first. It's open to every Stanford student and affiliate.</p>
           <div class="btn-row">
-            <a class="btn btn-light btn-lg" href="/events" data-join>See upcoming events <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a class="btn btn-outline-light btn-lg" href="/team">Meet the team</a>
+            <a class="btn btn-primary btn-lg" href="/events" data-join>See upcoming events <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-secondary btn-lg" href="/team">Meet the team</a>
           </div>
           <p class="join-note" data-join-note>Our Slack invite is coming soon. In the meantime, come say hi at an event.</p>
         </div>
-        <div class="join-art" aria-hidden="true"><svg class="" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" aria-hidden="true" focusable="false"><g><line x1="62.00" y1="50.00" x2="97.00" y2="50.00" pathLength="1" style="--i:0"/><line x1="59.60" y1="57.20" x2="81.20" y2="73.40" pathLength="1" style="--i:1"/><line x1="56.00" y1="60.39" x2="73.50" y2="90.70" pathLength="1" style="--i:2"/><line x1="48.56" y1="61.91" x2="45.33" y2="88.72" pathLength="1" style="--i:3"/><line x1="44.00" y1="60.39" x2="26.50" y2="90.70" pathLength="1" style="--i:4"/><line x1="38.96" y1="54.71" x2="14.13" y2="65.32" pathLength="1" style="--i:5"/><line x1="38.00" y1="50.00" x2="3.00" y2="50.00" pathLength="1" style="--i:6"/><line x1="40.40" y1="42.80" x2="18.80" y2="26.60" pathLength="1" style="--i:7"/><line x1="44.00" y1="39.61" x2="26.50" y2="9.30" pathLength="1" style="--i:8"/><line x1="51.44" y1="38.09" x2="54.67" y2="11.28" pathLength="1" style="--i:9"/><line x1="56.00" y1="39.61" x2="73.50" y2="9.30" pathLength="1" style="--i:10"/><line x1="61.04" y1="45.29" x2="85.87" y2="34.68" pathLength="1" style="--i:11"/></g></svg></div>
       </div>
     </section>
 

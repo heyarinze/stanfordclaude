@@ -1,55 +1,63 @@
-/* Design tokens for Claude@Stanford (2026-27).
-   Editorial display serif + Inter, warm paper, clay accent, Stanford cardinal used sparingly.
-   Text/background pairs used for copy meet WCAG AA (4.5:1+). */
+/* Design tokens for Claude@Stanford (2026-27), "Afterglow".
+   Dark and cinematic: drifting clay/cardinal light, glass surfaces, Instrument Serif + Inter.
+   Dark-only by design. Copy colors meet WCAG AA (4.5:1+) on every surface they sit on. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
-  /* Paper */
-  --bg: #F4EFE6;
-  --bg-band: #EDE6DA;          /* alternate section band */
-  --surface: #FFFCF7;
-  --surface-2: #F1EBE0;
-  --surface-sunk: #EFE8DC;
-  --line: #E2D9CA;
-  --line-strong: #CEC3B1;
+  /* Night */
+  --bg: #0A0907;
+  --bg-band: #0E0C0A;
+  --surface: #15120F;           /* solid surfaces: dialogs, menus, inputs */
+  --surface-2: #1D1915;
+  --surface-sunk: #100E0C;
+  --glass: rgba(255, 244, 230, 0.035);
+  --glass-2: rgba(255, 244, 230, 0.07);
+  --glass-fill: rgba(20, 17, 14, 0.62);
+  --line: rgba(255, 238, 215, 0.09);
+  --line-strong: rgba(255, 238, 215, 0.18);
 
   /* Ink */
-  --ink: #191714;
-  --ink-2: #57514A;
-  --ink-3: #67605A;
+  --ink: #F5EFE6;
+  --ink-2: #B3A99B;
+  --ink-3: #8C8376;
 
-  /* Clay accent */
-  --accent: #B5562F;           /* fills: buttons, focus */
-  --accent-hover: #9C4624;
-  --accent-ink: #A04A27;       /* accent-colored text */
-  --accent-soft: #F4E0D4;
-  --on-accent: #FFFFFF;
-  --glow: #E8946E;             /* decorative glows only */
+  /* Light sources */
+  --accent: #E3825C;            /* clay: buttons, focus */
+  --accent-hover: #EE946D;
+  --accent-ink: #F2A27F;        /* clay text */
+  --accent-soft: rgba(227, 130, 92, 0.14);
+  --on-accent: #170C06;
+  --glow: #E3825C;
+  --peach: #F6B892;
+  --cardinal: #E0605A;          /* Stanford cardinal, lifted for dark */
+  --cardinal-deep: #B3261E;
+  --cardinal-soft: rgba(179, 38, 30, 0.18);
+  --gold: #D9A441;
 
-  /* Stanford cardinal: small accents only */
-  --cardinal: #8C1515;
-  --cardinal-soft: #F3DEDB;
-
-  /* Night band (same in both themes) */
-  --night: #161411;
-  --night-2: #211E1A;
-  --night-line: #34302A;
-  --night-ink: #F4EFE6;
-  --night-ink-2: #BDB4A6;
+  /* Night band (kept for compatibility; same family as bg) */
+  --night: #0A0907;
+  --night-2: #15120F;
+  --night-line: rgba(255, 238, 215, 0.09);
+  --night-ink: #F5EFE6;
+  --night-ink-2: #B3A99B;
 
   /* Status */
-  --success: #2F6B3A;
-  --success-soft: #E2EFDF;
-  --danger: #A3241C;
-  --danger-soft: #F7E0DC;
-  --warn-soft: #FAEFD7;
-  --warn-ink: #6E4A0B;
+  --success: #8FCB98;
+  --success-soft: rgba(143, 203, 152, 0.12);
+  --danger: #F08C82;
+  --danger-soft: rgba(240, 140, 130, 0.12);
+  --warn-soft: rgba(217, 164, 65, 0.12);
+  --warn-ink: #F0D49A;
 
   /* Medals */
-  --gold: #B8860B;
-  --silver: #7B8690;
-  --bronze: #A0623A;
+  --silver: #B9C2CA;
+  --bronze: #D99A6C;
+
+  /* Gradients */
+  --grad-ink: linear-gradient(180deg, #FFFBF5 30%, #CBBFAF);
+  --grad-clay: linear-gradient(95deg, #F6B892, #E3825C 45%, #C2402F 92%);
+  --grad-button: linear-gradient(180deg, #EE946D, #D9693F);
 
   /* Type */
   --font-display: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
@@ -61,9 +69,9 @@
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
-  --text-h2: clamp(2.2rem, 1.5rem + 2.3vw, 3.4rem);
-  --text-display: clamp(2.9rem, 1.9rem + 3.6vw, 4.9rem);
-  --text-hero: clamp(3.2rem, 1.6rem + 5.4vw, 6.6rem);
+  --text-h2: clamp(2.5rem, 1.6rem + 3vw, 4.4rem);
+  --text-display: clamp(3rem, 1.8rem + 4.4vw, 6rem);
+  --text-hero: clamp(3.6rem, 1.5rem + 7.6vw, 9.2rem);
 
   /* Space */
   --space-1: 0.25rem;
@@ -74,65 +82,24 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4.5rem;
-  --space-9: 6.5rem;
+  --space-9: 7rem;
 
   /* Shape */
-  --radius-sm: 8px;
-  --radius: 16px;
-  --radius-lg: 22px;
-  --radius-xl: 30px;
+  --radius-sm: 10px;
+  --radius: 20px;
+  --radius-lg: 26px;
+  --radius-xl: 36px;
   --radius-pill: 999px;
-  --shadow-sm: 0 1px 2px rgba(48, 32, 16, 0.06);
-  --shadow: 0 1px 2px rgba(48, 32, 16, 0.05), 0 8px 24px -8px rgba(48, 32, 16, 0.12);
-  --shadow-lift: 0 2px 4px rgba(48, 32, 16, 0.05), 0 18px 40px -12px rgba(48, 32, 16, 0.22);
-  --shadow-lg: 0 24px 60px -12px rgba(30, 20, 10, 0.3);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 34px -14px rgba(0, 0, 0, 0.8);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.4), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
+  --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.95);
+  --shadow-glow: 0 0 0 1px rgba(255, 200, 170, 0.35) inset, 0 10px 40px -8px rgba(227, 130, 92, 0.75);
 
   --max: 1200px;
   --gutter: clamp(1rem, 0.4rem + 2.8vw, 2.25rem);
-  --header-h: 68px;
+  --header-h: 72px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #12110F;
-    --bg-band: #181613;
-    --surface: #1B1916;
-    --surface-2: #24211D;
-    --surface-sunk: #171512;
-    --line: #2E2A25;
-    --line-strong: #423C34;
-
-    --ink: #F2ECE2;
-    --ink-2: #BCB3A5;
-    --ink-3: #9A9184;
-
-    --accent: #E3825C;
-    --accent-hover: #EE9672;
-    --accent-ink: #EE9A78;
-    --accent-soft: #3A271E;
-    --on-accent: #12110F;
-    --glow: #C0613C;
-
-    --cardinal: #E0716F;
-    --cardinal-soft: #3A2222;
-
-    --success: #8FCB98;
-    --success-soft: #1F311E;
-    --danger: #F08C82;
-    --danger-soft: #3B2220;
-    --warn-soft: #3A3020;
-    --warn-ink: #F0D49A;
-
-    --gold: #E2B64A;
-    --silver: #B9C2CA;
-    --bronze: #D99A6C;
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -10px rgba(0, 0, 0, 0.6);
-    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 22px 44px -14px rgba(0, 0, 0, 0.7);
-    --shadow-lg: 0 24px 60px -12px rgba(0, 0, 0, 0.7);
-  }
 }

@@ -14,7 +14,7 @@ function workshopCard(w) {
     ['repoUrl', 'Code'],
   ].map(([key, label]) => (safeUrl(w[key]) ? html`<a class="btn btn-secondary btn-sm" href="${safeUrl(w[key])}" target="_blank" rel="noopener noreferrer">${label}</a>` : ''));
   return html`
-    <article class="card workshop">
+    <article class="card spotlight workshop">
       <div class="cover">${coverArt(w.title, { label: w.title })}</div>
       <div class="card-body">
       <span class="when">${w.date ? formatDate(/^\d{4}-\d{2}-\d{2}$/.test(w.date) ? `${w.date}T12:00:00` : w.date, { month: 'long', day: 'numeric', year: 'numeric' }) : 'Date TBA'}${w.level ? ` · ${w.level}` : ''}</span>

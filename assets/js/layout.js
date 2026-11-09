@@ -178,6 +178,25 @@ class SiteFooter extends HTMLElement {
 customElements.define('site-header', SiteHeader);
 customElements.define('site-footer', SiteFooter);
 
+/* ---------- Ambient light + cursor spotlight ---------- */
+
+if (!document.querySelector('.aurora')) {
+  const aurora = document.createElement('div');
+  aurora.className = 'aurora';
+  aurora.setAttribute('aria-hidden', 'true');
+  aurora.innerHTML = '<i class="a"></i><i class="b"></i><i class="c"></i>';
+  document.body.prepend(aurora);
+}
+
+// Cards marked .spotlight get a soft light under the pointer (CSS reads --mx/--my).
+document.addEventListener('pointermove', (event) => {
+  const el = event.target.closest?.('.spotlight');
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--mx', `${event.clientX - r.left}px`);
+  el.style.setProperty('--my', `${event.clientY - r.top}px`);
+}, { passive: true });
+
 /* ---------- Reveal on scroll ---------- */
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;

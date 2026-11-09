@@ -69,7 +69,7 @@ Then open http://localhost:3000/?emulator. The flag sticks for that browser tab,
 
 ```
 *.html                 one file per page; shared header/footer come from <site-header>/<site-footer>
-assets/css/            tokens.css (colors, type, spacing; light + dark), base.css, components.css
+assets/css/            tokens.css ("Afterglow": dark-only colors, type, spacing), base.css, components.css
 assets/js/
   layout.js            header, nav and footer for every page (edit NAV to add a page)
   firebase.js          Firebase init, Stanford-only Google sign-in, session + lead check

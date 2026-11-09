@@ -352,8 +352,9 @@ export async function mountGallery(cfg) {
   const detail = document.createElement('dialog');
   detail.setAttribute('aria-labelledby', 'detail-title');
   detail.innerHTML = String(html`
+    <button type="button" class="dialog-close dialog-x" data-close aria-label="Close">${icons.close}</button>
     <div class="dialog-cover" data-cover hidden></div>
-    <div class="dialog-head"><h2 id="detail-title"></h2><button type="button" class="dialog-close" data-close aria-label="Close">${icons.close}</button></div>
+    <div class="dialog-head"><h2 id="detail-title"></h2></div>
     <div class="dialog-body" data-body></div>
     <div class="dialog-foot" data-foot hidden></div>`);
   document.body.append(detail);
