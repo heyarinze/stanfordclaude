@@ -10,9 +10,9 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 
 | What | File | Notes |
 |---|---|---|
-| Slack invite, Luma calendar, hero badge, academic year | `data/site.json` | See [site.json fields](#sitejson-fields) |
+| Slack invite, Luma calendar, academic year | `data/site.json` | See [site.json fields](#sitejson-fields) |
 | Team roster | `data/team.json` | Photos go in `assets/img/team/<year>/` (square, ~320px, `.webp` or `.jpg`) |
-| Workshops (slides, recordings, code) | `data/workshops.json` | Also holds the "Official resources" links |
+| Workshops (slides, recordings, code) | `data/workshops.json` | Also holds the "From Anthropic" links on Learn |
 | Past years (hackathon winners, old teams) | `data/archive/<year>.json` + add the year to `data/archive/index.json` | |
 | Perks page copy | `perks.html` | Search for `PLACEHOLDER` |
 | Product and category tags | `assets/js/taxonomy.js` | Older posts keep their tags either way |
@@ -20,7 +20,6 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 ### `site.json` fields
 
 - `academicYear`: `"2026-27"`. New posts are tagged with it, and the Builds/Library year filters use it.
-- `heroBadge`: small text next to the year on the home page. Leave `""` to hide it.
 - `slackUrl`: the workspace invite link. In Slack, set it to **never expire**. While it's empty, "Join" buttons point to the join section on the home page.
 - `lumaCalendarUrl`: the public calendar page (for "Subscribe on Luma").
 - `lumaEmbedUrl`: in Luma, go to Calendar → Embed and copy the `src` of the iframe (e.g. `https://luma.com/embed/calendar/cal-XXXX/events`).
@@ -38,6 +37,21 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
   "slidesUrl": "https://…",
   "recordingUrl": "",
   "repoUrl": ""
+}
+```
+
+### `team.json` entry
+
+`members` is a list of these. While it's empty, the Team page says the roster isn't posted yet.
+
+```json
+{
+  "name": "Your Name",
+  "role": "Campus Lead",
+  "photo": "/assets/img/team/2026-27/your-name.webp",
+  "linkedin": "https://www.linkedin.com/in/…",
+  "email": "you@stanford.edu",
+  "bio": "Optional, one sentence."
 }
 ```
 

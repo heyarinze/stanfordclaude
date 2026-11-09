@@ -15,7 +15,6 @@ export function getJSON(path) {
 
 const DEFAULTS = {
   academicYear: '2026-27',
-  heroBadge: '',
   slackUrl: '',
   lumaCalendarUrl: '',
   lumaEmbedUrl: '',

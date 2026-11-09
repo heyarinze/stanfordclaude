@@ -1,8 +1,8 @@
 // Events: embeds the club's Luma calendar when site.json has lumaEmbedUrl.
-// Also used on the home page to show the "Next up" block.
+// Also used on the home page for the "Coming up" section.
 
-import { html, icons, safeUrl, sparkArt } from './ui.js';
-import { getConfig } from './config.js';
+import { html, icons, safeUrl } from './ui.js';
+import { getConfig, yearLabel } from './config.js';
 
 export function lumaEmbed(config, { height = 640 } = {}) {
   const src = safeUrl(config.lumaEmbedUrl);
@@ -20,12 +20,8 @@ if (target) {
   if (subscribe && calendar) { subscribe.href = calendar; subscribe.hidden = false; }
   target.innerHTML = String(embed || html`
     <div class="empty">
-      ${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}
-      <h3>The ${config.academicYear.replace('-', '–')} calendar is coming soon</h3>
-      <p>Tablings, workshops, demo nights and buildathons will be posted here.${slack ? ' Join the Slack to hear first.' : ''}</p>
-      <div class="btn-row">
-        ${slack ? html`<a class="btn btn-primary" href="${slack}" target="_blank" rel="noopener">${icons.slack} Join the Slack</a>` : ''}
-        <a class="btn btn-secondary" href="/archive">See past events ${icons.arrow}</a>
-      </div>
+      <h3>No events posted yet</h3>
+      <p>The ${yearLabel(config.academicYear)} calendar will show up here once the first events are scheduled.</p>
+      ${slack ? html`<div class="btn-row"><a class="btn btn-primary" href="${slack}" target="_blank" rel="noopener">${icons.slack} Join the Slack</a></div>` : ''}
     </div>`);
 }

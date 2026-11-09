@@ -6,7 +6,7 @@ export function personCard(p) {
   const photo = p.photo ? html`<img src="${p.photo}" alt="" width="96" height="96" loading="lazy">` : initials(p.name);
   const linkedin = safeUrl(p.linkedin);
   return html`
-    <article class="card spotlight person">
+    <article class="card person">
       <span class="avatar avatar-lg">${photo}</span>
       <h3>${p.name}</h3>
       ${p.role ? html`<p class="role">${p.role}</p>` : ''}

@@ -1,79 +1,47 @@
-/* Design tokens for Claude@Stanford (2026-27), "Afterglow".
-   Dark and cinematic: drifting clay/cardinal light, glass surfaces, Instrument Serif + Inter.
-   Dark-only by design. Copy colors meet WCAG AA (4.5:1+) on every surface they sit on. */
+/* Design tokens for Claude@Stanford (2026-27).
+   Dark, warm and flat: no glows, gradients or glass. Newsreader for headings, Inter for text.
+   Text colors meet WCAG AA on every surface they're used on. */
 
 :root {
   color-scheme: dark;
 
-  /* Night */
-  --bg: #0A0907;
-  --bg-band: #0E0C0A;
-  --surface: #15120F;           /* solid surfaces: dialogs, menus, inputs */
-  --surface-2: #1D1915;
-  --surface-sunk: #100E0C;
-  --glass: rgba(255, 244, 230, 0.035);
-  --glass-2: rgba(255, 244, 230, 0.07);
-  --glass-fill: rgba(20, 17, 14, 0.62);
-  --line: rgba(255, 238, 215, 0.09);
-  --line-strong: rgba(255, 238, 215, 0.18);
+  --bg: #0F0D0B;
+  --surface: #17140F;
+  --surface-2: #1E1A15;
+  --line: #2A251F;
+  --line-strong: #3B342C;
 
-  /* Ink */
-  --ink: #F5EFE6;
-  --ink-2: #B3A99B;
-  --ink-3: #8C8376;
+  --ink: #F1EBE2;
+  --ink-2: #C2B8AA;
+  --ink-3: #958B7E;
 
-  /* Light sources */
-  --accent: #E3825C;            /* clay: buttons, focus */
-  --accent-hover: #EE946D;
-  --accent-ink: #F2A27F;        /* clay text */
-  --accent-soft: rgba(227, 130, 92, 0.14);
-  --on-accent: #170C06;
-  --glow: #E3825C;
-  --peach: #F6B892;
-  --cardinal: #E0605A;          /* Stanford cardinal, lifted for dark */
-  --cardinal-deep: #B3261E;
-  --cardinal-soft: rgba(179, 38, 30, 0.18);
-  --gold: #D9A441;
+  --accent: #E07B52;          /* Claude clay: buttons, focus, links */
+  --accent-hover: #EA8C66;
+  --accent-ink: #EE9A76;
+  --accent-soft: rgba(224, 123, 82, 0.14);
+  --on-accent: #1A0F08;
 
-  /* Night band (kept for compatibility; same family as bg) */
-  --night: #0A0907;
-  --night-2: #15120F;
-  --night-line: rgba(255, 238, 215, 0.09);
-  --night-ink: #F5EFE6;
-  --night-ink-2: #B3A99B;
+  --cardinal: #E06A60;        /* Stanford cardinal, lifted for dark backgrounds */
+  --cardinal-soft: rgba(224, 106, 96, 0.14);
 
-  /* Status */
   --success: #8FCB98;
   --success-soft: rgba(143, 203, 152, 0.12);
   --danger: #F08C82;
   --danger-soft: rgba(240, 140, 130, 0.12);
   --warn-soft: rgba(217, 164, 65, 0.12);
-  --warn-ink: #F0D49A;
+  --warn-ink: #EBCB8B;
 
-  /* Medals */
-  --silver: #B9C2CA;
-  --bronze: #D99A6C;
-
-  /* Gradients */
-  --grad-ink: linear-gradient(180deg, #FFFBF5 30%, #CBBFAF);
-  --grad-clay: linear-gradient(95deg, #F6B892, #E3825C 45%, #C2402F 92%);
-  --grad-button: linear-gradient(180deg, #EE946D, #D9693F);
-
-  /* Type */
-  --font-display: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
   --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-h2: clamp(2.5rem, 1.6rem + 3vw, 4.4rem);
-  --text-display: clamp(3rem, 1.8rem + 4.4vw, 6rem);
-  --text-hero: clamp(3.6rem, 1.5rem + 7.6vw, 9.2rem);
+  --text-h1: clamp(2.3rem, 1.7rem + 2.4vw, 3.4rem);
+  --text-hero: clamp(2.6rem, 1.6rem + 3.6vw, 4.4rem);
+  --text-h2: clamp(1.55rem, 1.3rem + 0.9vw, 2rem);
 
-  /* Space */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -82,24 +50,15 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4.5rem;
-  --space-9: 7rem;
 
-  /* Shape */
-  --radius-sm: 10px;
-  --radius: 20px;
-  --radius-lg: 26px;
-  --radius-xl: 36px;
+  --radius-sm: 8px;
+  --radius: 12px;
   --radius-pill: 999px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 34px -14px rgba(0, 0, 0, 0.8);
-  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.4), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
-  --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.95);
-  --shadow-glow: 0 0 0 1px rgba(255, 200, 170, 0.35) inset, 0 10px 40px -8px rgba(227, 130, 92, 0.75);
+  --shadow-menu: 0 12px 32px rgba(0, 0, 0, 0.5);
 
-  --max: 1200px;
-  --gutter: clamp(1rem, 0.4rem + 2.8vw, 2.25rem);
-  --header-h: 72px;
+  --max: 1120px;
+  --gutter: clamp(1rem, 0.4rem + 2.8vw, 2rem);
+  --header-h: 64px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }

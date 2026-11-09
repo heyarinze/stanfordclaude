@@ -142,7 +142,7 @@ async function claimLegacyPosts(user) {
     batch.delete(claimRef);
     await batch.commit();
     await saveUserProfile(user, data.name);
-    if (linked) toast(`Welcome back! We linked ${linked} of your posts from last year to your account.`);
+    if (linked) toast(`Linked ${linked} ${linked === 1 ? 'post' : 'posts'} from last year to your account.`);
   }
   try { localStorage.setItem(flag, '1'); } catch { /* ignore */ }
 }

@@ -125,19 +125,6 @@ export function brandMark(cls = 'brand-mark') {
   return raw(`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="${d}"/></svg>`);
 }
 
-/** Large spark built from separate rays (each animatable via --i). viewBox 0 0 100 100. */
-export function sparkArt({ className = '', strokeWidth = 6 } = {}) {
-  let lines = '';
-  for (let i = 0; i < 12; i += 1) {
-    const a = (i * Math.PI) / 6 + (i % 2 ? 0.12 : 0);
-    const r1 = 12;
-    const r2 = i % 2 ? 39 : 47;
-    const p = (n) => (50 + n).toFixed(2);
-    lines += `<line x1="${p(r1 * Math.cos(a))}" y1="${p(r1 * Math.sin(a))}" x2="${p(r2 * Math.cos(a))}" y2="${p(r2 * Math.sin(a))}" pathLength="1" style="--i:${i}"/>`;
-  }
-  return raw(`<svg class="${className}" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" aria-hidden="true" focusable="false"><g>${lines}</g></svg>`);
-}
-
 /* ---------- Toasts ---------- */
 
 function toastRegion() {

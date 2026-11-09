@@ -1,6 +1,5 @@
 // Shared header and footer for every page: <site-header current="builds"> and <site-footer>.
-// Both render immediately (no network wait) and are patched once data/site.json arrives.
-// Also: header scrolled state and reveal-on-scroll for elements marked [data-reveal].
+// Both render immediately and are patched once data/site.json arrives.
 
 import { html, icons, brandMark, initials } from './ui.js';
 import { getConfig, yearLabel } from './config.js';
@@ -50,12 +49,10 @@ class SiteHeader extends HTMLElement {
         </div>
       </header>`);
 
-    const header = this.querySelector('.site-header');
     const toggle = this.querySelector('.nav-toggle');
     const links = this.querySelector('.nav-links');
     const setOpen = (open) => {
       links.classList.toggle('open', open);
-      header.classList.toggle('menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       toggle.innerHTML = String(open ? icons.close : icons.menu);
@@ -65,10 +62,6 @@ class SiteHeader extends HTMLElement {
       if (event.key === 'Escape' && links.classList.contains('open')) { setOpen(false); toggle.focus(); }
     });
     links.addEventListener('click', (event) => { if (event.target.closest('a')) setOpen(false); });
-
-    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
 
     getConfig().then((config) => applyJoinLinks(this, config));
     this.mountAuth();
@@ -129,8 +122,8 @@ class SiteFooter extends HTMLElement {
           <div class="footer-grid">
             <div class="footer-about">
               <a class="brand" href="/">${brandMark()}<span>Claude<span class="brand-at">@</span>Stanford</span></a>
-              <p>A student-run community at Stanford for building, learning and creating with Claude.</p>
-              <div class="powered-by">Powered by <img src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="98" height="11"></div>
+              <p>A student club at Stanford for people who build with Claude.</p>
+              <div class="powered-by">Supported by <img src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="89" height="10"></div>
             </div>
             <div>
               <h2>Community</h2>
@@ -144,7 +137,7 @@ class SiteFooter extends HTMLElement {
               <h2>Learn</h2>
               <ul>
                 <li><a href="/learn">Workshops</a></li>
-                <li><a href="/perks">Perks &amp; credits</a></li>
+                <li><a href="/perks">Perks</a></li>
               </ul>
             </div>
             <div>
@@ -158,10 +151,9 @@ class SiteFooter extends HTMLElement {
           </div>
           <div class="footer-bottom">
             <span>Claude@Stanford · <span data-footer-year>${yearLabel(DEFAULT_YEAR)}</span></span>
-            <span>Built with Claude Code. Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a>.</span>
+            <span>Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a>.</span>
           </div>
         </div>
-        <div class="footer-wordmark" aria-hidden="true">Claude<em>@</em>Stanford</div>
       </footer>`);
     getConfig().then((config) => {
       applyJoinLinks(this, config);
@@ -177,69 +169,3 @@ class SiteFooter extends HTMLElement {
 
 customElements.define('site-header', SiteHeader);
 customElements.define('site-footer', SiteFooter);
-
-/* ---------- Ambient light + cursor spotlight ---------- */
-
-if (!document.querySelector('.aurora')) {
-  const aurora = document.createElement('div');
-  aurora.className = 'aurora';
-  aurora.setAttribute('aria-hidden', 'true');
-  document.body.prepend(aurora);
-}
-
-// Cards marked .spotlight get a soft light under the pointer (CSS reads --mx/--my).
-// Mouse/trackpad only, and at most one style update per frame.
-if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
-  let next = null;
-  let scheduled = false;
-  document.addEventListener('pointermove', (event) => {
-    const el = event.target.closest?.('.spotlight');
-    if (!el) return;
-    next = { el, x: event.clientX, y: event.clientY };
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
-      const r = next.el.getBoundingClientRect();
-      next.el.style.setProperty('--mx', `${next.x - r.left}px`);
-      next.el.style.setProperty('--my', `${next.y - r.top}px`);
-    });
-  }, { passive: true });
-}
-
-/* ---------- Reveal on scroll ---------- */
-
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const revealer = 'IntersectionObserver' in window && !reduceMotion
-  ? new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-in');
-        revealer.unobserve(entry.target);
-      }
-    });
-  }, { rootMargin: '0px 0px -4% 0px', threshold: 0.01 })
-  : null;
-
-/* ---------- Static cover slots: <div class="cover" data-cover-seed="…" data-palette data-pattern> ---------- */
-
-const coverSlots = document.querySelectorAll('[data-cover-seed]');
-if (coverSlots.length) {
-  import('./covers.js').then(({ coverArt }) => {
-    coverSlots.forEach((el) => {
-      el.innerHTML = String(coverArt(el.dataset.coverSeed, { palette: el.dataset.palette, pattern: el.dataset.pattern }));
-    });
-  });
-}
-
-/** Fade in [data-reveal] elements as they scroll into view. Anything already on screen is left alone. */
-export function reveal(root = document) {
-  if (!revealer) return;
-  const fold = window.innerHeight;
-  root.querySelectorAll('[data-reveal]:not(.reveal-pending)').forEach((el) => {
-    if (el.getBoundingClientRect().top < fold) return;
-    el.classList.add('reveal-pending');
-    revealer.observe(el);
-  });
-}
-reveal();

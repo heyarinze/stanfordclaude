@@ -10,13 +10,13 @@ const hearts = (item) => (item.hearts || []).length;
 
 export const buildCover = (item) => coverArt(item.id, { label: item.title });
 
-/** Card used on /builds and (teaser: true) on the home page; large: true for the bento hero card. */
-export function buildCard(item, ctx, { teaser = false, large = false } = {}) {
+/** Card used on /builds and, with teaser: true, on the home page. */
+export function buildCard(item, ctx, { teaser = false } = {}) {
   const allTools = item.tools || [];
-  const tools = allTools.slice(0, large ? 4 : 3);
+  const tools = allTools.slice(0, 3);
   const cats = (item.categories || []).slice(0, 3);
   return html`
-    <article class="card item-card spotlight build-card${large ? ' is-large' : ''}">
+    <article class="card item-card build-card">
       <div class="cover">${buildCover(item)}<div class="cover-tags">${statusTags(item)}</div></div>
       <div class="card-body">
         <h3>${teaser
@@ -32,25 +32,6 @@ export function buildCard(item, ctx, { teaser = false, large = false } = {}) {
               ? html`<span class="heart-btn" aria-label="${hearts(item)} hearts">${icons.heart}<span>${hearts(item)}</span></span>`
               : html`${heartButton(item, ctx)}${shareButton(item, 'build')}`}
           </div>
-        </div>
-      </div>
-    </article>`;
-}
-
-/** Home feature card: title and meta over a full-bleed cover. */
-export function featureCard(item, { large = false } = {}) {
-  const cats = (item.categories || []).slice(0, 2);
-  return html`
-    <article class="card item-card spotlight feature-card${large ? ' is-large' : ''}">
-      <div class="cover">${buildCover(item)}</div>
-      <div class="cover-tags">${statusTags(item)}</div>
-      <div class="card-body">
-        ${cats.length ? html`<div class="badge-row">${cats.map((c) => html`<span class="tag">${c}</span>`)}</div>` : ''}
-        <h3><a href="/builds?b=${encodeURIComponent(item.id)}">${item.title}</a></h3>
-        ${large ? html`<p class="desc">${item.desc}</p>` : ''}
-        <div class="card-foot">
-          <span class="byline">by ${item.authorName || 'a Stanford builder'}</span>
-          <span class="heart-btn" aria-label="${hearts(item)} hearts">${icons.heart}<span>${hearts(item)}</span></span>
         </div>
       </div>
     </article>`;
@@ -100,7 +81,7 @@ export const buildsConfig = {
   card: buildCard,
   detail: buildDetail,
   detailCover: buildCover,
-  titleNew: 'Share your build',
+  titleNew: 'Share a build',
   titleEdit: 'Edit your build',
   submitLabel: 'Share build',
   createExtras: () => ({ hearts: [] }),

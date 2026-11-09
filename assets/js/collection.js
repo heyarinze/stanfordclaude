@@ -3,7 +3,7 @@
 // builds.js and library.js supply a config object; see mountGallery() below.
 
 import {
-  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, toMillis, debounce, sparkArt,
+  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, toMillis, debounce,
 } from './ui.js';
 import * as fb from './firebase.js';
 import { getConfig, yearLabel } from './config.js';
@@ -241,7 +241,6 @@ export async function mountGallery(cfg) {
     </div>`);
 
   const toolbar = root.querySelector('.toolbar');
-  const wrap = root.querySelector('[data-toolbar-wrap]');
   const chips = root.querySelector('[data-chips]');
   const grid = root.querySelector('[data-grid]');
   const countEl = root.querySelector('[data-count]');
@@ -253,9 +252,6 @@ export async function mountGallery(cfg) {
   };
   toolbar.elements.q.value = state.q;
   toolbar.elements.sort.value = state.sort;
-  const headerH = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 68;
-  const onScroll = () => wrap.classList.toggle('is-stuck', wrap.getBoundingClientRect().top <= headerH() + 1);
-  window.addEventListener('scroll', onScroll, { passive: true });
 
   function fillSelect(select, values, current, label = (v) => v) {
     const keep = select.options[0].outerHTML;
@@ -336,12 +332,12 @@ export async function mountGallery(cfg) {
     grid.setAttribute('aria-busy', 'false');
     if (loadError) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
+      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
       return;
     }
     if (state.mine && !session.user) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
+      grid.innerHTML = String(html`<div class="empty" style="grid-column:1/-1"><h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
       return;
     }
     const list = visibleItems();
@@ -349,8 +345,8 @@ export async function mountGallery(cfg) {
     if (!list.length) {
       const filtered = state.q || state.tool || state.cat || state.year || state.mine;
       grid.innerHTML = String(filtered
-        ? html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
-        : html`<div class="empty" style="grid-column:1/-1">${sparkArt({ className: 'empty-mark', strokeWidth: 8 })}<h3>No ${cfg.nounPlural} yet</h3><p>Be the first to share one.</p><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
+        ? html`<div class="empty" style="grid-column:1/-1"><h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
+        : html`<div class="empty" style="grid-column:1/-1"><h3>No ${cfg.nounPlural} yet</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
       return;
     }
     grid.innerHTML = list.map((item) => String(cfg.card(item, ctxFor(item)))).join('');
@@ -401,7 +397,6 @@ export async function mountGallery(cfg) {
     const coverEl = detail.querySelector('[data-cover]');
     const cover = cfg.detailCover ? cfg.detailCover(item) : null;
     coverEl.hidden = !cover;
-    detail.classList.toggle('has-cover', Boolean(cover));
     if (cover) coverEl.innerHTML = String(cover);
     detail.querySelector('#detail-title').textContent = item.title;
     detail.querySelector('[data-body]').innerHTML = String(cfg.detail(item, ctx));
@@ -499,7 +494,7 @@ export async function mountGallery(cfg) {
           updatedAt: fb.serverTimestamp(),
         });
         id = ref.id;
-        toast(`Thanks for sharing your ${cfg.noun}!`);
+        toast('Posted');
       }
       formDialog.close();
       await load();
@@ -526,7 +521,6 @@ export async function mountGallery(cfg) {
     const selector = `[data-action="heart"][data-id="${CSS.escape(item.id)}"]`;
     const refocus = () => (button && detail.contains(button) ? detail : grid).querySelector(selector)?.focus();
     refocus();
-    if (!had) document.querySelectorAll(selector).forEach((b) => { b.classList.add('pop'); setTimeout(() => b.classList.remove('pop'), 320); });
     try {
       await fb.updateDoc(fb.doc(fb.db, cfg.collection, item.id), {
         hearts: had ? fb.arrayRemove(user.uid) : fb.arrayUnion(user.uid),
