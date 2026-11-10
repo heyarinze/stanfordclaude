@@ -1,6 +1,7 @@
 // Generative cover art for builds.
 // Each cover is deterministic: the same seed (a post ID) always gives the same artwork,
-// drawn from a small set of warm palettes and geometric patterns built around the Claude spark.
+// drawn from a small set of warm papers and geometric patterns built around the Claude spark.
+// A build's poster is its paper colour with the title set on it and this art underneath.
 
 import { raw } from './ui.js';
 
@@ -23,21 +24,18 @@ function prng(seed) {
   };
 }
 
-/** A background/foreground pair for small badges, chosen by seed. */
-export function swatch(seed) {
-  const p = PALETTES[PALETTE_ROTATION[hashString(seed) % PALETTE_ROTATION.length]];
-  return { bg: p.bg, fg: p.bg === PALETTES.ink.bg || p.bg === PALETTES.cardinal.bg ? p.b : p.a };
-}
-
+// bg is the paper, a/b/c are the shapes, ink is the colour of type set on the paper.
+// Clay is #D97757 on dark papers and #C2552E on light ones, where the lighter clay would wash out.
 const PALETTES = {
-  clay: { bg: '#F1D8C6', a: '#C2552E', b: '#8C1515', c: '#241F1A' },
-  ink: { bg: '#1F1C18', a: '#E3825C', b: '#F1E8DA', c: '#C99A2E' },
-  sand: { bg: '#E8DDC6', a: '#B5562F', b: '#54613F', c: '#241F1A' },
-  cardinal: { bg: '#8C1515', a: '#F3D5C0', b: '#E3825C', c: '#2A0B0B' },
-  sage: { bg: '#D9E0CC', a: '#3F5A39', b: '#C2552E', c: '#241F1A' },
-  peach: { bg: '#F6E2D2', a: '#D97757', b: '#241F1A', c: '#C99A2E' },
+  blush: { bg: '#F1D8C6', a: '#C2552E', b: '#8C1515', c: '#241F1A', ink: '#241F1A' },
+  ink: { bg: '#241F1A', a: '#D97757', b: '#F1E8DA', c: '#C99A2E', ink: '#F1E8DA' },
+  sand: { bg: '#E8DDC6', a: '#C2552E', b: '#54613F', c: '#241F1A', ink: '#241F1A' },
+  cardinal: { bg: '#8C1515', a: '#F3D5C0', b: '#D97757', c: '#2A0B0B', ink: '#F3D5C0' },
+  sage: { bg: '#D9E0CC', a: '#3F5A39', b: '#C2552E', c: '#241F1A', ink: '#241F1A' },
+  clay: { bg: '#D97757', a: '#241F1A', b: '#F6E2D2', c: '#8C1515', ink: '#1A1410' },
 };
-const PALETTE_ROTATION = ['clay', 'ink', 'sand', 'cardinal', 'sage', 'peach'];
+// The order matters: a post's paper is picked by position, so reordering reshuffles every cover.
+const PALETTE_ROTATION = ['blush', 'ink', 'sand', 'cardinal', 'sage', 'clay'];
 
 const W = 400;
 const H = 220;
@@ -143,12 +141,25 @@ function mix(h) {
   return x >>> 0;
 }
 
-/** Returns an inline SVG (Raw) that fills its container (CSS sizes it). */
-export function coverArt(seed, { label = '' } = {}) {
+function pick(seed) {
   const h = mix(hashString(seed || 'claude'));
+  const palette = PALETTE_ROTATION[h % PALETTE_ROTATION.length];
+  const pattern = PATTERN_ROTATION[(h >>> 12) % PATTERN_ROTATION.length];
+  return { h, palette, pattern };
+}
+
+/** What a poster needs to know about a cover: its paper, the ink for type on it, and which design it got. */
+export function coverMeta(seed) {
+  const { palette, pattern } = pick(seed);
+  return { paper: PALETTES[palette].bg, ink: PALETTES[palette].ink, palette, pattern };
+}
+
+/** Returns an inline SVG (Raw) that fills its container (CSS sizes it). */
+export function coverArt(seed) {
+  const { h, palette, pattern } = pick(seed);
   const r = prng(h);
-  const p = PALETTES[PALETTE_ROTATION[h % PALETTE_ROTATION.length]];
-  const draw = PATTERNS[PATTERN_ROTATION[(h >>> 12) % PATTERN_ROTATION.length]];
+  const p = PALETTES[palette];
+  const draw = PATTERNS[pattern];
   const body = draw(r, p);
-  return raw(`<svg class="cover-art" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${label ? `Cover art for ${String(label).replace(/[&<>"']/g, '')}` : 'Cover art'}" focusable="false"><rect width="${W}" height="${H}" fill="${p.bg}"/>${body}</svg>`);
+  return raw(`<svg class="cover-art" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><rect width="${W}" height="${H}" fill="${p.bg}"/>${body}</svg>`);
 }

@@ -1,7 +1,7 @@
 // Shared header and footer for every page: <site-header current="builds"> and <site-footer>.
 // Both render immediately and are patched once data/site.json arrives.
 
-import { html, icons, brandMark, initials } from './ui.js';
+import { html, brandMark, initials } from './ui.js';
 import { getConfig, yearLabel } from './config.js';
 
 const NAV = [
@@ -13,15 +13,15 @@ const NAV = [
   { key: 'team', href: '/team', label: 'Team' },
 ];
 const DEFAULT_YEAR = '2026-27';
+const brand = () => html`${brandMark()}<span>Claude<span class="brand-at">@</span>Stanford</span>`;
 
-/** Point every [data-join-link] at the Slack invite once we know it. */
+/** Point every [data-join-link] at the Slack invite once we know it. Until then they lead to the join section. */
 function applyJoinLinks(root, config) {
   if (!config.slackUrl) return;
   root.querySelectorAll('[data-join-link]').forEach((a) => {
     a.href = config.slackUrl;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.innerHTML = String(html`${icons.slack} ${a.dataset.joinLink || 'Join the Slack'}`);
   });
 }
 
@@ -32,36 +32,39 @@ class SiteHeader extends HTMLElement {
       <a class="skip-link" href="#main">Skip to content</a>
       <header class="site-header">
         <div class="container">
-          <a class="brand" href="/" aria-label="Claude@Stanford home">
-            ${brandMark()}<span>Claude<span class="brand-at">@</span>Stanford</span>
-          </a>
+          <a class="brand" href="/" aria-label="Claude@Stanford home">${brand()}</a>
           <nav aria-label="Main">
             <ul class="nav-links" id="nav-links">
-              ${NAV.map((item) => html`<li><a href="${item.href}" ${item.key === current ? html`aria-current="page"` : ''}>${item.label}</a></li>`)}
-              <li class="nav-join-mobile"><a href="/#join" data-join-link="Join the Slack">Join</a></li>
+              ${NAV.map((item) => (item.key === current
+                ? html`<li><a href="${item.href}" aria-current="page">${item.label}<i class="nav-ink"></i></a></li>`
+                : html`<li><a href="${item.href}">${item.label}</a></li>`))}
+              <li class="nav-extra"><a class="btn btn-bone" href="/#join" data-join-link>Join the club</a><button type="button" data-signin>Sign in</button></li>
             </ul>
           </nav>
           <div class="nav-actions">
-            <a class="btn btn-primary btn-sm nav-join-desktop" href="/#join" data-join-link="Join the Slack">Join</a>
+            <a class="btn btn-bone btn-sm nav-join" href="/#join" data-join-link>Join</a>
             <div class="auth-slot" data-auth-slot></div>
-            <button class="nav-toggle" type="button" aria-controls="nav-links" aria-expanded="false" aria-label="Open menu">${icons.menu}</button>
+            <button class="nav-toggle" type="button" aria-controls="nav-links" aria-expanded="false">Menu</button>
           </div>
         </div>
       </header>`);
 
+    // Phones: "Menu" opens the links as a full-screen sheet.
     const toggle = this.querySelector('.nav-toggle');
     const links = this.querySelector('.nav-links');
     const setOpen = (open) => {
       links.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', String(open));
-      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-      toggle.innerHTML = String(open ? icons.close : icons.menu);
+      toggle.textContent = open ? 'Close' : 'Menu';
     };
     toggle.addEventListener('click', () => setOpen(!links.classList.contains('open')));
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && links.classList.contains('open')) { setOpen(false); toggle.focus(); }
     });
-    links.addEventListener('click', (event) => { if (event.target.closest('a')) setOpen(false); });
+    links.addEventListener('click', (event) => { if (event.target.closest('a, button')) setOpen(false); });
+    links.querySelector('[data-signin]').addEventListener('click', () => {
+      import('./firebase.js').then((fb) => fb.signIn()).catch((err) => console.error('Sign-in failed to load', err));
+    });
 
     getConfig().then((config) => applyJoinLinks(this, config));
     this.mountAuth();
@@ -69,9 +72,10 @@ class SiteHeader extends HTMLElement {
 
   // Firebase loads shortly after the page so static pages paint first.
   mountAuth() {
+    const header = this.querySelector('.site-header');
     const slot = this.querySelector('[data-auth-slot]');
     const start = () => import('./firebase.js').then((fb) => {
-      fb.onSession((session) => renderAuth(slot, session, fb));
+      fb.onSession((session) => renderAuth(header, slot, session, fb));
     }).catch((err) => console.error('Auth failed to load', err));
     if (document.body.dataset.needsAuth !== undefined) start();
     else if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 800 });
@@ -79,8 +83,9 @@ class SiteHeader extends HTMLElement {
   }
 }
 
-function renderAuth(slot, session, fb) {
+function renderAuth(header, slot, session, fb) {
   const { user, isLead } = session;
+  header.classList.toggle('is-signed-in', Boolean(user));
   if (!user) {
     slot.innerHTML = '<button type="button" class="btn btn-ghost btn-sm" data-signin>Sign in</button>';
     slot.querySelector('[data-signin]').addEventListener('click', () => fb.signIn());
@@ -97,7 +102,7 @@ function renderAuth(slot, session, fb) {
       <div class="user-menu-panel" hidden>
         <div class="who">Signed in as ${user.email}${isLead ? ' · Lead' : ''}</div>
         <a href="/builds?mine=1">My builds</a>
-        <a href="/library?mine=1">My library posts</a>
+        <a href="/library?mine=1">My library links</a>
         ${isLead ? html`<a href="/admin">Moderation</a>` : ''}
         <button type="button" data-signout>Sign out</button>
       </div>
@@ -119,49 +124,25 @@ class SiteFooter extends HTMLElement {
     this.innerHTML = String(html`
       <footer class="site-footer">
         <div class="container">
-          <div class="footer-grid">
-            <div class="footer-about">
-              <a class="brand" href="/">${brandMark()}<span>Claude<span class="brand-at">@</span>Stanford</span></a>
-              <p>A student club at Stanford for people who build with Claude.</p>
-              <div class="powered-by">Supported by <img src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="89" height="10"></div>
-            </div>
-            <div>
-              <h2>Community</h2>
-              <ul>
-                <li><a href="/builds">Builds</a></li>
-                <li><a href="/library">Library</a></li>
-                <li><a href="/events">Events</a></li>
-              </ul>
-            </div>
-            <div>
-              <h2>Learn</h2>
-              <ul>
-                <li><a href="/learn">Workshops</a></li>
-                <li><a href="/perks">Perks</a></li>
-              </ul>
-            </div>
-            <div>
-              <h2>Club</h2>
-              <ul data-footer-club>
-                <li><a href="/team">Team</a></li>
-                <li><a href="/archive">Archive</a></li>
-                <li><a href="/#join" data-join-link="Slack">Join</a></li>
-              </ul>
-            </div>
+          <div class="footer-top">
+            <a class="brand" href="/" aria-label="Claude@Stanford home">${brand()}</a>
+            <ul class="footer-links" data-footer-links>
+              ${NAV.map((item) => html`<li><a href="${item.href}">${item.label}</a></li>`)}
+              <li><a href="/archive">Archive</a></li>
+            </ul>
           </div>
           <div class="footer-bottom">
-            <span>Claude@Stanford · <span data-footer-year>${yearLabel(DEFAULT_YEAR)}</span></span>
-            <span>Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a>.</span>
+            <span class="powered-by">Supported by <img src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="89" height="10"></span>
+            <span>Claude@Stanford <span data-footer-year>${yearLabel(DEFAULT_YEAR)}</span> · Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a></span>
           </div>
         </div>
       </footer>`);
     getConfig().then((config) => {
-      applyJoinLinks(this, config);
       this.querySelector('[data-footer-year]').textContent = yearLabel(config.academicYear);
       if (config.contactEmail) {
         const li = document.createElement('li');
         li.innerHTML = String(html`<a href="mailto:${config.contactEmail}">Contact</a>`);
-        this.querySelector('[data-footer-club]').append(li);
+        this.querySelector('[data-footer-links]').append(li);
       }
     });
   }

@@ -24,11 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <link rel="modulepreload" href="/assets/js/collection.js">
   <link rel="modulepreload" href="/assets/js/firebase.js">
   <link rel="modulepreload" href="/assets/js/covers.js">
@@ -44,9 +46,9 @@
   <main id="main">
     <section class="container page-head">
       <h1>Builds</h1>
-      <p class="lede">Projects members have built with Claude. Sign in with your Stanford account to add yours.</p>
+      <p class="lede">Everything here was made by a Stanford student using Claude. Open one to see what it does and try it.</p>
       <div class="btn-row">
-        <button type="button" class="btn btn-primary" data-action="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Share a build</button>
+        <button type="button" class="btn btn-primary" data-action="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add your build</button>
       </div>
     </section>
     <section class="container" data-gallery="builds" aria-label="Builds"></section>

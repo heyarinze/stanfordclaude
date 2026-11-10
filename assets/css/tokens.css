@@ -1,46 +1,51 @@
 /* Design tokens for Claude@Stanford (2026-27).
-   Dark, warm and flat: no glows, gradients or glass. Newsreader for headings, Inter for text.
-   Text colors meet WCAG AA on every surface they're used on. */
+   The idea: a printed programme, at night. An ink page, two inks (bone and clay), and Stanford
+   cardinal as the closing ground. Everything is flat: no glows, gradients, blurs or glass.
+   "Paper" (posters, bands, dialogs, inputs) is square; controls are pills.
+   Text colours meet WCAG AA on the grounds they are used on (see the pairs noted below). */
 
 :root {
   color-scheme: dark;
 
-  --bg: #0F0D0B;
-  --surface: #17140F;
-  --surface-2: #1E1A15;
-  --line: #2A251F;
-  --line-strong: #3B342C;
+  /* Grounds */
+  --bg: #0F0D0B;              /* ink: the page */
+  --surface: #1A1612;         /* raised paper: inputs, dialog body, menus */
+  --surface-2: #241F1A;       /* hover on raised paper */
+  --line: #2E2823;            /* rules */
+  --line-strong: #4A4037;     /* control outlines */
+  --cardinal: #8C1515;        /* Stanford cardinal, used only as a ground */
 
-  --ink: #F1EBE2;
-  --ink-2: #C2B8AA;
-  --ink-3: #958B7E;
+  /* Inks */
+  --ink: #F1EBE2;             /* bone: 16.4:1 on --bg, 7.9:1 on --cardinal */
+  --ink-2: #B9AE9F;           /* quiet text: 8.9:1 on --bg, 8.2:1 on --surface */
+  --on-cardinal-2: #EBC9BD;   /* quiet text on cardinal: 6.1:1 */
+  --rule-on-cardinal: rgba(241, 235, 226, 0.24);
 
-  --accent: #E07B52;          /* Claude clay: buttons, focus, links */
-  --accent-hover: #EA8C66;
-  --accent-ink: #EE9A76;
-  --accent-soft: rgba(224, 123, 82, 0.14);
-  --on-accent: #1A0F08;
-
-  --cardinal: #E06A60;        /* Stanford cardinal, lifted for dark backgrounds */
-  --cardinal-soft: rgba(224, 106, 96, 0.14);
+  --accent: #D97757;          /* Claude clay, the only clay: 6.2:1 on --bg */
+  --accent-hover: #E48B6E;
+  --accent-soft: rgba(217, 119, 87, 0.16);
+  --on-accent: #0F0D0B;       /* 6.2:1 on --accent */
 
   --success: #8FCB98;
   --success-soft: rgba(143, 203, 152, 0.12);
   --danger: #F08C82;
   --danger-soft: rgba(240, 140, 130, 0.12);
-  --warn-soft: rgba(217, 164, 65, 0.12);
+  --warn-soft: rgba(217, 164, 65, 0.14);
   --warn-ink: #EBCB8B;
 
-  --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
-  --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Type: Gloock for anything set large, Libre Franklin for text and controls. */
+  --font-display: 'Gloock', 'Gloock Fallback', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Libre Franklin', 'Franklin Fallback', 'Franklin Fallback Android', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-h1: clamp(2.3rem, 1.7rem + 2.4vw, 3.4rem);
-  --text-hero: clamp(2.6rem, 1.6rem + 3.6vw, 4.4rem);
-  --text-h2: clamp(1.55rem, 1.3rem + 0.9vw, 2rem);
+  --text-floor: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lede: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+  --text-poster: clamp(1.125rem, 0.9rem + 0.6vw, 1.5rem);
+  --text-h3: clamp(1.5rem, 1.1rem + 1.2vw, 2.5rem);
+  --text-h2: clamp(2.25rem, 1.2rem + 3.4vw, 4rem);
+  --text-title: clamp(3.5rem, 11vw, 9rem);
+  --text-hero: clamp(2.85rem, 8vw, 7.25rem);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -50,15 +55,18 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4.5rem;
+  --section-gap: clamp(4.5rem, 9vw, 9rem);
 
-  --radius-sm: 8px;
-  --radius: 12px;
   --radius-pill: 999px;
-  --shadow-menu: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-menu: 0 16px 40px rgba(0, 0, 0, 0.55);
 
-  --max: 1120px;
-  --gutter: clamp(1rem, 0.4rem + 2.8vw, 2rem);
-  --header-h: 64px;
+  --max: 82rem;
+  --gutter: clamp(1.25rem, 4.4vw, 4rem);
+  --header-h: 72px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (max-width: 900px) {
+  :root { --header-h: 64px; }
 }

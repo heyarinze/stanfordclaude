@@ -1,6 +1,6 @@
 {
   "year": "2025-26",
-  "summary": "Claude@Stanford's first year. The site went up in February 2026, and the year ended with the spring hackathon.",
+  "summary": "Claude@Stanford’s first year. The site went up in February 2026, and the year ended with the spring hackathon.",
   "hackathon": {
     "name": "Claude@Stanford Hackathon",
     "when": "Spring 2026",
@@ -25,7 +25,7 @@
         "place": 3,
         "title": "Anchor",
         "track": "",
-        "desc": "AI holds the memory so humans can hold each other. An AI companion that preserves patient memories, delivers personalized morning briefs, and reduces caregiver coordination burden for Alzheimer's families.",
+        "desc": "AI holds the memory so humans can hold each other. An AI companion that preserves patient memories, delivers personalized morning briefs, and reduces caregiver coordination burden for Alzheimer’s families.",
         "builders": ["Esther Suebsubanant", "Antonio Aguirregomezcorta"],
         "link": "https://devpost.com/software/anchor-improve-alzheimer-s-patients-quality-of-life"
       }

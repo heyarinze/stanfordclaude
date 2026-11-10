@@ -24,11 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <script type="speculationrules">
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/admin"}}, {"not": {"selector_matches": "[target=_blank]"}}]}, "eagerness": "moderate"}]}
   </script>
@@ -38,35 +40,35 @@
   <main id="main">
     <section class="container page-head">
       <h1>Perks</h1>
-      <p class="lede">Members can get Claude Pro and API credits. Details for 2026–27 are still being worked out, so check back or ask a lead.</p>
+      <p class="lede">We expect to offer members Claude Pro and API credits this year. The details aren’t confirmed yet, so we won’t guess.</p>
     </section>
-    <section class="container">
-      <!-- PLACEHOLDER (2026-27): confirm each offer, amount and eligibility. -->
-      <div class="perk-list">
-        <div><h3>Claude Pro</h3><p>For active members. Eligibility and length to be announced.</p></div>
-        <div><h3>API credits</h3><p>For projects, hackathons and research. Amounts and how to request them to be announced.</p></div>
-        <div><h3>At events</h3><p>We hand out credits at workshops and the hackathon.</p></div>
+    <section class="container split">
+      <h2>What happens next</h2>
+      <div>
+        <p class="lede">When the offers are confirmed, this page will say what you can get and how to claim it. Members hear first in the Slack.</p>
+        <div class="btn-row" style="margin-top:var(--space-5)">
+          <a class="btn btn-primary" href="/#join">How to join</a>
+          <a class="text-link" href="/events">Events</a>
+        </div>
       </div>
     </section>
-    <section class="container section split">
-      <h2>How to claim</h2>
-      <!-- PLACEHOLDER (2026-27): replace with the real claim steps. -->
-      <ol class="steps">
-        <li><strong>Join the Slack</strong> and come to an event.</li>
-        <li><strong>Sign in on this site</strong> with your Stanford account.</li>
-        <li><strong>Claim your perk.</strong> The process for 2026–27 will be posted here.</li>
-      </ol>
+    <!-- PLACEHOLDER (2026-27): when the offers are confirmed, rewrite the two paragraphs above and
+         uncomment the blocks below. The styles for them are already in components.css.
+    <section class="container section">
+      <div class="perk-list">
+        <div><h3>Claude Pro</h3><p>Who gets it, and for how long.</p></div>
+        <div><h3>API credits</h3><p>How much, what for, and how to ask.</p></div>
+        <div><h3>At events</h3><p>What is handed out at workshops and the hackathon.</p></div>
+      </div>
     </section>
     <section class="container section split" aria-labelledby="faq-title">
       <h2 id="faq-title">Questions</h2>
-      <!-- PLACEHOLDER (2026-27): review every answer before launch. -->
       <div class="faq">
-        <details><summary>Who's eligible?</summary><p>Stanford students and affiliates with a @stanford.edu account. We'll confirm eligibility for each perk here.</p></details>
-        <details><summary>Do I need to know how to code?</summary><p>No. Plenty of members don't, and the workshops start from scratch.</p></details>
-        <details><summary>Can I use credits for class projects?</summary><p>We'll post the rules here. Check your course's AI policy either way.</p></details>
-        <details><summary>Something isn't working. Who do I ask?</summary><p>Post in the Slack or message any lead on the <a href="/team">team page</a>.</p></details>
+        <details><summary>Who’s eligible?</summary><p>…</p></details>
+        <details><summary>Can I use credits for class projects?</summary><p>…</p></details>
       </div>
     </section>
+    -->
   </main>
   <site-footer></site-footer>
 </body>

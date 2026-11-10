@@ -3,7 +3,7 @@
 // builds.js and library.js supply a config object; see mountGallery() below.
 
 import {
-  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, toMillis, debounce,
+  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, smart, toMillis, debounce,
 } from './ui.js';
 import * as fb from './firebase.js';
 import { getConfig, yearLabel } from './config.js';
@@ -138,7 +138,7 @@ function readForm(form, schema) {
   for (const f of schema) {
     if (f.kind === 'checks') {
       const values = [...form.querySelectorAll(`input[name="${f.name}"]:checked`)].map((el) => el.value);
-      if (f.maxItems && values.length > f.maxItems) return { error: `Pick at most ${f.maxItems} for "${f.label}".`, field: f.name };
+      if (f.maxItems && values.length > f.maxItems) return { error: `Pick at most ${f.maxItems} for “${f.label}”.`, field: f.name };
       data[f.name] = values;
       continue;
     }
@@ -150,10 +150,10 @@ function readForm(form, schema) {
       data[f.name] = values;
       continue;
     }
-    if (f.required && !raw) return { error: `"${f.label}" is required.`, field: f.name };
-    if (f.max && raw.length > f.max) return { error: `"${f.label}" must be ${f.max} characters or fewer.`, field: f.name };
-    if (raw && f.kind === 'url' && !safeUrl(raw)) return { error: `"${f.label}" must be a full link starting with https://`, field: f.name };
-    if (raw && f.kind === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) return { error: `"${f.label}" doesn't look like an email address.`, field: f.name };
+    if (f.required && !raw) return { error: `“${f.label}” is required.`, field: f.name };
+    if (f.max && raw.length > f.max) return { error: `“${f.label}” must be ${f.max} characters or fewer.`, field: f.name };
+    if (raw && f.kind === 'url' && !safeUrl(raw)) return { error: `“${f.label}” must be a full link starting with https://`, field: f.name };
+    if (raw && f.kind === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) return { error: `“${f.label}” doesn’t look like an email address.`, field: f.name };
     data[f.name] = f.kind === 'url' && raw ? safeUrl(raw) : raw;
   }
   return { data };
@@ -192,6 +192,8 @@ function updateCounter(form, counter) {
  *   sorts: { key: { label, fn } }, defaultSort,
  *   searchText(item) -> string,
  *   card(item, ctx) -> Raw, detail(item, ctx) -> Raw,
+ *   detailHead(item) -> Raw (optional top of the pop-up; must contain #detail-title),
+ *   listClass ('grid' by default), dialogClass,
  *   schema: [...fields], titleNew, titleEdit, submitLabel,
  *   createExtras() -> object of extra fields on create,
  *   prefill(user) -> object,
@@ -199,7 +201,8 @@ function updateCounter(form, counter) {
  */
 export async function mountGallery(cfg) {
   const root = document.querySelector('[data-gallery]');
-  const config = await getConfig();
+  const configReady = getConfig();
+  let config = { academicYear: '' };   // filled in once the toolbar is on screen
   const params = new URLSearchParams(location.search);
   const state = {
     q: params.get('q') || '',
@@ -225,7 +228,7 @@ export async function mountGallery(cfg) {
           <input type="search" name="q" placeholder="Search ${cfg.nounPlural}, people, tools…" autocomplete="off">
         </label>
         <select name="tool" aria-label="Filter by Claude product"><option value="">All products</option></select>
-        <select name="year" aria-label="Filter by academic year"><option value="">All years</option></select>
+        <select name="year" aria-label="Filter by academic year" hidden><option value="">All years</option></select>
         <select name="sort" aria-label="Sort">
           ${Object.entries(cfg.sorts).map(([key, s]) => html`<option value="${key}">${s.label}</option>`)}
         </select>
@@ -233,12 +236,13 @@ export async function mountGallery(cfg) {
       </div>
       <div class="chips" role="group" aria-label="Filter by category" data-chips></div>
     </div>
-    <div class="notice notice-info" data-mine hidden style="margin-bottom:var(--space-5)">
-      ${icons.info}<span>Showing only your ${cfg.nounPlural}. <a href="${cfg.path}">Show everyone's</a></span>
+    <div class="notice notice-info" data-mine hidden>
+      ${icons.info}<span>Showing only your ${cfg.nounPlural}. <a href="${cfg.path}">Show everyone’s</a></span>
     </div>
-    <div class="grid" data-grid aria-busy="true">
-      ${[1, 2, 3, 4, 5, 6].map(() => raw('<div class="skeleton"></div>'))}
+    <div class="${cfg.listClass || 'grid'}" data-grid aria-busy="true">
+      ${Array.from({ length: cfg.skeletons || 8 }, () => raw('<div class="skeleton"></div>'))}
     </div>`);
+  config = await configReady;
 
   const toolbar = root.querySelector('.toolbar');
   const chips = root.querySelector('[data-chips]');
@@ -266,6 +270,7 @@ export async function mountGallery(cfg) {
     const years = uniq([config.academicYear, ...items.map((i) => i.year)]).sort().reverse();
     fillSelect(toolbar.elements.tool, tools, state.tool);
     fillSelect(toolbar.elements.year, years, state.year, yearLabel);
+    toolbar.elements.year.hidden = uniq(items.map((i) => i.year)).length < 2 && !state.year;   // nothing to choose between yet
     if (state.cat && !cats.includes(state.cat)) state.cat = '';
     chips.innerHTML = String(html`${['', ...cats].map((c) => html`<button type="button" class="chip" data-chip="${c}" aria-pressed="${state.cat === c ? 'true' : 'false'}">${c || 'All'}</button>`)}`);
   }
@@ -326,30 +331,38 @@ export async function mountGallery(cfg) {
       .sort(cfg.sorts[state.sort].fn);
   }
 
+  let painted = null;
+  const paint = (markup) => {
+    const next = String(markup);
+    if (next === painted) return;   // same cards as before: keep the DOM (and keyboard focus) as it is
+    painted = next;
+    grid.innerHTML = next;
+  };
+
   function render() {
     root.querySelector('[data-mine]').hidden = !state.mine;
     if (!loaded) return;
     grid.setAttribute('aria-busy', 'false');
     if (loadError) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty"><h3>Couldn't load ${cfg.nounPlural}</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
+      paint(html`<div class="empty"><h3>Couldn’t load ${cfg.nounPlural}.</h3><p>Check your connection and try again.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="reload">Try again</button></div></div>`);
       return;
     }
     if (state.mine && !session.user) {
       countEl.textContent = '';
-      grid.innerHTML = String(html`<div class="empty"><h3>Sign in to see your ${cfg.nounPlural}</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
+      paint(html`<div class="empty"><h3>Sign in to see your ${cfg.nounPlural}.</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="signin">Sign in with Stanford</button></div></div>`);
       return;
     }
     const list = visibleItems();
     countEl.textContent = `${list.length} ${list.length === 1 ? cfg.noun : cfg.nounPlural}`;
     if (!list.length) {
       const filtered = state.q || state.tool || state.cat || state.year || state.mine;
-      grid.innerHTML = String(filtered
-        ? html`<div class="empty"><h3>No ${cfg.nounPlural} match</h3><p>Try a different search or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
-        : html`<div class="empty"><h3>No ${cfg.nounPlural} yet</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
+      paint(filtered
+        ? html`<div class="empty"><h3>No ${cfg.nounPlural} match.</h3><p>Try a different search, or clear the filters.</p><div class="btn-row"><button class="btn btn-secondary" type="button" data-action="clear">Clear filters</button></div></div>`
+        : html`<div class="empty"><h3>No ${cfg.nounPlural} yet.</h3><div class="btn-row"><button class="btn btn-primary" type="button" data-action="submit">${icons.plus} ${cfg.submitLabel}</button></div></div>`);
       return;
     }
-    grid.innerHTML = list.map((item) => String(cfg.card(item, ctxFor(item)))).join('');
+    paint(list.map((item) => String(cfg.card(item, ctxFor(item)))).join(''));
   }
 
   async function load() {
@@ -375,30 +388,37 @@ export async function mountGallery(cfg) {
 
   /* Detail dialog */
   const detail = document.createElement('dialog');
+  if (cfg.dialogClass) detail.className = cfg.dialogClass;
   detail.setAttribute('aria-labelledby', 'detail-title');
   detail.innerHTML = String(html`
     <button type="button" class="dialog-close dialog-x" data-close aria-label="Close">${icons.close}</button>
-    <div class="dialog-cover" data-cover hidden></div>
-    <div class="dialog-head"><h2 id="detail-title"></h2></div>
+    <div class="detail-head" data-head></div>
     <div class="dialog-body" data-body></div>
     <div class="dialog-foot" data-foot hidden></div>`);
   document.body.append(detail);
   let detailId = null;
+  // Opening a pop-up from the page adds a history entry, so the Back button (or swipe) closes it
+  // instead of leaving the page.
+  let closedByBack = false;
   wireDialog(detail, {
     onClose: () => {
       detailId = null;
+      if (closedByBack) { closedByBack = false; return; }
+      if (history.state?.detail) { history.back(); return; }
       const p = new URLSearchParams(location.search);
       if (p.has(cfg.param)) { p.delete(cfg.param); const qs = p.toString(); history.replaceState(null, '', `${location.pathname}${qs ? `?${qs}` : ''}`); }
     },
   });
+  window.addEventListener('popstate', () => {
+    const id = new URLSearchParams(location.search).get(cfg.param);
+    if (detail.open && !id) { closedByBack = true; detail.close(); } else if (id && !detail.open) openDetail(id, { updateUrl: false });
+  });
 
   function renderDetail(item) {
     const ctx = ctxFor(item);
-    const coverEl = detail.querySelector('[data-cover]');
-    const cover = cfg.detailCover ? cfg.detailCover(item) : null;
-    coverEl.hidden = !cover;
-    if (cover) coverEl.innerHTML = String(cover);
-    detail.querySelector('#detail-title').textContent = item.title;
+    detail.querySelector('[data-head]').innerHTML = String(cfg.detailHead
+      ? cfg.detailHead(item, ctx)
+      : html`<div class="dialog-head"><h2 id="detail-title">${smart(item.title)}</h2></div>`);
     detail.querySelector('[data-body]').innerHTML = String(cfg.detail(item, ctx));
     const foot = detail.querySelector('[data-foot]');
     const actions = [];
@@ -412,7 +432,7 @@ export async function mountGallery(cfg) {
     foot.innerHTML = String(html`${actions}`);
   }
 
-  function openDetail(id, { updateUrl = true } = {}) {
+  function openDetail(id, { updateUrl = true, push = false } = {}) {
     const item = items.find((i) => i.id === id);
     if (!item) return false;
     detailId = id;
@@ -421,7 +441,9 @@ export async function mountGallery(cfg) {
     if (updateUrl) {
       const p = new URLSearchParams(location.search);
       p.set(cfg.param, id);
-      history.replaceState(null, '', `${location.pathname}?${p}`);
+      const url = `${location.pathname}?${p}`;
+      if (push && !history.state?.detail) history.pushState({ detail: true }, '', url);
+      else history.replaceState(history.state, '', url);
     }
     return true;
   }
@@ -451,6 +473,7 @@ export async function mountGallery(cfg) {
     event.target.removeAttribute('aria-invalid');
   });
 
+  let draftFor = null;   // which form the fields currently hold, so reopening it keeps what was typed
   async function openForm(item = null) {
     const user = await ensureSignedIn(item ? 'to edit' : `to share a ${cfg.noun}`);
     if (!user) return;
@@ -458,7 +481,8 @@ export async function mountGallery(cfg) {
     formDialog.querySelector('#form-title').textContent = item ? cfg.titleEdit : cfg.titleNew;
     formDialog.querySelector('[data-submit]').textContent = item ? 'Save changes' : cfg.submitLabel;
     formError.hidden = true;
-    fillForm(form, cfg.schema, item, cfg.prefill(user));
+    const key = item ? item.id : 'new';
+    if (draftFor !== key) { fillForm(form, cfg.schema, item, cfg.prefill(user)); draftFor = key; }
     if (detail.open) detail.close();
     formDialog.showModal();
   }
@@ -474,7 +498,9 @@ export async function mountGallery(cfg) {
       return;
     }
     const button = formDialog.querySelector('[data-submit]');
+    const buttonLabel = button.textContent;
     button.disabled = true;
+    button.textContent = 'Saving…';
     const user = fb.getSession().user;
     try {
       let id = editingId;
@@ -496,15 +522,17 @@ export async function mountGallery(cfg) {
         id = ref.id;
         toast('Posted');
       }
+      draftFor = null;
       formDialog.close();
       await load();
       openDetail(id);
     } catch (err) {
       console.error(err);
-      formError.textContent = 'Couldn\'t save. Check the fields and try again. If it keeps failing, ping a lead in the Slack.';
+      formError.textContent = 'Couldn’t save. Check the fields and try again. If it keeps failing, tell a lead.';
       formError.hidden = false;
     } finally {
       button.disabled = false;
+      button.textContent = buttonLabel;
     }
   });
 
@@ -512,7 +540,7 @@ export async function mountGallery(cfg) {
   async function toggleHeart(item, button) {
     const user = await ensureSignedIn('to heart builds');
     if (!user) return;
-    if (item.ownerUid === user.uid) { toast('You can\'t heart your own build.'); return; }
+    if (item.ownerUid === user.uid) { toast('You can’t heart your own build.'); return; }
     const before = item.hearts || [];
     const had = before.includes(user.uid);
     item.hearts = had ? before.filter((u) => u !== user.uid) : [...before, user.uid];
@@ -521,6 +549,7 @@ export async function mountGallery(cfg) {
     const selector = `[data-action="heart"][data-id="${CSS.escape(item.id)}"]`;
     const refocus = () => (button && detail.contains(button) ? detail : grid).querySelector(selector)?.focus();
     refocus();
+    if (!had) document.querySelectorAll(selector).forEach((b) => b.classList.add('pop'));
     try {
       await fb.updateDoc(fb.doc(fb.db, cfg.collection, item.id), {
         hearts: had ? fb.arrayRemove(user.uid) : fb.arrayUnion(user.uid),
@@ -531,7 +560,7 @@ export async function mountGallery(cfg) {
       item.hearts = before;
       render();
       if (detailId === item.id) renderDetail(item);
-      toast('Couldn\'t update your heart. Try again.', { error: true });
+      toast('Couldn’t update your heart. Try again.', { error: true });
       refocus();
     }
   }
@@ -544,7 +573,7 @@ export async function mountGallery(cfg) {
     const item = id ? items.find((i) => i.id === id) : null;
     const user = fb.getSession().user;
     switch (action) {
-      case 'open': openDetail(id); break;
+      case 'open': openDetail(id, { push: true }); break;
       case 'submit': openForm(); break;
       case 'signin': ensureSignedIn(`to see your ${cfg.nounPlural}`); break;
       case 'reload': loaded = false; load(); break;
@@ -564,7 +593,7 @@ export async function mountGallery(cfg) {
       case 'edit': if (item) openForm(item); break;
       case 'delete': {
         if (!item) break;
-        const ok = await confirmDialog(`"${item.title}" will be removed for everyone. This can't be undone.`, { title: `Delete this ${cfg.noun}?`, confirmLabel: 'Delete', danger: true });
+        const ok = await confirmDialog(`“${item.title}” will be removed for everyone. This can’t be undone.`, { title: `Delete this ${cfg.noun}?`, confirmLabel: 'Delete', danger: true });
         if (!ok) break;
         try {
           await removeItem(cfg.collection, item.id);
@@ -572,7 +601,7 @@ export async function mountGallery(cfg) {
           if (detail.open) detail.close();
           render();
           toast('Deleted');
-        } catch (err) { console.error(err); toast('Couldn\'t delete. Try again.', { error: true }); }
+        } catch (err) { console.error(err); toast('Couldn’t delete. Try again.', { error: true }); }
         break;
       }
       case 'feature':
@@ -617,7 +646,7 @@ export async function mountGallery(cfg) {
     await fb.whenAuthReady();
     session = fb.getSession();
     if (session.user) await load();
-    if (!openDetail(deepLink, { updateUrl: false })) toast(`That ${cfg.noun} isn't available anymore.`);
+    if (!openDetail(deepLink, { updateUrl: false })) toast(`That ${cfg.noun} isn’t available anymore.`);
   }
   if (params.get('submit') === '1') {
     const p = new URLSearchParams(location.search); p.delete('submit');
@@ -638,7 +667,7 @@ export async function mountGallery(cfg) {
 
 export function heartButton(item, ctx) {
   const label = ctx.isOwner ? 'Your build' : (ctx.hearted ? 'Remove heart' : 'Heart this build');
-  return html`<button type="button" class="heart-btn" data-action="heart" data-id="${item.id}" aria-pressed="${ctx.hearted ? 'true' : 'false'}" ${ctx.canHeart ? '' : 'disabled'} title="${label}" aria-label="${label}, ${ctx.heartCount} ${ctx.heartCount === 1 ? 'heart' : 'hearts'}">${icons.heart}<span>${ctx.heartCount}</span></button>`;
+  return html`<button type="button" class="heart-btn" data-action="heart" data-id="${item.id}" aria-pressed="${ctx.hearted ? 'true' : 'false'}" ${ctx.canHeart ? '' : 'disabled'} title="${label}" aria-label="${label}, ${ctx.heartCount} ${ctx.heartCount === 1 ? 'heart' : 'hearts'}">${icons.heart}<span>${ctx.heartCount || ''}</span></button>`;
 }
 
 export function shareButton(item, noun = 'link') {

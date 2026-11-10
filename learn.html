@@ -24,11 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <script type="speculationrules">
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/admin"}}, {"not": {"selector_matches": "[target=_blank]"}}]}, "eagerness": "moderate"}]}
   </script>
@@ -42,12 +44,12 @@
     </section>
     <section class="container" aria-labelledby="ws-title">
       <h2 id="ws-title" class="visually-hidden">Workshops</h2>
-      <div class="grid" data-workshops aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      <div data-workshops aria-busy="true"></div>
     </section>
     <section class="container section split">
       <div>
         <h2>From Anthropic</h2>
-        <p class="muted" style="margin-top:var(--space-2)">Official docs and courses, if you want to go further on your own.</p>
+        <p>Official docs and courses, if you want to go further on your own.</p>
       </div>
       <ul class="link-list" data-resources></ul>
     </section>

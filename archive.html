@@ -24,11 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <script type="speculationrules">
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/admin"}}, {"not": {"selector_matches": "[target=_blank]"}}]}, "eagerness": "moderate"}]}
   </script>
@@ -38,11 +40,11 @@
   <main id="main">
     <section class="container page-head">
       <h1>Archive</h1>
-      <p class="lede">Past years of Claude@Stanford.</p>
+      <p class="lede">What the club did in past years: hackathon winners, the teams, and what members built.</p>
     </section>
     <section class="container">
       <div class="tabs" role="tablist" aria-label="Academic year" data-archive-tabs></div>
-      <div id="archive-panel" role="tabpanel" data-archive-panel aria-busy="true"><div class="skeleton"></div></div>
+      <div id="archive-panel" role="tabpanel" data-archive-panel aria-busy="true"></div>
     </section>
   </main>
   <site-footer></site-footer>

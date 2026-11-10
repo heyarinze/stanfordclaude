@@ -119,7 +119,7 @@ root.addEventListener('click', async (event) => {
       if (email) location.href = `mailto:${email}?subject=${encodeURIComponent(`Your Claude@Stanford post: ${item.title}`)}`;
       else toast('No email on file for this poster.', { error: true });
     } else if (act === 'delete') {
-      const ok = await confirmDialog(`"${item.title}" will be removed for everyone. Consider hiding it instead. This can't be undone.`, { title: 'Delete permanently?', confirmLabel: 'Delete', danger: true });
+      const ok = await confirmDialog(`“${item.title}” will be removed for everyone. Consider hiding it instead. This can’t be undone.`, { title: 'Delete permanently?', confirmLabel: 'Delete', danger: true });
       if (!ok) return;
       await removeItem(k.collection, item.id);
       data[state.kind] = data[state.kind].filter((i) => i.id !== item.id);
@@ -128,7 +128,7 @@ root.addEventListener('click', async (event) => {
     }
   } catch (err) {
     console.error(err);
-    toast('That didn\'t work. Check your connection and that you\'re listed as a lead.', { error: true });
+    toast('That didn’t work. Check your connection and that you’re listed as a lead.', { error: true });
   }
 });
 
@@ -140,7 +140,7 @@ async function boot(next) {
     return;
   }
   if (!session.isLead) {
-    gate('Leads only', html`<p>You're signed in as ${session.user.email}, which isn't on the leads list. Ask an existing lead to add you.</p>`);
+    gate('Leads only', html`<p>You’re signed in as ${session.user.email}, which isn’t on the leads list. Ask an existing lead to add you.</p>`);
     return;
   }
   try {
@@ -151,7 +151,7 @@ async function boot(next) {
     renderShell(leadsSnap.docs.map((d) => d.id).sort());
   } catch (err) {
     console.error(err);
-    gate('Couldn\'t load moderation data', html`<p>Refresh to try again.</p>`);
+    gate('Couldn’t load moderation data.', html`<p>Refresh to try again.</p>`);
   }
 }
 

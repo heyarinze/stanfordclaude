@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Claude@Stanford</title>
-  <meta name="description" content="Stanford's student club for building with Claude. Workshops, demo nights, a spring hackathon, and the projects members have made.">
+  <meta name="description" content="Stanford’s student club for building with Claude. Workshops, demo nights, a spring hackathon, and the projects members have made.">
   <link rel="canonical" href="https://claudeatstanford.org/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Claude@Stanford">
   <meta property="og:title" content="Claude@Stanford">
-  <meta property="og:description" content="Stanford's student club for building with Claude. Workshops, demo nights, a spring hackathon, and the projects members have made.">
+  <meta property="og:description" content="Stanford’s student club for building with Claude. Workshops, demo nights, a spring hackathon, and the projects members have made.">
   <meta property="og:url" content="https://claudeatstanford.org/">
   <meta property="og:image" content="https://claudeatstanford.org/assets/img/og-image.jpg">
   <meta property="og:image:width" content="1200">
@@ -24,11 +24,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
+  <link rel="preload" as="image" href="/assets/img/quad-night-800.webp" imagesrcset="/assets/img/quad-night-800.webp 800w, /assets/img/quad-night-1440.webp 1440w" imagesizes="(max-width: 900px) 100vw, 50vw" fetchpriority="high">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <link rel="modulepreload" href="/assets/js/collection.js">
   <link rel="modulepreload" href="/assets/js/firebase.js">
   <link rel="modulepreload" href="/assets/js/covers.js">
@@ -48,24 +51,35 @@
     })();
   </script>
 </head>
-<body>
+<body class="home">
   <site-header current="home"></site-header>
   <main id="main">
-    <section class="container intro">
-      <h1>Stanford's club for building with Claude.</h1>
-      <p class="lede">We run Claude Code workshops, host demo nights, and put on a hackathon every spring. Members post what they make on this site. You don't need to know how to code to join.</p>
-      <div class="btn-row">
-        <a class="btn btn-primary" href="#join" data-join>Join the club</a>
-        <a class="text-link" href="/builds">Browse builds</a>
+    <section class="hero">
+      <div class="container">
+        <h1>Stanford’s club for building with Claude.</h1>
+        <div class="hero-copy">
+          <p class="lede">We make things with Claude and show them to each other. Last year that included an app for splitting airport rides and a dashboard that puts every Gradescope assignment in one place. You don’t need to know how to code.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="/builds" data-cta-primary>See what members made</a>
+            <a class="text-link" href="#join" data-cta-secondary>How to join</a>
+          </div>
+        </div>
+        <img class="hero-art" src="/assets/img/quad-night-800.webp" srcset="/assets/img/quad-night-800.webp 800w, /assets/img/quad-night-1440.webp 1440w" sizes="(max-width: 900px) 100vw, 50vw" width="1440" height="904" alt="Hoover Tower and the Main Quad at night, drawn as a print with the windows lit." fetchpriority="high">
       </div>
     </section>
 
-    <section class="container section" aria-labelledby="recent-title">
+    <section class="container section" aria-labelledby="wall-title">
       <div class="section-head">
-        <h2 id="recent-title">Recent builds</h2>
-        <a class="text-link" href="/builds" data-all-builds>See all builds</a>
+        <div>
+          <h2 id="wall-title">Made by members</h2>
+          <p data-wall-note>Yours could be next.</p>
+        </div>
+        <div class="section-links">
+          <a class="text-link" href="/builds" data-all-builds>All builds</a>
+          <a class="text-link" href="/builds?submit=1">Add yours</a>
+        </div>
       </div>
-      <div class="grid" data-featured aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      <div class="grid" data-wall aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
     </section>
 
     <section class="container section" data-next-events hidden aria-labelledby="next-title">
@@ -76,24 +90,29 @@
       <div data-embed></div>
     </section>
 
-    <section class="container section" aria-labelledby="around-title">
-      <h2 id="around-title" class="visually-hidden">Around the club</h2>
-      <nav class="ways" aria-labelledby="around-title">
-        <a href="/events"><b>Events</b><span>Workshops, demo nights and the spring hackathon. RSVP on Luma.</span></a>
-        <a href="/learn"><b>Learn</b><span>Slides, recordings and starter code from past workshops.</span></a>
-        <a href="/perks"><b>Perks</b><span>How members get Claude Pro and API credits.</span></a>
-        <a href="/library"><b>Library</b><span>Articles and videos members recommend.</span></a>
-      </nav>
+    <section class="container section split" data-hackathon aria-labelledby="hack-title">
+      <div>
+        <h2 id="hack-title">Last spring’s hackathon</h2>
+        <p data-hack-summary>&nbsp;</p>
+        <a class="text-link" href="/archive" data-hack-all>See the archive</a>
+      </div>
+      <div data-hack-rows><div class="rows"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div></div>
     </section>
 
-    <section class="container section" id="join" aria-labelledby="join-title">
-      <div class="join-block">
-        <div>
+    <section class="endcard" id="join" aria-labelledby="join-title">
+      <div class="container endcard-grid">
+        <div class="endcard-main">
           <h2 id="join-title">Join the club</h2>
-          <p>Announcements, credit drops and people looking for teammates all go through our Slack.</p>
-          <p class="small" data-join-note style="margin-top:var(--space-2)">The Slack invite isn't posted yet. Come to an event and we'll add you.</p>
+          <p>Joining means getting into our Slack, where events are announced and people find teammates.</p>
+          <p class="small" data-join-note>The invite link isn’t up yet. Until it is, come to the first event and a lead will add you.</p>
+          <a class="btn btn-bone" href="/events" data-join>See events</a>
         </div>
-        <a class="btn btn-primary" href="/events" data-join>See upcoming events</a>
+        <nav class="ways" aria-label="Around the club">
+          <a href="/events"><b>Events</b><span>Workshops, demo nights and the spring hackathon.</span></a>
+          <a href="/learn"><b>Learn</b><span>Slides, recordings and starter code from our workshops.</span></a>
+          <a href="/perks"><b>Perks</b><span>Claude Pro and API credits, once this year’s details are confirmed.</span></a>
+          <a href="/library"><b>Library</b><span>Articles and videos members recommend.</span></a>
+        </nav>
       </div>
     </section>
   </main>

@@ -42,13 +42,21 @@ export function safeUrl(value) {
   }
 }
 
-/** Plain text -> paragraphs, bullet/numbered lists and auto-linked URLs. Escapes everything first. */
-export function richText(text) {
+/** Plain text -> paragraphs, bullet/numbered lists and auto-linked URLs. Everything is escaped.
+    smartQuotes sets typographer's quotes (never inside links); leave it off for text that may hold code. */
+export function richText(text, { smartQuotes = false } = {}) {
   const blocks = String(text || '').replace(/\r\n/g, '\n').trim().split(/\n{2,}/);
-  const linkify = (line) => esc(line).replace(
-    /\bhttps?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]/g,
-    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
-  );
+  const words = (part) => esc(smartQuotes ? smart(part) : part);
+  const linkify = (line) => {
+    let out = '';
+    let last = 0;
+    for (const m of line.matchAll(/\bhttps?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]/g)) {
+      const url = esc(m[0]);
+      out += `${words(line.slice(last, m.index))}<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      last = m.index + m[0].length;
+    }
+    return out + words(line.slice(last));
+  };
   const out = blocks.map((block) => {
     const lines = block.split('\n');
     if (lines.every((l) => /^\s*[-*•]\s+/.test(l))) {
@@ -61,6 +69,18 @@ export function richText(text) {
   });
   return raw(out.join(''));
 }
+
+/** Typographer's quotes for member-written text: "like this" becomes “like this”, it's becomes it’s. */
+export function smart(text) {
+  return String(text ?? '')
+    .replace(/(^|[\s(\[{—–-])"/g, '$1“')
+    .replace(/"/g, '”')
+    .replace(/(^|[\s(\[{“—–-])'/g, '$1‘')
+    .replace(/'/g, '’');
+}
+
+/** ["A", "B", "C"] -> "A, B and C" */
+export const listSentence = (list = []) => (list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}` : list.join(''));
 
 export function initials(name) {
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
@@ -144,8 +164,12 @@ export function toast(message, { error = false, duration = 3800 } = {}) {
 
 /** Wire close buttons and backdrop clicks for a <dialog>. */
 export function wireDialog(dialog, { onClose } = {}) {
+  // A click on the backdrop closes the dialog, but only if the press also started there. Otherwise
+  // selecting text in a form and letting go outside it would throw the form away.
+  let pressedBackdrop = false;
+  dialog.addEventListener('pointerdown', (event) => { pressedBackdrop = event.target === dialog; });
   dialog.addEventListener('click', (event) => {
-    if (event.target === dialog) dialog.close();
+    if (event.target === dialog && pressedBackdrop) dialog.close();
     if (event.target.closest('[data-close]')) dialog.close();
   });
   if (onClose) dialog.addEventListener('close', onClose);
@@ -164,10 +188,12 @@ export function confirmDialog(message, { title = 'Are you sure?', confirmLabel =
         <button type="button" class="btn ${danger ? 'btn-danger' : 'btn-primary'}" value="ok">${confirmLabel}</button>
       </div>`);
     let result = false;
+    let pressedBackdrop = false;
+    dialog.addEventListener('pointerdown', (event) => { pressedBackdrop = event.target === dialog; });
     dialog.addEventListener('click', (event) => {
       const button = event.target.closest('button[value]');
       if (button) { result = button.value === 'ok'; dialog.close(); }
-      else if (event.target === dialog) dialog.close();
+      else if (event.target === dialog && pressedBackdrop) dialog.close();
     });
     dialog.addEventListener('close', () => { dialog.remove(); resolve(result); });
     document.body.append(dialog);

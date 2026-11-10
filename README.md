@@ -14,13 +14,14 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 | Team roster | `data/team.json` | Photos go in `assets/img/team/<year>/` (square, ~320px, `.webp` or `.jpg`) |
 | Workshops (slides, recordings, code) | `data/workshops.json` | Also holds the "From Anthropic" links on Learn |
 | Past years (hackathon winners, old teams) | `data/archive/<year>.json` + add the year to `data/archive/index.json` | |
-| Perks page copy | `perks.html` | Search for `PLACEHOLDER` |
+| Perks page copy | `perks.html` | Search for `PLACEHOLDER`; a ready-made layout is commented out in the file |
+| Which builds lead the home page | Moderation page (`/admin`), **Feature** | Featured builds come first, then the most hearted. Until any are featured, the most hearted lead |
 | Product and category tags | `assets/js/taxonomy.js` | Older posts keep their tags either way |
 
 ### `site.json` fields
 
 - `academicYear`: `"2026-27"`. New posts are tagged with it, and the Builds/Library year filters use it.
-- `slackUrl`: the workspace invite link. In Slack, set it to **never expire**. While it's empty, "Join" buttons point to the join section on the home page.
+- `slackUrl`: the workspace invite link. In Slack, set it to **never expire**. Once it's set, "Join the Slack" becomes the main button on the home page. While it's empty, "Join" buttons point to the join section and the main button leads to the builds instead, so nobody hits a dead end.
 - `lumaCalendarUrl`: the public calendar page (for "Subscribe on Luma").
 - `lumaEmbedUrl`: in Luma, go to Calendar → Embed and copy the `src` of the iframe (e.g. `https://luma.com/embed/calendar/cal-XXXX/events`).
 - `contactEmail`: optional club email shown in the footer.
@@ -42,7 +43,7 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 
 ### `team.json` entry
 
-`members` is a list of these. While it's empty, the Team page says the roster isn't posted yet.
+`members` is a list of these. While it's empty, the Team page says the roster isn't posted yet and shows last year's team from the archive.
 
 ```json
 {
@@ -81,6 +82,8 @@ Then open http://localhost:3000/?emulator. The flag sticks for that browser tab,
 
 ## How it's put together
 
+The look is a printed programme at night: an ink page, two inks (bone and clay), and Stanford cardinal as the closing block of every page. Everything is flat, with no glows, gradients or blur. Headings are set in Gloock and text in Libre Franklin, both from Google Fonts. "Paper" (posters, pop-ups, fields) has square corners and controls are pills. Each build gets a poster: a paper colour and artwork picked by `covers.js` from the post's ID, with the title set on it.
+
 ```
 *.html                 one file per page; shared header/footer come from <site-header>/<site-footer>
 assets/css/            tokens.css (colors, type, spacing; dark only), base.css, components.css
@@ -90,15 +93,18 @@ assets/js/
   collection.js        shared gallery engine behind Builds and Library
   builds.js, library.js  field lists, cards and detail views for each gallery
   home.js, events.js, learn.js, team.js, archive.js, admin.js   page scripts
+  hackathon.js         past years' data (data/archive/), shared by Home, Events, Team and Archive
   ui.js                safe HTML templating (html``), icons, toasts, dialogs
-  covers.js            generated cover art for builds (same art for the same post every time)
+  covers.js            poster paper and artwork for builds (same result for the same post every time)
 data/                  editable content (see above)
 firebase/              Firestore security rules + tests
-scripts/               one-off maintenance scripts (not deployed)
+scripts/               one-off maintenance scripts (not deployed), including hero-art.mjs (see below)
 docs/                  history (the 2025-26 build report) and the club logo PNG in docs/brand/
 ```
 
 All user-submitted text is rendered through the `html` tagged template in `ui.js`, which escapes it, and links go through `safeUrl()`, which only allows `http(s)`. Keep it that way.
+
+The drawing on the home page (and on the share image, `assets/img/og-image.jpg`) is the Hoover Tower and Main Quad sketch from the club's original logo, re-inked for the dark page with the windows lit. `node scripts/hero-art.mjs` regenerates it from `docs/brand/logo.png`; it needs Google Chrome and `cwebp`, and you only need it if you want to change the artwork.
 
 ## Firebase
 

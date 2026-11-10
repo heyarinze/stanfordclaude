@@ -24,11 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <script type="speculationrules">
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/admin"}}, {"not": {"selector_matches": "[target=_blank]"}}]}, "eagerness": "moderate"}]}
   </script>
@@ -38,14 +40,14 @@
   <main id="main">
     <section class="container page-head">
       <h1>Events</h1>
-      <p class="lede">We post every event on Luma. RSVP there to get reminders.</p>
+      <p class="lede">Workshops, demo nights and a hackathon in spring. Every event goes on Luma, where you RSVP and get reminders.</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="#" data-luma-subscribe hidden target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Subscribe on Luma</a>
-        <a class="text-link" href="/archive">Past events</a>
+        <a class="text-link" href="/archive">Past years</a>
       </div>
     </section>
     <section class="container" aria-label="Upcoming events">
-      <div data-events><div class="skeleton" style="min-height:420px"></div></div>
+      <div data-events></div>
     </section>
   </main>
   <site-footer></site-footer>

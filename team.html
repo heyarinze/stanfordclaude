@@ -24,11 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <script type="module" src="/assets/js/layout.js"></script>
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
   <script type="speculationrules">
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/admin"}}, {"not": {"selector_matches": "[target=_blank]"}}]}, "eagerness": "moderate"}]}
   </script>
@@ -41,11 +43,11 @@
       <p class="lede">The students running Claude@Stanford in <span data-team-year>2026–27</span>.</p>
     </section>
     <section class="container" aria-label="Team members">
-      <div class="grid grid-tight" data-team aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      <div data-team aria-busy="true"></div>
     </section>
     <section class="container section split">
       <h2>Want to help?</h2>
-      <p class="lede">We need people to run workshops and events. Message any lead or post in the Slack. Past teams are in the <a href="/archive">archive</a>.</p>
+      <p class="lede">We need people to run workshops and events. Tell any lead, or say so at the next event.</p>
     </section>
   </main>
   <site-footer></site-footer>

@@ -165,7 +165,7 @@ export async function signIn() {
     if (err.code === 'auth/popup-blocked') {
       toast('Your browser blocked the sign-in pop-up. Allow pop-ups for this site and try again.', { error: true });
     } else if (err.code === 'auth/unauthorized-domain') {
-      toast('Sign-in isn\'t enabled on this domain yet. A lead needs to add it in Firebase Auth settings.', { error: true });
+      toast('Sign-in isn’t enabled on this domain yet. A lead needs to add it in Firebase Auth settings.', { error: true });
     } else {
       console.error(err);
       toast('Sign-in failed. Please try again.', { error: true });
