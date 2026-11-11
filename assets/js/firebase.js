@@ -156,6 +156,22 @@ export function onSession(fn) {
   return () => listeners.delete(fn);
 }
 
+/** Resolves once the session has caught up with a sign-in that has just happened. signIn() returns as soon
+    as Google answers; the session (old posts claimed, lead status checked) follows a moment later. */
+export function sessionFor(uid) {
+  return new Promise((resolve) => {
+    let off = null;
+    let done = false;
+    off = onSession((s) => {
+      if (done || s.user?.uid !== uid) return;
+      done = true;
+      resolve(s);
+      if (off) off();
+    });
+    if (done) off();
+  });
+}
+
 export async function signIn() {
   try {
     const result = await signInWithPopup(auth, provider);

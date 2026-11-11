@@ -300,6 +300,8 @@ site-header { display: block; height: var(--header-h); position: sticky; top: 0;
 }
 @media (max-width: 363px) {
   .site-header .nav-join { display: none; }   /* the smallest phones: wordmark and Menu only; Join is inside the menu */
+  .site-header .brand { font-size: 1.0625rem; gap: 0.4rem; }   /* and a slightly smaller wordmark, so the account photo fits beside "Menu" */
+  .nav-actions { gap: var(--space-2); }
 }
 
 /* ---------- Footer: the same ink, bone and clay as the top of the page ---------- */
@@ -324,6 +326,15 @@ site-footer { display: block; }
   font-size: var(--text-floor);
 }
 .footer-bottom a { text-decoration: underline; text-decoration-color: var(--ink-2); }
+/* The year, who looks after the site now, and who first built it: one line with dots between on wide
+   screens, a line each on phones. */
+.footer-credits { display: flex; flex-wrap: wrap; }
+.footer-credits > span + span::before { content: '·'; margin-inline: 0.45em; }
+@media (max-width: 719px) {
+  .footer-credits { display: grid; gap: 0.2rem; }
+  .footer-credits > span { text-wrap: balance; }
+  .footer-credits > span + span::before { content: none; }
+}
 .powered-by { display: inline-flex; align-items: center; gap: 0.5rem; }
 .powered-by img { height: 10px; width: auto; filter: invert(1); opacity: 0.9; }
 

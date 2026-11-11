@@ -49,6 +49,7 @@
       if (h.indexOf('#build-') === 0) { location.replace('/builds?b=' + encodeURIComponent(h.slice(7))); return; }
       var map = { '#builds': '/builds', '#library': '/library', '#leads': '/team', '#winners': '/archive', '#mentions': '/archive' };
       if (map[h]) location.replace(map[h]);
+      else if (h === '#about') location.replace('#join');   // the old About section ended with the Join button
     })();
   </script>
 </head>

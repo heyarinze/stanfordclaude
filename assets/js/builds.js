@@ -1,6 +1,6 @@
 // Builds gallery: projects members made with Claude.
 
-import { html, icons, listSentence, richText, safeUrl, smart, toMillis } from './ui.js';
+import { esc, html, icons, listSentence, raw, richText, safeUrl, smart, splitList, toMillis } from './ui.js';
 import { coverArt, coverMeta } from './covers.js';
 import { yearLabel } from './config.js';
 import { CLAUDE_PRODUCTS, BUILD_CATEGORIES, LIMITS } from './taxonomy.js';
@@ -8,6 +8,8 @@ import { mountGallery, byNewest, heartButton, shareButton, statusTags } from './
 
 const hearts = (item) => (item.hearts || []).length;
 const author = (item) => item.authorName || 'a Stanford student';
+/** A title set in a narrow space may wrap after an "@", so "Claude@Stanford" is never cut off or split mid-word. */
+const posterTitle = (item) => raw(esc(smart(item.title)).replace(/@/g, '@<wbr>'));
 
 /** A build's poster: its paper colour with the title set on it and the generated art underneath.
     Used on /builds and, with teaser: true (a link instead of a button, no actions), on the home page. */
@@ -19,8 +21,8 @@ export function buildCard(item, ctx, { teaser = false } = {}) {
       <div class="poster-sheet">
         <div class="poster-plate">
           <h3>${teaser
-            ? html`<a href="/builds?b=${encodeURIComponent(item.id)}">${smart(item.title)}</a>`
-            : html`<button type="button" data-action="open" data-id="${item.id}">${smart(item.title)}</button>`}</h3>
+            ? html`<a href="/builds?b=${encodeURIComponent(item.id)}">${posterTitle(item)}</a>`
+            : html`<button type="button" data-action="open" data-id="${item.id}">${posterTitle(item)}</button>`}</h3>
           <p class="poster-by">by ${author(item)}</p>
         </div>
         <div class="poster-art">${coverArt(item.id)}</div>
@@ -51,7 +53,9 @@ function buildDetailHead(item) {
 
 function buildDetail(item, ctx) {
   const link = safeUrl(item.link);
-  const tools = [...(item.tools || []), ...(item.otherTools || [])];
+  // A few of last year's posts had "other tools" split at commas inside brackets when they were moved
+  // over ("GPT (parser, judge)" became two entries). Joining and re-splitting puts those back together.
+  const tools = [...(item.tools || []), ...splitList((item.otherTools || []).join(', '))];
   const cats = item.categories || [];
   const ms = toMillis(item.createdAt);
   const when = ms ? new Date(ms).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : yearLabel(item.year);

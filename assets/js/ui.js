@@ -100,6 +100,9 @@ export function smart(text) {
     .replace(/'/g, '’');
 }
 
+/** "A, B (x, y); C" -> ["A", "B (x, y)", "C"]: split at commas and semicolons, but never inside brackets. */
+export const splitList = (text) => String(text ?? '').split(/[,;](?![^()]*\))/).map((s) => s.trim()).filter(Boolean);
+
 /** ["A", "B", "C"] -> "A, B and C" */
 export const listSentence = (list = []) => (list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}` : list.join(''));
 
@@ -159,30 +162,54 @@ export function brandMark(cls = 'brand-mark') {
   return raw(`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="${d}"/></svg>`);
 }
 
-/* ---------- Toasts ---------- */
+/* ---------- Toasts ----------
+   Short messages at the bottom of the screen. An open pop-up (a modal <dialog>) covers the page and
+   switches the rest of it off, so a message left in the page would be dimmed, hidden behind the pop-up
+   and never read out. So the one region that holds messages
+   - sits inside whichever pop-up is on top, or in the page when none is open, and moves as pop-ups
+     open and close (a message has to outlive the pop-up it appeared in: "Posted" arrives as the form
+     closes, and a sign-in error arrives as the sign-in prompt closes);
+   - is a popover, which draws it above the pop-up, at the bottom of the screen, wherever it sits. */
 
-/* An open pop-up sits above the rest of the page and switches it off, so a message left in the page
-   would be dimmed, hidden behind the pop-up and never read out. Messages go inside the open pop-up. */
-function toastRegion() {
-  const host = [...document.querySelectorAll('dialog[open]')].pop() || document.body;
-  let region = [...host.children].find((el) => el.classList.contains('toast-region'));
+let region = null;
+const openDialogs = [];   // in the order they opened: the last one is on top
+
+function placeRegion() {
+  if (!region) return;
+  const host = openDialogs.filter((d) => d.isConnected && d.open).pop() || document.body;
+  if (region.parentElement !== host) host.append(region);   // moving a popover closes it
+  try { if (!region.matches(':popover-open')) region.showPopover(); } catch { /* no popover support: it is still position: fixed */ }
+}
+
+if (typeof MutationObserver === 'function') new MutationObserver((records) => {
+  for (const { target } of records) {
+    if (target.nodeName !== 'DIALOG') continue;
+    const at = openDialogs.indexOf(target);
+    if (target.open && at < 0) openDialogs.push(target);
+    else if (!target.open && at >= 0) openDialogs.splice(at, 1);
+  }
+  placeRegion();
+}).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['open'] });
+
+export function toast(message, { error = false, duration = 3800 } = {}) {
   if (!region) {
     region = document.createElement('div');
     region.className = 'toast-region';
     region.setAttribute('role', 'status');
     region.setAttribute('aria-live', 'polite');
-    host.append(region);
+    region.setAttribute('popover', 'manual');
   }
-  return region;
-}
-
-export function toast(message, { error = false, duration = 3800 } = {}) {
+  placeRegion();
   const el = document.createElement('div');
   el.className = `toast${error ? ' error' : ''}`;
   el.textContent = message;
-  const region = toastRegion();
-  requestAnimationFrame(() => region.append(el));   // a beat after the region exists, so screen readers announce it
-  setTimeout(() => el.remove(), duration);
+  // Added on the next frame. The region has to be on the page first for a screen reader to read the
+  // message out, and frames only come while the page is visible, so the message's time starts then.
+  requestAnimationFrame(() => {
+    region.append(el);
+    setTimeout(() => el.classList.add('settled'), 250);   // once it has arrived, moving it doesn't replay the entrance
+    setTimeout(() => el.remove(), duration);
+  });
 }
 
 /* ---------- Dialog helpers ---------- */

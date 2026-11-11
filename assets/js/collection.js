@@ -3,7 +3,7 @@
 // builds.js and library.js supply a config object; see mountGallery() below.
 
 import {
-  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, smart, toMillis, debounce,
+  html, raw, icons, toast, wireDialog, confirmDialog, shareLink, safeUrl, smart, splitList, toMillis, debounce,
 } from './ui.js';
 import * as fb from './firebase.js';
 import { getConfig, yearLabel } from './config.js';
@@ -144,7 +144,7 @@ function readForm(form, schema) {
     }
     const raw = form.elements[f.name].value.trim();
     if (f.kind === 'list') {
-      const values = [...new Set(raw.split(',').map((s) => s.trim()).filter(Boolean))];
+      const values = [...new Set(splitList(raw))];   // "Cursor, GPT (parser, judge)" is two tools, not three
       if (f.maxItems && values.length > f.maxItems) return { error: `List at most ${f.maxItems} other tools.`, field: f.name };
       if (f.maxEach && values.some((v) => v.length > f.maxEach)) return { error: `Each tool name must be under ${f.maxEach} characters.`, field: f.name };
       data[f.name] = values;
@@ -216,6 +216,7 @@ export async function mountGallery(cfg) {
   let loaded = false;
   let loadError = null;
   let session = fb.getSession();
+  let reloading = Promise.resolve();   // the list being re-fetched after someone signs in or out
   let editingId = null;
 
   /* Toolbar */
@@ -548,8 +549,18 @@ export async function mountGallery(cfg) {
 
   /* Hearts */
   async function toggleHeart(item, button) {
+    const wasSignedIn = Boolean(fb.getSession().user);
     const user = await ensureSignedIn('to heart builds');
     if (!user) return;
+    if (!wasSignedIn) {
+      // They signed in a moment ago, through the prompt. The list reloads for the new session, and that
+      // reload would overwrite a heart added now. Wait for it, then carry on with the fresh copy.
+      await fb.sessionFor(user.uid);
+      await reloading;
+      item = items.find((i) => i.id === item.id);
+      if (!item) return;
+      if ((item.hearts || []).includes(user.uid)) return;   // they had already hearted it: it now shows, so leave it
+    }
     if (item.ownerUid === user.uid) { toast('You can’t heart your own build.'); return; }
     const before = item.hearts || [];
     const had = before.includes(user.uid);
@@ -572,6 +583,9 @@ export async function mountGallery(cfg) {
       if (detailId === item.id) renderDetail(item);
       toast('Couldn’t update your heart. Try again.', { error: true });
       refocus();
+      // The usual cause is this page being out of date (a heart given on another device), so show
+      // what the database has now; the next click then does the right thing.
+      load().then(() => { const fresh = items.find((i) => i.id === item.id); if (fresh && detailId === fresh.id) renderDetail(fresh); });
     }
   }
 
@@ -586,7 +600,13 @@ export async function mountGallery(cfg) {
       case 'open': openDetail(id, { push: true }); break;
       case 'submit': openForm(); break;
       case 'signin': ensureSignedIn(`to see your ${cfg.nounPlural}`); break;
-      case 'reload': loaded = false; load(); break;
+      case 'reload':
+        loaded = false;
+        load().then(() => {   // if the page was opened from a link to one post, open that post now that the list is here
+          const wanted = new URLSearchParams(location.search).get(cfg.param);
+          if (wanted && !detail.open) openDetail(wanted, { updateUrl: false });
+        });
+        break;
       case 'clear':
         Object.assign(state, { q: '', tool: '', cat: '', year: '', mine: false });
         toolbar.elements.q.value = '';
@@ -675,7 +695,7 @@ export async function mountGallery(cfg) {
     const changed = next.user?.uid !== session.user?.uid || next.isLead !== session.isLead;
     session = next;
     if (firstSession) { firstSession = false; if (!next.user) { render(); return; } }
-    if (changed || next.user) load().then(() => { if (detailId) { const it = items.find((i) => i.id === detailId); if (it) renderDetail(it); } });
+    if (changed || next.user) reloading = load().then(() => { if (detailId) { const it = items.find((i) => i.id === detailId); if (it) renderDetail(it); } });
   });
 }
 

@@ -84,6 +84,7 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  max-width: 100%;   /* a button is as wide as its longest word; this lets a word too long for the poster break instead of being cut off */
   padding-bottom: 0.1em;
   margin-bottom: -0.1em;
 }
@@ -173,7 +174,7 @@
 .row-ranked { grid-template-columns: clamp(3rem, 7vw, 6rem) minmax(0, 1fr) auto; }
 .row-num { font-family: var(--font-display); font-size: clamp(3rem, 6vw, 5.5rem); line-height: 0.8; color: var(--accent); }
 .row h3 { font-size: var(--text-h3); }
-.row h3 button { all: unset; cursor: pointer; }
+.row h3 button { all: unset; cursor: pointer; max-width: 100%; }   /* max-width: one very long word breaks instead of widening the page */
 .row h3 button:hover { color: var(--accent); }
 .row h3 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .row-by { margin-top: 0.5rem; font-size: var(--text-sm); font-weight: 600; }
@@ -208,7 +209,10 @@
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 .search { position: relative; flex: 1 1 280px; }
 .search svg { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-2); pointer-events: none; }
-.search input[type="search"] { padding-left: 2.5rem; }
+.search input[type="search"] { padding-left: 2.5rem; text-overflow: ellipsis; }
+/* Chrome and Safari keep room for the field's clear button even while the field is empty, which cut the
+   end of the hint on the narrowest phones. It comes back as soon as something is typed. */
+.search input[type="search"]:placeholder-shown::-webkit-search-cancel-button { display: none; }
 .toolbar select { flex: 0 1 auto; width: auto; min-width: 150px; }
 .result-count { font-size: var(--text-sm); color: var(--ink-2); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
 @media (min-width: 721px) {
@@ -395,9 +399,12 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4.5rem; }
 
 /* ---------- Toast ---------- */
 
-.toast-region { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 2000; display: grid; gap: 0.5rem; justify-items: center; pointer-events: none; width: min(92vw, 460px); }
+.toast-region { position: fixed; inset: auto auto 1.25rem 50%; transform: translateX(-50%); z-index: 2000; display: grid; gap: 0.5rem; justify-items: center; pointer-events: none; width: min(92vw, 460px); }
+/* The region is a popover so that it draws above an open pop-up (see ui.js). This undoes a popover's built-in box. */
+.toast-region[popover] { margin: 0; padding: 0; border: 0; background: none; color: inherit; overflow: visible; }
 .toast { pointer-events: auto; padding: 0.7rem 1.2rem; border-radius: var(--radius-pill); background: var(--ink); color: var(--bg); font-size: var(--text-sm); font-weight: 600; box-shadow: var(--shadow-menu); transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
 .toast.error { background: var(--danger); color: #1a0806; }
+.toast.settled { transition: none; }   /* so it doesn't fade in again when the region moves between pop-ups */
 @starting-style { .toast { opacity: 0; transform: translateY(8px); } }
 
 /* ---------- Avatar ---------- */
@@ -553,6 +560,9 @@ td.title-cell small { display: block; color: var(--ink-2); }
 
 @media (pointer: coarse) {
   .btn-sm, .heart-btn, .icon-btn, .check-chip span { min-height: 44px; }
+  .heart-btn { min-width: 44px; justify-content: center; }
+  .footer-bottom a { display: inline-block; padding-block: 0.9rem; margin-block: -0.9rem; }   /* a taller target, same layout */
+  .footer-links a { min-width: 44px; }   /* "Team" and "Learn" are narrower than a fingertip */
   .chips { --chip-h: 44px; }
   .icon-btn { width: 44px; }
   .dialog-close { width: 44px; height: 44px; }

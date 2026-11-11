@@ -162,7 +162,11 @@ class SiteFooter extends HTMLElement {
           </div>
           <div class="footer-bottom">
             <span class="powered-by">Supported by <img src="/assets/img/anthropic-wordmark.png" alt="Anthropic" width="89" height="10"></span>
-            <span>Claude@Stanford <span data-footer-year>${yearLabel(DEFAULT_YEAR)}</span> · Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a></span>
+            <span class="footer-credits">
+              <span>Claude@Stanford <span data-footer-year>${yearLabel(DEFAULT_YEAR)}</span></span>
+              <span>Site currently maintained by William Peracchio</span>
+              <span>Original site by <a href="https://www.linkedin.com/in/arinzeobiezue/" target="_blank" rel="noopener">Arinze Obiezue</a></span>
+            </span>
           </div>
         </div>
       </footer>`);

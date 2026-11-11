@@ -88,7 +88,7 @@ The look is a printed programme at night: an ink page and two inks (bone and cla
 *.html                 one file per page; shared header/footer come from <site-header>/<site-footer>
 assets/css/            tokens.css (colors, type, spacing; dark only), base.css, components.css
 assets/js/
-  layout.js            header, nav and footer for every page (edit NAV to add a page)
+  layout.js            header, nav and footer for every page (edit NAV to add a page; the footer names who maintains the site)
   firebase.js          Firebase init, Stanford-only Google sign-in, session + lead check
   collection.js        shared gallery engine behind Builds and Library
   builds.js, library.js  field lists, cards and detail views for each gallery
