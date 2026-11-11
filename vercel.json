@@ -15,7 +15,7 @@
     {
       "source": "/assets/(css|js)/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=3600" }
+        { "key": "Cache-Control", "value": "public, max-age=300" }
       ]
     },
     {
@@ -28,6 +28,8 @@
   "redirects": [
     { "source": "/index", "destination": "/", "permanent": true },
     { "source": "/hackathon", "destination": "/archive", "permanent": false },
-    { "source": "/leads", "destination": "/team", "permanent": false }
+    { "source": "/leads", "destination": "/team", "permanent": false },
+    { "source": "/favicon.ico", "destination": "/assets/img/favicon.png", "permanent": false },
+    { "source": "/favicon.png", "destination": "/assets/img/favicon.png", "permanent": false }
   ]
 }

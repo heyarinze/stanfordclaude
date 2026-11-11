@@ -20,7 +20,7 @@ try {
     const people = last?.team || [];
     grid.innerHTML = String(html`
       <div class="empty">
-        <h3>This year’s team isn’t posted yet.</h3>
+        <h2>This year’s team isn’t posted yet.</h2>
         ${people.length ? html`<p>${listSentence(people.map((p) => p.name))} ran the club in ${yearLabel(last.year)}.</p>` : ''}
       </div>
       ${people.length ? html`

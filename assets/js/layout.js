@@ -56,8 +56,15 @@ class SiteHeader extends HTMLElement {
       links.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.textContent = open ? 'Close' : 'Menu';
+      // While the sheet covers the page, keep the keyboard and screen readers out of what is behind it.
+      document.querySelectorAll('main, site-footer').forEach((el) => { el.inert = open; });
     };
-    toggle.addEventListener('click', () => setOpen(!links.classList.contains('open')));
+    toggle.addEventListener('click', () => {
+      const open = !links.classList.contains('open');
+      setOpen(open);
+      if (open) links.querySelector('a')?.focus();   // the links sit before the button, so Tab alone would skip them
+    });
+    matchMedia('(min-width: 901px)').addEventListener('change', (event) => { if (event.matches) setOpen(false); });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && links.classList.contains('open')) { setOpen(false); toggle.focus(); }
     });
@@ -68,6 +75,7 @@ class SiteHeader extends HTMLElement {
 
     getConfig().then((config) => applyJoinLinks(this, config));
     this.mountAuth();
+    watchPageScripts();
   }
 
   // Firebase loads shortly after the page so static pages paint first.
@@ -81,6 +89,27 @@ class SiteHeader extends HTMLElement {
     else if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 800 });
     else setTimeout(start, 400);
   }
+}
+
+/* If a page's own script can't load (a script host that is blocked or unreachable), say so once
+   instead of leaving grey placeholders up for good. */
+function watchPageScripts() {
+  const failed = () => {
+    const stuck = new Set([
+      ...document.querySelectorAll('main [aria-busy="true"]'),
+      ...[...document.querySelectorAll('main .skeleton')].map((s) => s.parentElement),
+      ...[...document.querySelectorAll('main [data-gallery]')].filter((el) => !el.children.length),
+    ]);
+    let said = false;
+    stuck.forEach((el) => {
+      el.setAttribute('aria-busy', 'false');
+      if (said) { const section = el.closest('section'); (section && !section.querySelector('h1') ? section : el).hidden = true; return; }   // one message is enough
+      said = true;
+      el.innerHTML = '<div class="empty"><h2>This part of the page didn’t load.</h2><p>Check your connection. If you use a content blocker, allow scripts from gstatic.com, which this page needs. Then reload.</p><div class="btn-row"><button class="btn btn-secondary" type="button">Reload the page</button></div></div>';
+      el.querySelector('button').addEventListener('click', () => location.reload());
+    });
+  };
+  document.querySelectorAll('script[type="module"][src]').forEach((s) => s.addEventListener('error', failed, { once: true }));
 }
 
 function renderAuth(header, slot, session, fb) {

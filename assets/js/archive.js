@@ -69,4 +69,5 @@ try {
 } catch (err) {
   console.error(err);
   panel.innerHTML = '<div class="empty"><p>Couldn’t load the archive. Refresh to try again.</p></div>';
+  panel.setAttribute('aria-busy', 'false');
 }

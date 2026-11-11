@@ -82,7 +82,7 @@ Then open http://localhost:3000/?emulator. The flag sticks for that browser tab,
 
 ## How it's put together
 
-The look is a printed programme at night: an ink page, two inks (bone and clay), and Stanford cardinal as the closing block of every page. Everything is flat, with no glows, gradients or blur. Headings are set in Gloock and text in Libre Franklin, both from Google Fonts. "Paper" (posters, pop-ups, fields) has square corners and controls are pills. Each build gets a poster: a paper colour and artwork picked by `covers.js` from the post's ID, with the title set on it.
+The look is a printed programme at night: an ink page and two inks (bone and clay) from the top of every page to the bottom, with Stanford cardinal kept for the phone menu and some posters. The page runs edge to edge with one gutter each side on screens up to 1920px wide. Everything is flat, with no glows, gradients or blur. Headings are set in Gloock and text in Libre Franklin, both from Google Fonts. "Paper" (posters, pop-ups, fields) has square corners and controls are pills. Each build gets a poster: a paper colour and artwork picked by `covers.js` from the post's ID, with the title set on it.
 
 ```
 *.html                 one file per page; shared header/footer come from <site-header>/<site-footer>

@@ -37,6 +37,7 @@
 .btn-sm.btn-ghost { padding-inline: 0.35rem; }
 
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; }
+@media (max-width: 480px) { .btn-row { column-gap: var(--space-4); } }
 
 /* A link that says where it goes: an arrow that leans on hover. */
 .text-link {
@@ -72,21 +73,24 @@
   overflow: hidden;
   transition: transform 0.1s var(--ease);
 }
-.poster-plate { padding: clamp(0.75rem, 1.2vw, 1.1rem); min-height: 0; }
-.poster-plate h3 {
-  font-size: var(--text-poster);
-  line-height: 1.08;
-  letter-spacing: -0.01em;
-  color: inherit;
+.poster-plate { flex: none; padding: clamp(0.75rem, 1.2vw, 1.1rem); }
+.poster-plate h3 { font-size: var(--text-poster); line-height: 1.08; letter-spacing: -0.01em; color: inherit; }
+/* The title is cut to three lines inside its link or button: a button is one unbreakable box, so cutting
+   the heading around it does nothing. The padding keeps the tails of g and y from being shaved off. */
+.poster h3 :is(a, button) {
+  all: unset;
+  cursor: pointer;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
-.poster h3 :is(a, button) { all: unset; cursor: pointer; }
 .poster h3 :is(a, button)::after { content: ''; position: absolute; inset: 0; z-index: 1; }
 .poster-by { margin-top: 0.4rem; font-size: var(--text-floor); font-weight: 600; line-height: 1.3; }
-.poster-art { margin-top: auto; }
+/* If the words need more room than usual, the art gives way to them, never the other way round. */
+.poster-art { display: flex; flex-direction: column; justify-content: flex-end; min-height: 0; margin-top: auto; overflow: hidden; }
 .poster-art .cover-art { width: 100%; height: auto; aspect-ratio: 400 / 220; }
 .poster-desc {
   color: var(--ink-2);
@@ -173,7 +177,7 @@
 .row h3 button:hover { color: var(--accent); }
 .row h3 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .row-by { margin-top: 0.5rem; font-size: var(--text-sm); font-weight: 600; }
-.row-desc { margin-top: 0.4rem; color: var(--ink-2); font-size: var(--text-sm); max-width: 64ch; }
+.row-desc { margin-top: 0.4rem; color: var(--ink-2); font-size: var(--text-sm); max-width: 48ch; }   /* about 70 characters a line */
 .row-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .row-meta { margin-top: 0.5rem; color: var(--ink-2); font-size: var(--text-floor); }
 .row-actions { display: flex; align-items: center; gap: var(--space-3); }
@@ -207,11 +211,21 @@
 .search input[type="search"] { padding-left: 2.5rem; }
 .toolbar select { flex: 0 1 auto; width: auto; min-width: 150px; }
 .result-count { font-size: var(--text-sm); color: var(--ink-2); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (min-width: 721px) {
+  .search { max-width: 34rem; }
+  /* The bar's ground runs out through the gutters, so nothing shows beside it as the page scrolls under. */
+  .toolbar-wrap { box-shadow: calc(-1 * var(--gutter)) 0 0 var(--bg), var(--gutter) 0 0 var(--bg); }
+}
+@media (min-width: 721px) and (min-height: 561px) {
+  /* Keyboard focus and in-page jumps stop below the sticky bar, not underneath it. */
+  html:has(.toolbar-wrap) { scroll-padding-top: calc(var(--header-h) + 9.5rem); }
+}
+@media (max-height: 560px) { .toolbar-wrap { position: static; } }   /* a phone on its side: don't pin half the screen */
 
-.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: var(--space-3); min-height: 34px; }   /* holds its row before the chips arrive */
+.chips { --chip-h: 34px; display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: var(--space-3); min-height: var(--chip-h); }   /* holds its row before the chips arrive */
 .chip {
   flex-shrink: 0;
-  min-height: 34px;
+  min-height: var(--chip-h);
   padding: 0.3rem 0.9rem;
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--line-strong);
@@ -228,11 +242,14 @@
 @media (max-width: 720px) {
   .toolbar-wrap { position: static; }
   .search { flex-basis: 100%; }
+  /* Three fixed rows: search, the filters, then the count with the sort beside it. The rows are the
+     same before and after the posts load, so nothing below them moves. */
   .toolbar select { flex: 1 1 calc(50% - var(--space-2)); min-width: 0; }
-  .toolbar select[name="sort"] { order: 11; flex: 0 0 auto; border-color: transparent; background-color: transparent; padding-left: 0; }
+  .toolbar select[name="tool"]:has(+ select[hidden]) { flex-basis: 100%; }
+  .toolbar select[name="sort"] { order: 11; flex: 0 0 auto; border-color: transparent; background-color: transparent; padding-left: 0; text-align-last: right; }
   .result-count { order: 10; flex: 1; margin-left: 0; }
   /* One row of chips that scrolls sideways and runs to the screen edge, so the cut-off chip shows there's more. */
-  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding: 4px var(--gutter); }
+  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding: 4px var(--gutter); min-height: calc(var(--chip-h) + 8px); }
   .chips::-webkit-scrollbar { display: none; }
 }
 
@@ -275,7 +292,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--
 input::placeholder, textarea::placeholder { color: var(--ink-2); opacity: 0.75; }
 
 fieldset { border: 0; padding: 0; }
-fieldset legend { margin-bottom: 0.55rem; }
+fieldset legend { padding: 0; margin-bottom: 0.55rem; }
 .check-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .check-chip { position: relative; }
 .check-chip input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
@@ -357,19 +374,23 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4.5rem; }
 .detail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
 .detail-actions :is(.heart-btn, .icon-btn) { min-height: 48px; }
 .detail-actions .icon-btn { width: 48px; }
-.detail-lede { font-size: var(--text-lede); line-height: 1.45; max-width: 60ch; }
+.detail-lede { font-size: var(--text-lede); line-height: 1.45; max-width: 48ch; }
 .detail-lede > * + * { margin-top: 0.75rem; }
 .detail-section { margin-top: var(--space-5); padding-top: var(--space-5); border-top: 1px solid var(--line); }
 .detail-section h3 { font-family: var(--font-sans); font-size: var(--text-floor); font-weight: 600; letter-spacing: 0; line-height: 1.3; color: var(--ink-2); margin-bottom: var(--space-2); }
 .rich > * + * { margin-top: 0.75rem; }
 .rich ul, .rich ol { padding-left: 1.25rem; }
-.rich { color: var(--ink); font-size: 1rem; line-height: 1.65; max-width: 64ch; }
+.rich h4 { margin-top: 1.5rem; font-size: 1rem; font-weight: 700; }
+.rich hr { border: 0; border-top: 1px solid var(--line); margin-block: 1.25rem; }
+:is(.rich, .detail-lede) strong { font-weight: 700; }
+:is(.rich, .detail-lede) code { padding: 0.1em 0.35em; background: var(--surface-2); font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.9em; overflow-wrap: anywhere; }
+.rich { color: var(--ink); font-size: 1rem; line-height: 1.65; max-width: 46ch; }   /* about 70 characters a line */
 .detail-foot-note { margin-top: var(--space-5); color: var(--ink-2); font-size: var(--text-floor); }
 @media (max-width: 640px) {
   /* Phones: pop-ups become full-screen sheets. */
   dialog:not(.dialog-sm) { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; }
   .detail-band { grid-template-columns: 1fr; }
-  .detail-band-text { padding: var(--space-7) var(--space-5) var(--space-4); }
+  .detail-band-text { padding: 4.5rem var(--space-5) var(--space-4); }   /* the title starts below the close button */
 }
 
 /* ---------- Toast ---------- */
@@ -388,7 +409,7 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4.5rem; }
 
 .grid > .empty, .rows > .empty { grid-column: 1 / -1; }
 .empty { padding-block: var(--space-5) 0; border-top: 1px solid var(--line); color: var(--ink-2); }
-.empty h3 { color: var(--ink); margin-bottom: var(--space-3); }
+.empty :is(h2, h3) { font-size: var(--text-h3); line-height: 1.05; letter-spacing: -0.01em; color: var(--ink); margin-bottom: var(--space-3); }
 .empty p { max-width: 54ch; }
 .empty .btn-row { margin-top: var(--space-5); }
 
@@ -401,6 +422,7 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4.5rem; }
 @media (min-width: 720px) { .grid > .skeleton { margin-bottom: calc(2 * 1.45 * var(--text-sm) + 0.7rem); } }   /* room for the two lines under a poster */
 .rows > .skeleton { min-height: 7.5rem; margin-top: 12px; }
 [data-gallery] .rows { border-top: 0; margin-top: calc(-1 * var(--space-6)); }
+[data-gallery] .empty { border-top: 0; padding-top: 0; }   /* the toolbar's rule is right above */
 
 .notice { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4); background: var(--warn-soft); color: var(--warn-ink); font-size: var(--text-sm); margin-bottom: var(--space-5); }
 .notice svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px; }
@@ -419,7 +441,7 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4.5rem; }
 }
 .hero h1 { grid-area: title; font-size: var(--text-hero); line-height: 0.95; padding-top: clamp(2rem, 4.5vw, 4rem); }
 .hero-copy { grid-area: copy; align-self: end; padding-block: var(--space-6) clamp(2.5rem, 5vw, 4.5rem); }
-.hero-copy .lede { margin-bottom: var(--space-6); }
+.hero-copy .lede { max-width: 38ch; margin-bottom: var(--space-6); }
 .hero-art {
   grid-area: art;
   align-self: end;
@@ -430,31 +452,40 @@ dialog:has(.dialog-x) .dialog-head { padding-right: 4.5rem; }
   height: auto;
   margin: var(--space-5) calc(-1 * var(--bleed)) 0 0;
 }
+/* Wide, short windows: the words move up under the headline, so the button stays on the first screen. */
+@media (min-width: 901px) and (min-aspect-ratio: 19/10) and (max-height: 960px) {
+  .hero-copy { align-self: start; }
+}
 @media (max-width: 900px) {
   .hero > .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "copy" "art"; }
   .hero-copy { padding-block: var(--space-5) var(--space-6); }
+  .hero-copy .lede { max-width: 54ch; }
   .hero-art { width: calc(100% + 2 * var(--gutter)); max-width: none; margin: 0 calc(-1 * var(--gutter)); }
 }
 
+/* Three columns would leave the eight posters a ragged last row, so show two full rows of three. */
+@media (min-width: 720px) and (max-width: 1099px) { [data-wall] > .poster:nth-child(n+7) { display: none; } }
+
 /* ---------- Home: the end card (join) ---------- */
 
-.endcard { background: var(--cardinal); color: var(--ink); margin-top: var(--section-gap); padding-block: clamp(4rem, 8vw, 7rem); }
+.endcard { border-top: 1px solid var(--line); margin-top: var(--section-gap); padding-block: clamp(4rem, 8vw, 7rem); }
 .endcard-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-7); align-items: end; }
 .endcard h2 { font-size: var(--text-hero); line-height: 0.95; letter-spacing: -0.02em; margin-bottom: var(--space-5); }
 .endcard-main p { max-width: 46ch; font-size: var(--text-lede); line-height: 1.45; }
-.endcard-main p.small { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--on-cardinal-2); }
+.endcard-main p.small { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--ink-2); }
 .endcard-main .btn { margin-top: var(--space-6); }
-.ways { border-top: 1px solid var(--rule-on-cardinal); }
-.ways a { display: block; padding: var(--space-4) 0; border-bottom: 1px solid var(--rule-on-cardinal); text-decoration: none; color: var(--ink); }
+.ways { border-top: 1px solid var(--line); }
+.ways a { display: block; padding: var(--space-4) 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
 .ways b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 1.75rem; line-height: 1.1; }
-.ways span { display: block; margin-top: 0.25rem; color: var(--on-cardinal-2); font-size: var(--text-sm); line-height: 1.5; }
-.ways a:hover b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.14em; }
+.ways span { display: block; margin-top: 0.25rem; color: var(--ink-2); font-size: var(--text-sm); line-height: 1.5; }
+.ways a:hover b { color: var(--accent); }
 @media (max-width: 900px) { .endcard-grid { grid-template-columns: 1fr; gap: var(--space-6); } }
 
 /* ---------- Embed ---------- */
 
 .embed-frame { width: 100%; border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
 .embed-frame iframe { width: 100%; height: 640px; border: 0; }
+[data-next-events] .embed-frame iframe { height: 460px; }   /* the home page's preview is shorter */
 
 /* ---------- People ---------- */
 
@@ -521,8 +552,11 @@ td.title-cell small { display: block; color: var(--ink-2); }
 /* ---------- Bigger touch targets on touch screens ---------- */
 
 @media (pointer: coarse) {
-  .btn-sm, .heart-btn, .icon-btn, .chip, .check-chip span, .chips { min-height: 42px; }
-  .icon-btn { width: 42px; }
+  .btn-sm, .heart-btn, .icon-btn, .check-chip span { min-height: 44px; }
+  .chips { --chip-h: 44px; }
+  .icon-btn { width: 44px; }
   .dialog-close { width: 44px; height: 44px; }
-  .text-link { display: inline-block; padding-block: 0.55rem; }
+  .text-link { display: inline-block; padding-block: 0.65rem; }
+  .person .person-links a { padding-block: 0.65rem; min-width: 44px; }
+  .row h3 button { display: inline-block; padding-block: 0.6rem; margin-block: -0.6rem; }   /* a taller target, same layout */
 }

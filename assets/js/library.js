@@ -12,7 +12,7 @@ function resourceRow(item) {
   const type = (item.categories || [])[0];
   const facts = [host(url), type, `Recommended by ${recommender(item)}`].filter(Boolean);
   return html`
-    <article class="row" role="listitem">
+    <article class="row">
       <div>
         <h3><button type="button" data-action="open" data-id="${item.id}">${smart(item.title)}</button></h3>
         <p class="row-desc row-clamp">${smart(item.why)}</p>

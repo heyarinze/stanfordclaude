@@ -107,7 +107,8 @@ const text = (v, max) => (typeof v === 'string' ? v.trim() : '').slice(0, max);
 const uniq = (a) => [...new Set(a)];
 const list = (v) => {
   if (Array.isArray(v)) return v.filter((x) => typeof x === 'string' && x.trim()).map((x) => x.trim());
-  if (typeof v === 'string') return v.split(',').map((x) => x.trim()).filter(Boolean);
+  // Split on commas and semicolons, but not inside brackets: "A, B (does x, y and z); C" is three things.
+  if (typeof v === 'string') return v.split(/[,;](?![^()]*\))/).map((x) => x.trim()).filter(Boolean);
   return [];
 };
 const httpUrl = (v) => (typeof v === 'string' && /^https?:\/\/\S+$/.test(v.trim()) ? v.trim().slice(0, 500) : '');

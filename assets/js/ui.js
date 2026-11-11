@@ -42,11 +42,16 @@ export function safeUrl(value) {
   }
 }
 
-/** Plain text -> paragraphs, bullet/numbered lists and auto-linked URLs. Everything is escaped.
+/** Member-written text -> paragraphs, bullet and numbered lists, and auto-linked URLs, plus the few bits
+    of Markdown people type out of habit: **bold**, `code`, "# heading" lines and "---" rules.
+    Everything is escaped first; only these fixed tags are ever added around it.
     smartQuotes sets typographer's quotes (never inside links); leave it off for text that may hold code. */
 export function richText(text, { smartQuotes = false } = {}) {
   const blocks = String(text || '').replace(/\r\n/g, '\n').trim().split(/\n{2,}/);
-  const words = (part) => esc(smartQuotes ? smart(part) : part);
+  const marks = (escaped) => escaped
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+    .replace(/\*\*(\S(?:[^*\n]*?\S)?)\*\*/g, '<strong>$1</strong>');   // "**bold**", but not "2 ** 3 ** 4"
+  const words = (part) => marks(esc(smartQuotes ? smart(part) : part));
   const linkify = (line) => {
     let out = '';
     let last = 0;
@@ -57,16 +62,32 @@ export function richText(text, { smartQuotes = false } = {}) {
     }
     return out + words(line.slice(last));
   };
-  const out = blocks.map((block) => {
-    const lines = block.split('\n');
-    if (lines.every((l) => /^\s*[-*•]\s+/.test(l))) {
-      return `<ul>${lines.map((l) => `<li>${linkify(l.replace(/^\s*[-*•]\s+/, ''))}</li>`).join('')}</ul>`;
+  const out = [];
+  for (const block of blocks) {
+    let para = [];
+    let list = null;   // { tag, start, items } while consecutive list lines are being collected
+    const flushPara = () => { if (para.length) out.push(`<p>${para.map(linkify).join('<br>')}</p>`); para = []; };
+    const flushList = () => {
+      if (list) out.push(`<${list.tag}${list.start > 1 ? ` start="${list.start}"` : ''}>${list.items.map((item) => `<li>${linkify(item)}</li>`).join('')}</${list.tag}>`);
+      list = null;
+    };
+    for (const line of block.split('\n')) {
+      const bullet = line.match(/^\s*[-*•]\s+(.*)$/);
+      const numbered = line.match(/^\s*(\d+)[.)]\s+(.*)$/);
+      const heading = line.match(/^\s*#{1,6}\s+(.*?)\s*#*\s*$/);
+      if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { flushPara(); flushList(); out.push('<hr>'); }
+      else if (heading && heading[1]) { flushPara(); flushList(); out.push(`<h4>${linkify(heading[1])}</h4>`); }
+      else if (bullet || numbered) {
+        flushPara();
+        const tag = bullet ? 'ul' : 'ol';
+        if (list && list.tag !== tag) flushList();
+        if (!list) list = { tag, start: numbered ? Number(numbered[1]) : 1, items: [] };
+        list.items.push(bullet ? bullet[1] : numbered[2]);
+      } else { flushList(); para.push(line); }
     }
-    if (lines.every((l) => /^\s*\d+[.)]\s+/.test(l))) {
-      return `<ol>${lines.map((l) => `<li>${linkify(l.replace(/^\s*\d+[.)]\s+/, ''))}</li>`).join('')}</ol>`;
-    }
-    return `<p>${lines.map(linkify).join('<br>')}</p>`;
-  });
+    flushPara();
+    flushList();
+  }
   return raw(out.join(''));
 }
 
@@ -140,14 +161,17 @@ export function brandMark(cls = 'brand-mark') {
 
 /* ---------- Toasts ---------- */
 
+/* An open pop-up sits above the rest of the page and switches it off, so a message left in the page
+   would be dimmed, hidden behind the pop-up and never read out. Messages go inside the open pop-up. */
 function toastRegion() {
-  let region = document.querySelector('.toast-region');
+  const host = [...document.querySelectorAll('dialog[open]')].pop() || document.body;
+  let region = [...host.children].find((el) => el.classList.contains('toast-region'));
   if (!region) {
     region = document.createElement('div');
     region.className = 'toast-region';
     region.setAttribute('role', 'status');
     region.setAttribute('aria-live', 'polite');
-    document.body.append(region);
+    host.append(region);
   }
   return region;
 }
@@ -156,7 +180,8 @@ export function toast(message, { error = false, duration = 3800 } = {}) {
   const el = document.createElement('div');
   el.className = `toast${error ? ' error' : ''}`;
   el.textContent = message;
-  toastRegion().append(el);
+  const region = toastRegion();
+  requestAnimationFrame(() => region.append(el));   // a beat after the region exists, so screen readers announce it
   setTimeout(() => el.remove(), duration);
 }
 

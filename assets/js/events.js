@@ -25,7 +25,7 @@ if (target) {
     // No calendar yet: say so plainly, then show what last year looked like.
     target.innerHTML = String(html`
       <div class="empty">
-        <h3>Nothing on the calendar yet.</h3>
+        <h2>Nothing on the calendar yet.</h2>
         <p>This year’s first events haven’t been scheduled. When they are, they’ll show up here and you’ll RSVP on Luma.</p>
         ${slack ? html`<div class="btn-row"><a class="btn btn-primary" href="${slack}" target="_blank" rel="noopener">${icons.slack} Join the Slack to hear first</a></div>` : ''}
       </div>

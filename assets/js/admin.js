@@ -15,7 +15,7 @@ const data = { builds: [], resources: [] };
 let session = fb.getSession();
 
 function gate(message, action) {
-  root.innerHTML = String(html`<div class="empty"><h3>${message}</h3>${action || ''}</div>`);
+  root.innerHTML = String(html`<div class="empty"><h2>${message}</h2>${action || ''}</div>`);
 }
 
 function rows() {

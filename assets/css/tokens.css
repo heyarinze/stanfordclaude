@@ -1,6 +1,7 @@
 /* Design tokens for Claude@Stanford (2026-27).
-   The idea: a printed programme, at night. An ink page, two inks (bone and clay), and Stanford
-   cardinal as the closing ground. Everything is flat: no glows, gradients, blurs or glass.
+   The idea: a printed programme, at night. An ink page and two inks (bone and clay), top to bottom.
+   Stanford cardinal appears only as the ground of the phone menu and on some posters.
+   Everything is flat: no glows, gradients, blurs or glass.
    "Paper" (posters, bands, dialogs, inputs) is square; controls are pills.
    Text colours meet WCAG AA on the grounds they are used on (see the pairs noted below). */
 
@@ -13,12 +14,11 @@
   --surface-2: #241F1A;       /* hover on raised paper */
   --line: #2E2823;            /* rules */
   --line-strong: #4A4037;     /* control outlines */
-  --cardinal: #8C1515;        /* Stanford cardinal, used only as a ground */
+  --cardinal: #8C1515;        /* Stanford cardinal: the phone menu's ground */
 
   /* Inks */
   --ink: #F1EBE2;             /* bone: 16.4:1 on --bg, 7.9:1 on --cardinal */
   --ink-2: #B9AE9F;           /* quiet text: 8.9:1 on --bg, 8.2:1 on --surface */
-  --on-cardinal-2: #EBC9BD;   /* quiet text on cardinal: 6.1:1 */
   --rule-on-cardinal: rgba(241, 235, 226, 0.24);
 
   --accent: #D97757;          /* Claude clay, the only clay: 6.2:1 on --bg */
@@ -45,7 +45,7 @@
   --text-h3: clamp(1.5rem, 1.1rem + 1.2vw, 2.5rem);
   --text-h2: clamp(2.25rem, 1.2rem + 3.4vw, 4rem);
   --text-title: clamp(3.5rem, 11vw, 9rem);
-  --text-hero: clamp(2.85rem, 8vw, 7.25rem);
+  --text-hero: clamp(2.85rem, 8vw, 8.5rem);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -60,8 +60,9 @@
   --radius-pill: 999px;
   --shadow-menu: 0 16px 40px rgba(0, 0, 0, 0.55);
 
-  --max: 82rem;
-  --gutter: clamp(1.25rem, 4.4vw, 4rem);
+  /* The page runs edge to edge with one gutter each side, up to a 1920px screen; past that it centres. */
+  --max: 120rem;
+  --gutter: clamp(1.25rem, 3.75vw, 3.5rem);
   --header-h: 72px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -69,4 +70,9 @@
 
 @media (max-width: 900px) {
   :root { --header-h: 64px; }
+}
+
+/* Wide screens make wide posters, so their titles grow to match. */
+@media (min-width: 1500px) {
+  :root { --text-poster: clamp(1.5rem, 1.6vw, 1.875rem); }
 }

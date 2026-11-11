@@ -239,6 +239,7 @@ export async function mountGallery(cfg) {
     <div class="notice notice-info" data-mine hidden>
       ${icons.info}<span>Showing only your ${cfg.nounPlural}. <a href="${cfg.path}">Show everyone’s</a></span>
     </div>
+    <h2 class="visually-hidden">All ${cfg.nounPlural}</h2>
     <div class="${cfg.listClass || 'grid'}" data-grid aria-busy="true">
       ${Array.from({ length: cfg.skeletons || 8 }, () => raw('<div class="skeleton"></div>'))}
     </div>`);
@@ -270,8 +271,16 @@ export async function mountGallery(cfg) {
     const years = uniq([config.academicYear, ...items.map((i) => i.year)]).sort().reverse();
     fillSelect(toolbar.elements.tool, tools, state.tool);
     fillSelect(toolbar.elements.year, years, state.year, yearLabel);
+    // A filter from a stale or hand-typed address that isn't in the menus is dropped, so the menus and
+    // the list always agree. (Not while a load has failed: the menus are incomplete then.)
+    if (!loadError) {
+      let dropped = false;
+      for (const [key, known] of [['tool', tools], ['year', years], ['cat', cats]]) {
+        if (state[key] && !known.includes(state[key])) { state[key] = ''; dropped = true; }
+      }
+      if (dropped) syncUrl();
+    }
     toolbar.elements.year.hidden = uniq(items.map((i) => i.year)).length < 2 && !state.year;   // nothing to choose between yet
-    if (state.cat && !cats.includes(state.cat)) state.cat = '';
     chips.innerHTML = String(html`${['', ...cats].map((c) => html`<button type="button" class="chip" data-chip="${c}" aria-pressed="${state.cat === c ? 'true' : 'false'}">${c || 'All'}</button>`)}`);
   }
 
@@ -379,7 +388,7 @@ export async function mountGallery(cfg) {
       items = [...byId.values()];
     } catch (err) {
       console.error(err);
-      loadError = err;
+      if (!items.length) loadError = err;   // with a list already on screen (from this tab's cache), keep it
     }
     loaded = true;
     refreshFilterOptions();
@@ -411,7 +420,8 @@ export async function mountGallery(cfg) {
   });
   window.addEventListener('popstate', () => {
     const id = new URLSearchParams(location.search).get(cfg.param);
-    if (detail.open && !id) { closedByBack = true; detail.close(); } else if (id && !detail.open) openDetail(id, { updateUrl: false });
+    const known = Boolean(id) && items.some((i) => i.id === id);
+    if (detail.open && !known) { closedByBack = true; detail.close(); } else if (known && detailId !== id) openDetail(id, { updateUrl: false });
   });
 
   function renderDetail(item) {
@@ -583,6 +593,7 @@ export async function mountGallery(cfg) {
         refreshFilterOptions();
         syncUrl();
         render();
+        chips.querySelector('[data-chip=""]')?.focus({ preventScroll: true });   // the button that was pressed is gone
         break;
       case 'share': {
         const url = `${location.origin}${cfg.path}?${cfg.param}=${encodeURIComponent(id)}`;
@@ -646,7 +657,12 @@ export async function mountGallery(cfg) {
     await fb.whenAuthReady();
     session = fb.getSession();
     if (session.user) await load();
-    if (!openDetail(deepLink, { updateUrl: false })) toast(`That ${cfg.noun} isn’t available anymore.`);
+    if (!openDetail(deepLink, { updateUrl: false }) && !loadError) {
+      toast(`That ${cfg.noun} isn’t available anymore.`);
+      // Take the dead id out of the address, so it can't come back through the Back button.
+      const p = new URLSearchParams(location.search); p.delete(cfg.param);
+      history.replaceState(history.state, '', `${location.pathname}${p.toString() ? `?${p}` : ''}`);
+    }
   }
   if (params.get('submit') === '1') {
     const p = new URLSearchParams(location.search); p.delete('submit');
