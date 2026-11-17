@@ -1,4 +1,30 @@
 {
   "year": "2026-27",
-  "members": []
+  "members": [
+    {
+      "name": "Alexandra L. Ramos Figueroa",
+      "photo": "/assets/img/team/2026-27/alexandra-ramos-figueroa.webp",
+      "initials": "AR",
+      "bio": "Alexandra L. Ramos Figueroa is a Chemical Engineering Ph.D. candidate at Stanford University, advised by Prof. Zhenan Bao. She works on engineering self-healing multilayer platforms for soft electronics, studying how molecular architecture controls interfacial behavior and autonomous alignment.\n\nHer work combines supramolecular chemistry, interfacial engineering, and nanoscale characterization to design dynamic materials that maintain function after damage. Outside of the lab, she is passionate about science communication and mentoring students from underrepresented backgrounds in STEM."
+    },
+    {
+      "name": "Amari Porter",
+      "photo": "/assets/img/team/2026-27/amari-porter.webp",
+      "bio": "Amari Porter is a senior at Stanford studying Symbolic Systems with a concentration in Human-Centered AI, and she is pursuing a coterminal master’s in Management Science and Engineering. Her work sits at the intersection of technology and community, from building AI infrastructure on New York Life’s Investment Technology team to researching algorithmic bias in college guidance tools. On campus, she serves as Chief of Staff to the ASSU President, is a Resident Assistant, and is a former president of the Black Student Union. Originally from Broward County, Florida, Amari is drawn to equitable AI design and community-driven innovation. She loves being a Claude Ambassador because it lets her help students from every background see themselves as builders of AI, not just users of it."
+    },
+    {
+      "name": "Brendon Wu",
+      "bio": "Bio coming soon."
+    },
+    {
+      "name": "Chenchen Zhao",
+      "photo": "/assets/img/team/2026-27/chenchen-zhao.webp",
+      "bio": "Chenchen Zhao is an MBA candidate at Stanford Graduate School of Business. She came to Stanford after five years in Hong Kong: first as an investment banking analyst at Bank of America Merrill Lynch, working on technology and industrials deals, then in private equity at FountainVest Partners, and then in business development at Temu, where she led the marketplace’s expansion into Latin America. She studied quantitative finance at The Chinese University of Hong Kong. At the GSB she is co-president of the Fintech Club and VP of AI at the Stanford Founders Club, and she built an AI agent for supply chains in the Lean Launchpad course. Last summer she interned in product and go-to-market at Aleph, which makes AI software for finance teams."
+    },
+    {
+      "name": "Will Peracchio",
+      "photo": "/assets/img/team/2026-27/will-peracchio.webp",
+      "bio": "Will Peracchio is a joint MPA/MBA candidate at Harvard Kennedy School and Stanford GSB. His work sits where technology, finance and policy meet. He trained as a computer scientist, with a B.S. and M.S. from Lehigh University, and has spent his career on the infrastructure that money moves on. He built products as a Technical Product Manager at Knova Finance, researched with the MIT Media Lab’s Digital Currency Initiative, and supports the Bretton Woods Committee’s work on emerging technology in the global financial system. At the GSB, he’s helping build a community of classmates who use AI to create and experiment, not just to consume. Will loves being a Claude Ambassador because it lets him show people who don’t think of themselves as technical that they can build real things with AI."
+    }
+  ]
 }

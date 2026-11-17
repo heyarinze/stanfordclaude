@@ -24,7 +24,7 @@ function renderYear(data) {
     ${(data.team || []).length ? html`
       <section class="section-tight" aria-labelledby="team-${data.year}">
         <div class="section-head"><h2 id="team-${data.year}">${year} team</h2></div>
-        <div class="people">${data.team.map(personCard)}</div>
+        <div class="people">${data.team.map((p) => personCard(p))}</div>
       </section>` : ''}
     <div class="section-tight section-links">
       <a class="text-link" href="/builds?year=${encodeURIComponent(data.year)}">${year} builds</a>

@@ -10,11 +10,12 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 
 | What | File | Notes |
 |---|---|---|
-| Slack invite, Luma calendar, academic year | `data/site.json` | See [site.json fields](#sitejson-fields) |
-| Team roster | `data/team.json` | Photos go in `assets/img/team/<year>/` (square, ~320px, `.webp` or `.jpg`) |
+| Slack invite, academic year, optional Luma calendar | `data/site.json` | See [site.json fields](#sitejson-fields) |
+| Events | `data/events.json` | See [events.json entry](#eventsjson-entry). Events move to "Earlier this year" by themselves once they are over |
+| Team roster and bios | `data/team.json` | Photos go in `assets/img/team/<year>/` (square, ~320px, `.webp` or `.jpg`) |
 | Workshops (slides, recordings, code) | `data/workshops.json` | Also holds the "From Anthropic" links on Learn |
 | Past years (hackathon winners, old teams) | `data/archive/<year>.json` + add the year to `data/archive/index.json` | |
-| Perks page copy | `perks.html` | Search for `PLACEHOLDER`; a ready-made layout is commented out in the file |
+| Perks page copy | `perks.html` | Replace each `TBD` with the details; a questions-and-answers block is commented out in the file, ready to use |
 | Which builds lead the home page | Moderation page (`/admin`), **Feature** | Featured builds come first, then the most hearted. Until any are featured, the most hearted lead |
 | Product and category tags | `assets/js/taxonomy.js` | Older posts keep their tags either way |
 
@@ -22,9 +23,39 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 
 - `academicYear`: `"2026-27"`. New posts are tagged with it, and the Builds/Library year filters use it.
 - `slackUrl`: the workspace invite link. In Slack, set it to **never expire**. Once it's set, "Join the Slack" becomes the main button on the home page. While it's empty, "Join" buttons point to the join section and the main button leads to the builds instead, so nobody hits a dead end.
-- `lumaCalendarUrl`: the public calendar page (for "Subscribe on Luma").
-- `lumaEmbedUrl`: in Luma, go to Calendar → Embed and copy the `src` of the iframe (e.g. `https://luma.com/embed/calendar/cal-XXXX/events`).
+- `lumaCalendarUrl`: optional. A public Luma calendar page (adds a "Subscribe on Luma" button to Events).
+- `lumaEmbedUrl`: optional. To show a Luma calendar under the event list: in Luma, go to Calendar → Embed and copy the `src` of the iframe (e.g. `https://luma.com/embed/calendar/cal-XXXX/events`). Events don't need Luma; they come from `data/events.json`.
 - `contactEmail`: optional club email shown in the footer.
+
+### `events.json` entry
+
+`events` is a list of these, in any order. The Events page shows the ones still to come under "Coming up", soonest first, and the home page shows the next two.
+
+```json
+{
+  "title": "Demo night",
+  "start": "2026-12-03 18:00",
+  "end": "2026-12-03 20:00",
+  "place": "Huang 305",
+  "summary": "Two or three sentences on what happens.",
+  "notes": ["Bring a laptop.", "Dinner provided."],
+  "link": "https://partiful.com/e/…",
+  "linkLabel": "RSVP on Partiful",
+  "recap": "https://…",
+  "recapLabel": "Photos"
+}
+```
+
+Only `title` and `start` are required.
+
+- `start`: the date and time at Stanford, as year-month-day and a 24-hour time: `"2026-12-03 18:00"`. `"2026-12-03 6:00 PM"` works too. Leave the time off (`"2026-12-03"`) for an all-day event, or one whose time isn't set yet. An entry whose `start` can't be read is left off the page, so check the Events page after you edit.
+- `end`: optional, written the same way. It can be on a later day (a weekend hackathon).
+- An event stays under "Coming up" until its `end`, or until three hours after `start` if it has no `end`. After that it moves to "Earlier this year" and loses its RSVP button. Leave past events in the file.
+- `link`: where people RSVP (Partiful, Luma, a form). It opens in a new tab. If the link has a code on the end, such as `?c=…`, leave that off.
+- `notes`: short lines shown beside the summary on the Events page: what to bring, food, who it's for.
+- `recap`: optional link shown once the event is over (photos, slides, a write-up).
+
+When nothing is coming up, the Events page says so and the home page drops its "Coming up" section.
 
 ### `workshops.json` entry
 
@@ -43,24 +74,33 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 
 ### `team.json` entry
 
-`members` is a list of these. While it's empty, the Team page says the roster isn't posted yet and shows last year's team from the archive.
+`members` is a list of these, shown in the order they are listed. While it's empty, the Team page says the roster isn't posted yet and shows last year's team from the archive.
 
 ```json
 {
   "name": "Your Name",
   "role": "Campus Lead",
   "photo": "/assets/img/team/2026-27/your-name.webp",
+  "initials": "YN",
   "linkedin": "https://www.linkedin.com/in/…",
   "email": "you@stanford.edu",
-  "bio": "Optional, one sentence."
+  "bio": "First paragraph about you.\n\nSecond paragraph."
 }
 ```
+
+Only `name` is required.
+
+- `bio`: once anyone has one, the Team page gives each person a full row with the bio beside their name. Without any bios it shows compact cards. Type `\n\n` between paragraphs.
+- `photo`: a square crop of head and shoulders. It is shown in black and white. Until someone has a photo, their initials stand in.
+- `initials`: only needed when the first letters of the first and last words of the name are wrong, for example with a two-word surname.
+- The Archive shows past teams as compact cards, without bios.
 
 ### End of year
 
 1. Copy the year's team from `team.json` and any event winners into `data/archive/<year>.json`, and add the year to `data/archive/index.json`.
 2. Bump `academicYear` in `site.json`.
 3. Replace `team.json` with the new roster.
+4. Empty the list in `events.json` (`"events": []`), so "Earlier this year" starts fresh.
 
 ## Running locally
 

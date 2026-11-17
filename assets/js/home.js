@@ -5,7 +5,7 @@ import { getConfig, yearLabel } from './config.js';
 import { fetchPublished, peekPublished } from './collection.js';
 import { buildCard } from './builds.js';
 import { coverMeta } from './covers.js';
-import { lumaEmbed } from './events.js';
+import { lumaEmbed, loadEvents, splitEvents, eventRows } from './events.js';
 import { latestArchive, hackathonSummary, entryRows, numberWord } from './hackathon.js';
 
 /* ---------- The wall ---------- */
@@ -79,6 +79,8 @@ if (cached) renderWall(cached);
 
 /* ---------- Config-driven bits: the join path and the events calendar ---------- */
 
+const eventsReady = loadEvents().catch((err) => { console.error(err); return []; });   // asked for now, used below
+
 getConfig().then((config) => {
   academicYear = config.academicYear;
   if (lastBuilds) renderWall(lastBuilds);
@@ -99,11 +101,16 @@ getConfig().then((config) => {
   }
   document.querySelectorAll('[data-join-note]').forEach((el) => { el.hidden = Boolean(slack); });
 
+  // "Coming up": the next two events from data/events.json, or the Luma calendar if only that is set up.
   const next = document.querySelector('[data-next-events]');
-  const embed = lumaEmbed(config, { height: 460 });
-  if (next && embed) {
-    next.querySelector('[data-embed]').innerHTML = String(embed);
-    next.hidden = false;
+  if (next) {
+    eventsReady.then((events) => {
+      const { upcoming } = splitEvents(events);
+      const content = upcoming.length ? eventRows(upcoming.slice(0, 2), { compact: true }) : lumaEmbed(config, { height: 460 });
+      if (!content) return;
+      next.querySelector('[data-embed]').innerHTML = String(content);
+      next.hidden = false;
+    });
   }
 });
 
