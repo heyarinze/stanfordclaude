@@ -1,11 +1,11 @@
-// Home page: the wall of posters, last spring's hackathon, upcoming events and the join links.
+// Home page: the wall of posters, last spring's hackathon and the join links.
+// ("Coming up" is drawn by events.js, which doesn't wait for Firebase.)
 
 import { html, icons, safeUrl, toMillis } from './ui.js';
 import { getConfig, yearLabel } from './config.js';
 import { fetchPublished, peekPublished } from './collection.js';
 import { buildCard } from './builds.js';
 import { coverMeta } from './covers.js';
-import { lumaEmbed, loadEvents, splitEvents, eventRows } from './events.js';
 import { latestArchive, hackathonSummary, entryRows, numberWord } from './hackathon.js';
 
 /* ---------- The wall ---------- */
@@ -77,9 +77,7 @@ function renderWall(builds) {
 const cached = peekPublished('builds');
 if (cached) renderWall(cached);
 
-/* ---------- Config-driven bits: the join path and the events calendar ---------- */
-
-const eventsReady = loadEvents().catch((err) => { console.error(err); return []; });   // asked for now, used below
+/* ---------- Config-driven bits: the join path ---------- */
 
 getConfig().then((config) => {
   academicYear = config.academicYear;
@@ -100,18 +98,6 @@ getConfig().then((config) => {
     }
   }
   document.querySelectorAll('[data-join-note]').forEach((el) => { el.hidden = Boolean(slack); });
-
-  // "Coming up": the next two events from data/events.json, or the Luma calendar if only that is set up.
-  const next = document.querySelector('[data-next-events]');
-  if (next) {
-    eventsReady.then((events) => {
-      const { upcoming } = splitEvents(events);
-      const content = upcoming.length ? eventRows(upcoming.slice(0, 2), { compact: true }) : lumaEmbed(config, { height: 460 });
-      if (!content) return;
-      next.querySelector('[data-embed]').innerHTML = String(content);
-      next.hidden = false;
-    });
-  }
 });
 
 /* ---------- Last spring's hackathon ---------- */

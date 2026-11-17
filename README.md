@@ -11,7 +11,7 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 | What | File | Notes |
 |---|---|---|
 | Slack invite, academic year, optional Luma calendar | `data/site.json` | See [site.json fields](#sitejson-fields) |
-| Events | `data/events.json` | See [events.json entry](#eventsjson-entry). Events move to "Earlier this year" by themselves once they are over |
+| Events | `data/events.json` | See [events.json entry](#eventsjson-entry). Events move to "Past events" by themselves once they are over |
 | Team roster and bios | `data/team.json` | Photos go in `assets/img/team/<year>/` (square, ~320px, `.webp` or `.jpg`) |
 | Workshops (slides, recordings, code) | `data/workshops.json` | Also holds the "From Anthropic" links on Learn |
 | Past years (hackathon winners, old teams) | `data/archive/<year>.json` + add the year to `data/archive/index.json` | |
@@ -29,31 +29,46 @@ Most yearly updates are JSON edits you can make in the GitHub web editor. Open a
 
 ### `events.json` entry
 
-`events` is a list of these, in any order. The Events page shows the ones still to come under "Coming up", soonest first, and the home page shows the next two.
+The whole file is a list of events, in any order. The Events page shows the ones still to come under "Coming up", soonest first, and the home page shows the next two.
 
 ```json
 {
-  "title": "Demo night",
-  "start": "2026-12-03 18:00",
-  "end": "2026-12-03 20:00",
-  "place": "Huang 305",
-  "summary": "Two or three sentences on what happens.",
-  "notes": ["Bring a laptop.", "Dinner provided."],
-  "link": "https://partiful.com/e/…",
-  "linkLabel": "RSVP on Partiful",
-  "recap": "https://…",
-  "recapLabel": "Photos"
+  "events": [
+    {
+      "title": "Demo night",
+      "start": "2026-12-03 18:00",
+      "end": "20:00",
+      "place": "Huang 305",
+      "summary": "Two or three sentences on what happens.",
+      "notes": ["Bring a laptop.", "Dinner provided."],
+      "link": "https://partiful.com/e/…",
+      "linkLabel": "RSVP on Partiful"
+    },
+    {
+      "title": "Spring hackathon",
+      "start": "2027-04-17",
+      "end": "2027-04-18",
+      "recap": "https://…",
+      "recapLabel": "Photos"
+    }
+  ]
 }
 ```
 
-Only `title` and `start` are required.
+Each event sits between `{` and `}`, with a comma after it unless it is the last one. To add an event, copy an existing one, braces included, and change what is inside the quotation marks. Only `title` and `start` are required.
 
-- `start`: the date and time at Stanford, as year-month-day and a 24-hour time: `"2026-12-03 18:00"`. `"2026-12-03 6:00 PM"` works too. Leave the time off (`"2026-12-03"`) for an all-day event, or one whose time isn't set yet. An entry whose `start` can't be read is left off the page, so check the Events page after you edit.
-- `end`: optional, written the same way. It can be on a later day (a weekend hackathon).
-- An event stays under "Coming up" until its `end`, or until three hours after `start` if it has no `end`. After that it moves to "Earlier this year" and loses its RSVP button. Leave past events in the file.
+- `start`: the date and time at Stanford, as year-month-day and a 24-hour time: `"2026-12-03 18:00"`. `"2026-12-03 6:00 PM"` and `"2026-12-03 6pm"` work too. Without `PM`, `6:00` means six in the morning. Leave the time off (`"2026-12-03"`) for an all-day event, or one whose time isn't set yet.
+- `end`: optional. A time on the same day (`"20:00"` or `"8 PM"`), or a date and time, or a date alone when the event runs to the end of that day (a weekend hackathon).
+- An event stays under "Coming up" until its `end`, or until three hours after `start` if it has no `end`. After that it moves to "Past events" and loses its RSVP button. Leave past events in the file.
 - `link`: where people RSVP (Partiful, Luma, a form). It opens in a new tab. If the link has a code on the end, such as `?c=…`, leave that off.
-- `notes`: short lines shown beside the summary on the Events page: what to bring, food, who it's for.
+- `linkLabel`: the words on the button. Keep it short, like "RSVP on Partiful".
+- `notes`: short lines shown beside the summary on the Events page: what to bring, food, who it's for. They are plain text, so a web address in a note is not clickable.
 - `recap`: optional link shown once the event is over (photos, slides, a write-up).
+
+Check the Events page after you edit:
+
+- If your event is missing, its `start` couldn't be read. Compare it with the examples above.
+- If the page says "Couldn't load events", the file has a slip in it, usually a missing or extra comma or quotation mark in the part you just edited.
 
 When nothing is coming up, the Events page says so and the home page drops its "Coming up" section.
 
@@ -100,7 +115,7 @@ Only `name` is required.
 1. Copy the year's team from `team.json` and any event winners into `data/archive/<year>.json`, and add the year to `data/archive/index.json`.
 2. Bump `academicYear` in `site.json`.
 3. Replace `team.json` with the new roster.
-4. Empty the list in `events.json` (`"events": []`), so "Earlier this year" starts fresh.
+4. Empty the list in `events.json` (`"events": []`), so "Past events" starts fresh.
 
 ## Running locally
 

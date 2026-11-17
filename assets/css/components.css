@@ -184,7 +184,7 @@
 .row-actions { display: flex; align-items: center; gap: var(--space-3); }
 /* Events: the date set large on the left, like the place numbers on the hackathon rows. An event with
    notes ("bring a laptop") shows them under the description, or beside it once there is room. */
-.row-event { grid-template-columns: clamp(3.5rem, 7vw, 6rem) minmax(0, 1fr) auto; }
+.row-event { grid-template-columns: clamp(3rem, 7vw, 6rem) minmax(0, 1fr) auto; }
 .row-event-notes { grid-template-areas: "date main actions" ". notes ."; }
 .row-event-notes > .event-date { grid-area: date; }
 .row-event-notes > .event-main { grid-area: main; }
@@ -199,7 +199,10 @@
 .event-notes li { padding-block: 0.6rem; border-top: 1px solid var(--line); }
 .event-notes li:last-child { padding-bottom: 0; }
 @media (min-width: 1100px) {
-  .row-event-notes { grid-template-columns: clamp(3.5rem, 7vw, 6rem) minmax(0, 6fr) minmax(0, 5fr) auto; grid-template-areas: "date main notes actions"; }
+  /* The last column keeps a set width, so the notes line up from row to row whatever each button says
+     (or when a row has no button at all). */
+  .row-event-notes { grid-template-columns: clamp(3rem, 7vw, 6rem) minmax(0, 6fr) minmax(0, 5fr) minmax(11rem, max-content); grid-template-areas: "date main notes actions"; }
+  .row-event-notes > .row-actions { justify-content: flex-end; }
   .row-event-notes > .event-notes { margin-top: 0; }
   .row-event-notes > .event-notes li:first-child { padding-top: 0; border-top: 0; }   /* its first line sits on the title's baseline */
 }
@@ -209,6 +212,7 @@
   .row-ranked .row-num { position: absolute; left: 0; top: var(--space-5); font-size: 2.75rem; line-height: 1; }
   .row-event { grid-template-columns: minmax(0, 1fr); }
   .row-event-notes { grid-template-areas: "date" "main" "actions" "notes"; }   /* RSVP comes before the notes, within reach */
+  .row-event .row-actions :is(.btn, .text-link) { white-space: normal; text-align: center; }   /* a long label wraps instead of widening the page */
   .event-date { display: flex; align-items: baseline; gap: 0.5rem; }   /* "Nov 20" on one line above the title */
   .event-day { font-size: 2.75rem; line-height: 1; }
   .row-actions { margin-top: var(--space-2); }
