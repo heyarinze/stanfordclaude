@@ -22,7 +22,7 @@ I never wrote a line of code. I made every product decision — what to build, h
 **What I asked for:** A site where Claude@Stanford members could upload projects they built with AI tools. Passcode-gated, with a tool map that unlocks after 5 submissions, Anthropic visual aesthetics.
 
 **What Claude Code built:**
-- Single-page application with passcode authentication (`D@NL3L`)
+- Single-page application with passcode authentication (`[redacted]`)
 - Project submission form (name, demo link, description, tools used)
 - Tool usage visualization (bar chart + interactive canvas node graph)
 - Conditional tool map display (locked until 5 projects exist)
@@ -46,7 +46,7 @@ I never wrote a line of code. I made every product decision — what to build, h
 ---
 
 ### Phase 3: Passcode Change
-**What I asked for:** Change passcode from `D@NL3L` to `DN@L3L`.
+**What I asked for:** Change passcode from `[redacted]` to `[redacted]`.
 
 **What Claude Code did:** One-line edit.
 

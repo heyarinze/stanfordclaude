@@ -1,0 +1,34 @@
+.DS_Store
+node_modules/
+.vercel/
+.firebase/
+*.log
+firebase-debug.log*
+firestore-debug.log*
+
+# Never commit Firebase/GCP credentials or other secrets. Keep keys in ~/keys/, outside the repo.
+*serviceAccount*.json
+*serviceaccount*.json
+*service-account*.json
+*service_account*.json
+*-firebase-adminsdk-*.json
+firebase-adminsdk*.json
+claudeatstanford-*.json
+claude-at-stanford-*.json
+*-admin.json
+*-key.json
+key.json
+credentials*.json
+application_default_credentials.json
+.runtimeconfig.json
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+.env.*
+.envrc
+.secret*
+
+# Local tooling
+.claude/

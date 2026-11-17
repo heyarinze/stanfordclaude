@@ -1,0 +1,8 @@
+# Repo-only files that shouldn't be served on the website.
+README.md
+docs/
+firebase/
+scripts/
+firebase.json
+.firebaserc
+node_modules/

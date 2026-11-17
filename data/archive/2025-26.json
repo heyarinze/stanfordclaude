@@ -1,0 +1,73 @@
+{
+  "year": "2025-26",
+  "summary": "Claude@Stanford’s first year. The site went up in February 2026, and the year ended with the spring hackathon.",
+  "hackathon": {
+    "name": "Claude@Stanford Hackathon",
+    "when": "Spring 2026",
+    "winners": [
+      {
+        "place": 1,
+        "title": "Crucible",
+        "track": "Better Track Winner",
+        "desc": "AI validates decisions instead of stress-testing them. Crucible enforces rigorous deliberation through structured stages before delivering a recommendation, making ethical safeguards architectural rather than superficial.",
+        "builders": ["Karthik Goel", "Noah Sabb", "Max Yan"],
+        "link": "https://devpost.com/software/crucible-d3hkyc"
+      },
+      {
+        "place": 2,
+        "title": "ArkSkill",
+        "track": "",
+        "desc": "A free web app that generates tailored Claude skill files for humanities researchers, helping them extract structured data from sources like bibliographies, indexes, and tables of contents.",
+        "builders": ["Georgii Korotkov", "Valeriia Korotkova"],
+        "link": "https://devpost.com/software/arkskill"
+      },
+      {
+        "place": 3,
+        "title": "Anchor",
+        "track": "",
+        "desc": "AI holds the memory so humans can hold each other. An AI companion that preserves patient memories, delivers personalized morning briefs, and reduces caregiver coordination burden for Alzheimer’s families.",
+        "builders": ["Esther Suebsubanant", "Antonio Aguirregomezcorta"],
+        "link": "https://devpost.com/software/anchor-improve-alzheimer-s-patients-quality-of-life"
+      }
+    ],
+    "mentions": [
+      {
+        "title": "Mnemosyne",
+        "track": "Smarter Track",
+        "desc": "A human-AI context management system enabling transparent memory organization and branching conversations for non-linear chat exploration.",
+        "builders": ["Huijun Mao", "Yiheng Yao"],
+        "link": ""
+      },
+      {
+        "title": "EventDrop",
+        "track": "Faster Track",
+        "desc": "A personalized campus event discovery platform that curates weekly activity recommendations based on user preferences and interests.",
+        "builders": ["Hui Wen Zheng", "Grace Chen"],
+        "link": ""
+      }
+    ]
+  },
+  "team": [
+    {
+      "name": "Arinze Obiezue",
+      "role": "Co-founder & Grad Lead",
+      "photo": "/assets/img/team/2025-26/arinze.webp",
+      "linkedin": "https://www.linkedin.com/in/arinzeobiezue/",
+      "email": "arinzeo@stanford.edu"
+    },
+    {
+      "name": "William Liu",
+      "role": "Co-founder & Undergrad Co-Lead",
+      "photo": "/assets/img/team/2025-26/william.webp",
+      "linkedin": "https://www.linkedin.com/in/william-z-liu/",
+      "email": "wzliu@stanford.edu"
+    },
+    {
+      "name": "Diego Sanchez",
+      "role": "Undergrad Co-Lead",
+      "photo": "/assets/img/team/2025-26/diego.webp",
+      "linkedin": "https://www.linkedin.com/in/dsanh14/",
+      "email": "dsanh14@stanford.edu"
+    }
+  ]
+}

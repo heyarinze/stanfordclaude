@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Builds · Claude@Stanford</title>
+  <meta name="description" content="Projects Stanford students have built with Claude.">
+  <link rel="canonical" href="https://claudeatstanford.org/builds">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Claude@Stanford">
+  <meta property="og:title" content="Builds · Claude@Stanford">
+  <meta property="og:description" content="Projects Stanford students have built with Claude.">
+  <meta property="og:url" content="https://claudeatstanford.org/builds">
+  <meta property="og:image" content="https://claudeatstanford.org/assets/img/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0F0D0B">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/favicon.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Franklin:wght@400;600;700&display=swap">
+  <style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="modulepreload" href="/assets/js/ui.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <script type="module" src="/assets/js/layout.js" blocking="render"></script>
+  <link rel="modulepreload" href="/assets/js/collection.js">
+  <link rel="modulepreload" href="/assets/js/firebase.js">
+  <link rel="modulepreload" href="/assets/js/covers.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js" crossorigin>
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js" crossorigin>
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore-lite.js" crossorigin>
+  <script type="speculationrules">
+    {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/admin"}}, {"not": {"selector_matches": "[target=_blank]"}}]}, "eagerness": "moderate"}]}
+  </script>
+</head>
+<body data-needs-auth>
+  <site-header current="builds"></site-header>
+  <main id="main">
+    <section class="container page-head">
+      <h1>Builds</h1>
+      <p class="lede">Everything here was made by a Stanford student using Claude. Open one to see what it does and try it.</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" data-action="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add your build</button>
+      </div>
+    </section>
+    <section class="container" data-gallery="builds" aria-label="Builds"></section>
+  </main>
+  <site-footer></site-footer>
+  <script type="module" src="/assets/js/builds.js"></script>
+</body>
+</html>
